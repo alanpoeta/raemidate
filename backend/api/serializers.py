@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
 from . import models
 from django.contrib.auth.password_validation import validate_password
 import base64
@@ -7,7 +6,7 @@ import base64
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = models.User
         fields = ['id', 'email', 'username', 'password']
         extra_kwargs = {'password': {'write_only': True}}
     
@@ -16,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         return value
     
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        return models.User.objects.create_user(**validated_data)
 
 
 class PhotoSerializer(serializers.ModelSerializer):

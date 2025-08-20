@@ -3,7 +3,7 @@ import api from "../api";
 import ProfileCard from "./ProfileCard";
 
 const Home = () => {
-  const [profiles, setProfiles] = useState(null);
+  const [profiles, setProfiles] = useState({});
 
   const left = () => {
     setProfiles(prev => prev.slice(1));
@@ -19,7 +19,7 @@ const Home = () => {
 
   return (
     <>
-      {profiles &&
+      {profiles.length > 0 &&
         <ProfileCard profile={profiles[0]} />
       }
       <button onClick={left}>Left</button>

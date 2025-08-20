@@ -71,7 +71,6 @@ const AuthForm = ({action, setNavUsername}) => {
           <li key={field}>{errors[field].message}</li>
         )}
       </ul>
-      <button onClick={() => console.log(errors)}>Log</button>
     </>
   );
 };
