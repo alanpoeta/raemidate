@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
-from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, JSONParser
 
 
@@ -13,9 +12,6 @@ class UserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        return Response({'username': request.user.username})
 
 
 class ProfileView(generics.RetrieveUpdateDestroyAPIView, generics.CreateAPIView):
