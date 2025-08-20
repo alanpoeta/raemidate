@@ -35,7 +35,7 @@ const AuthForm = ({action, setNavUsername}) => {
     if (action === 'login') {
       localStorage.setItem('access', accessToken);
       localStorage.setItem('refresh', refreshToken);
-      const {data: { username }} = await api.get('user/');
+      const {data: { username }} = await api.get('user/me/');
       localStorage.setItem('username', username);
       setNavUsername(username);
       navigate('/'); 
