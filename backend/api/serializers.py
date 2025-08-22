@@ -37,7 +37,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Profile
         fields = ['username', 'first_name', 'last_name', 'bio', 'gender', 'sexual_preference', 'photos']
-        extra_kwargs = {'user': {'read_only': True}}
+        extra_kwargs = {
+            'user': {'read_only': True},
+            'username': {'write_only': True},
+            'sexual_preference': {'write_only': True},
+        }
     
     def validate(self, attrs):
         if not self.context['request'].FILES.getlist('photos'):
