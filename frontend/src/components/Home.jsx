@@ -28,7 +28,7 @@ const Home = () => {
     //   queryFn: fetchProfiles,
     //   staleTime: 0,
     // });
-    if (profiles.length === 1) queryClient.refetchQueries({ queryKey: ['swipe'] });
+    if (profiles.length === 1) queryClient.invalidateQueries({ queryKey: ['swipe'] });
     else queryClient.setQueryData(["swipe"], profiles => profiles.slice(1));
   }
   
