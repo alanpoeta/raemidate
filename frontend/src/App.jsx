@@ -8,7 +8,6 @@ import AuthForm from './components/AuthForm';
 import Profile from './components/Profile';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import Test from './components/Test';
 
 const queryClient = new QueryClient({});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
