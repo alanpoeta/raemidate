@@ -4,7 +4,7 @@ const ProfileCard = ({ profile }) => {
   return (
     <section>
       {Object.keys(profile).map(key => {
-        if (key !== "photos" && key !== "username") {
+        if (key !== "photos") {
           return <p key={key}><b>{desnakify(key)}</b>: {profile[key]}</p>;
         }
       })}
