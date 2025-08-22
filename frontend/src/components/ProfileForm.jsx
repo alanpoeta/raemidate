@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useEffect, useRef, useState } from "react";  // Add useRef
+import { useRef } from "react";  // Add useRef
 import api from "../api";
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers";
 
@@ -15,7 +15,7 @@ const ProfileForm = ({ fetchProfile }) => {
     formData.append('last_name', data.last_name);
     formData.append('bio', data.bio);
     formData.append('gender', data.gender);
-    formData.append('sexual_preference', data.sexual_preference); 
+    formData.append('sexual_preference', data.sexual_preference);
     
     
     // Append FILES using the ref
@@ -39,7 +39,7 @@ const ProfileForm = ({ fetchProfile }) => {
         <input
           {...register("first_name", { required: requiredErrorMessage("first_name") })}
           placeholder="First name"
-        />
+              />
         <input
           {...register("last_name", { required: requiredErrorMessage("last_name") })}
           placeholder="Last name"
