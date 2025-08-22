@@ -9,12 +9,14 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="profile")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     first_name = models.CharField(max_length=35)
     last_name = models.CharField(max_length=35)
     bio = models.TextField()
     gender = models.CharField(choices=((s, s) for s in ("male", "female", "other")))
     sexual_preference = models.CharField(choices=((s, s) for s in ("male", "female", "all")))
+    left_swiped = models.ManyToManyField("self", related_name="left_swiped_by", symmetrical=False, blank=True)
+    right_swiped = models.ManyToManyField("self", related_name="right_swiped_by", symmetrical=False, blank=True)
     
     def __str__(self):
         return f"{self.user}'s profile"

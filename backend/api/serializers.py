@@ -32,15 +32,12 @@ class PhotoSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     photos = PhotoSerializer(many=True, required=False)
-    username = serializers.CharField(source="user.username", read_only=True)
 
     class Meta:
         model = models.Profile
-        fields = ['username', 'first_name', 'last_name', 'bio', 'gender', 'sexual_preference', 'photos']
+        fields = ['user', 'first_name', 'last_name', 'bio', 'gender', 'sexual_preference', 'photos']
         extra_kwargs = {
             'user': {'read_only': True},
-            'username': {'write_only': True},
-            'sexual_preference': {'write_only': True},
         }
     
     def validate(self, attrs):
@@ -51,7 +48,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        # Handle photo creation
         validated_data['user'] = self.context['request'].user
         profile = models.Profile.objects.create(**validated_data)
         
@@ -60,3 +56,10 @@ class ProfileSerializer(serializers.ModelSerializer):
             models.Photo.objects.create(profile=profile, image=photo)
         
         return profile
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        if request and instance.user != request.user:
+            data.pop("sexual_preference")
+        return data
