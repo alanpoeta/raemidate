@@ -3,25 +3,25 @@ import api from '../api'
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers"
+import { useQueryClient } from "@tanstack/react-query"
+
 
 
 const AuthForm = ({action, setNavUsername}) => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     localStorage.clear();
     setNavUsername('');
+    queryClient.clear();
   }, []);
   
   let route;
-  if (action === 'login') {
-    route = 'token/';
-  } else if (action === 'register') {
-    route = 'user/';
-  } else {
-    throw new Error("action not defined");
-  }  
+  if (action === 'login') route = 'token/';
+  else if (action === 'register') route = 'user/';
+  else throw new Error("action not defined"); 
 
   const onSubmit = async fields => {
     let accessToken, refreshToken;

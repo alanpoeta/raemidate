@@ -11,7 +11,11 @@ export const setServerErrors = (error, setError) => {
       }
       console.log(errors)
       for (const field in errors) {
-        setError("root", { type: "server", message: errors[field].join(' ')});
+        if (typeof errors[field] === "object") {
+          setError("root", { type: "server", message: errors[field].join(' ')});
+        } else if (typeof errors[field] === "string") {
+          setError("root", { type: "server", message: errors[field]});
+        }
       }
 }
 

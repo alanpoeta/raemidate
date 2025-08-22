@@ -1,29 +1,42 @@
-import { useEffect, useState } from "react";
 import api from "../api";
 import ProfileCard from "./ProfileCard";
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import Loading from "./Loading";
+import Error from "./Error";
+
 
 const Home = () => {
-  const [profiles, setProfiles] = useState({});
+  const queryClient = useQueryClient();
 
-  const left = () => {
-    setProfiles(prev => prev.slice(1));
+  const fetchProfiles = async () => (await api.get('swipe/')).data
+
+  const { data: profiles, isError, isFetching } = useQuery({
+    queryKey: ['swipe'],
+    queryFn: fetchProfiles,
+    staleTime: Infinity,
+  });
+  
+  if (isFetching) {
+    return <Loading />;
+  } else if (isError) {
+    return <Error />;
   }
 
-  useEffect(() => {
-    api.get('swipe/')
-    .then(data => {
-      console.log(data.data);
-      setProfiles(data.data);
-    });
-  }, []);
-
+  const swipe = () => {
+    // if (profiles.length === 9) queryClient.prefetchQuery({
+    //   queryKey: ['swipe'],
+    //   queryFn: fetchProfiles,
+    //   staleTime: 0,
+    // });
+    if (profiles.length === 1) queryClient.refetchQueries({ queryKey: ['swipe'] });
+    else queryClient.setQueryData(["swipe"], profiles => profiles.slice(1));
+  }
+  
   return (
     <>
-      {profiles.length > 0 &&
-        <ProfileCard profile={profiles[0]} />
-      }
-      <button onClick={left}>Left</button>
-      <button onClick={left}>Right</button>
+      <ProfileCard profile={profiles[0]} />
+      <button onClick={swipe}>Left</button>
+      <button onClick={swipe}>Right</button>
     </>
   );
 }
