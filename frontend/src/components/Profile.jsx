@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import CreateProfileForm from "./CreateProfileForm";
+import ProfileForm from "./ProfileForm";
 import api from "../api";
 import Loading from "./Loading";
 import ProfileCard from "./ProfileCard";
@@ -27,7 +27,7 @@ const Profile = () => {
     return <Loading />;
   } if (!hasProfile) {
     return (
-      <CreateProfileForm fetchProfile={fetchProfile} />
+      <ProfileForm fetchProfile={fetchProfile} />
     );
   }
 

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";  // Add useRef
 import api from "../api";
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers";
 
-const CreateProfileForm = ({ fetchProfile }) => {
+const ProfileForm = ({ fetchProfile }) => {
   const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm();
   const fileInputRef = useRef();  // Create ref for file input
 
@@ -88,4 +88,4 @@ const CreateProfileForm = ({ fetchProfile }) => {
   );
 };
 
-export default CreateProfileForm;
+export default ProfileForm;
