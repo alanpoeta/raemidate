@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Loading from "./Loading";
 
 const Form = ({name, fields, loading, handleSubmit, children}) => {
