@@ -31,15 +31,21 @@ class SwipeView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user  # type: ignore
         profile = user.profile   # type: ignore
-        isCompatible = ~Q(user=user)
+        
         swiped_users = (profile.left_swiped.all() | profile.right_swiped.all()).values_list("user", flat=True)
-        isCompatible &= ~Q(user__in=swiped_users)
         left_swiped_by_users = profile.left_swiped_by.all().values_list("user", flat=True)
-        isCompatible &= ~Q(user__in=left_swiped_by_users)
-        isCompatible &= Q(sexual_preference=profile.gender) | Q(sexual_preference="all")
-        if profile.sexual_preference != "all":
-            isCompatible &= Q(gender=profile.sexual_preference)
-        return models.Profile.objects.filter(isCompatible)
+        is_compatible = (
+            ~Q(user=user)
+            & ~Q(user__in=swiped_users)
+            & ~Q(user__in=left_swiped_by_users)
+            & (Q(sexual_preference=profile.gender) | Q(sexual_preference="all"))
+            & (
+                Q(gender=profile.sexual_preference)
+                if profile.sexual_preference != "all"
+                else Q()
+            )
+        )
+        return models.Profile.objects.filter(is_compatible)
     
     def post(self, request):
         left_swiped, right_swiped = request.data
@@ -52,6 +58,5 @@ class SwipeView(generics.ListAPIView):
             swiped_profile = models.Profile.objects.get(user__id=id)
             profile.right_swiped.add(swiped_profile)
             profile.left_swiped.remove(swiped_profile)
-        print(profile.left_swiped.all())
-        print(profile.right_swiped.all())
+        print(right_swiped)
         return Response(status=200)
