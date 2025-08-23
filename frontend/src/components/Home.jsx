@@ -28,11 +28,12 @@ const Home = () => {
   const swipeMutation = useMutation({
     mutationFn: () => {
       if (!leftSwiped.current.length && !rightSwiped.current.length) return Promise.resolve();
-      const res = api.post("swipe/", [leftSwiped.current, rightSwiped.current]);
+      return api.post("swipe/", [leftSwiped.current, rightSwiped.current]);
+    },
+    onSuccess: () => {
       leftSwiped.current = [];
       rightSwiped.current = [];
       queryClient.invalidateQueries({ queryKey: ['swipe'] });
-      return res;
     }
   });
   
