@@ -4,6 +4,7 @@ from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
 from django.db.models import Q
 from rest_framework.response import Response
+from django.http import Http404
 
 
 # Create your views here.
@@ -21,7 +22,10 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView, generics.CreateAPIView)
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return models.Profile.objects.get(user=self.request.user)
+        try:
+            return models.Profile.objects.get(user=self.request.user)
+        except models.Profile.DoesNotExist:
+            raise Http404("User does not have a profile.")
 
 
 class SwipeView(generics.ListAPIView):
@@ -58,5 +62,4 @@ class SwipeView(generics.ListAPIView):
             swiped_profile = models.Profile.objects.get(user__id=id)
             profile.right_swiped.add(swiped_profile)
             profile.left_swiped.remove(swiped_profile)
-        print(right_swiped)
         return Response(status=200)
