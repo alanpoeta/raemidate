@@ -3,6 +3,7 @@ import { createContext, useEffect, useState } from "react";
 import { auth } from "../../api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Navigate  } from 'react-router-dom'
+import Loading from './Loading'
 
 const AuthContext = createContext();
 
@@ -56,23 +57,16 @@ export const AuthProvider = ({ children }) => {
 }
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
 
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider.")
-  }
-
+  if (!context) throw new Error("useAuth must be used within AuthProvider.");
   return context;
 }
 
 export const Protected = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) {
-    return <p>Authenticating...</p>;
-  }
-  if (!isAuthenticated) {
-    return <Navigate to='/login' />;
-  }
+  if (isLoading) return <Loading />;
+  if (!isAuthenticated) return <Navigate to='/login' />;
   return children;
 }
