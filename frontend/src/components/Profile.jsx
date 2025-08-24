@@ -1,46 +1,39 @@
-import { useEffect, useState } from "react";
 import ProfileForm from "./ProfileForm";
 import api from "../api";
-import Loading from "./Loading";
+import Loading from "./helpers/Loading";
 import ProfileCard from "./ProfileCard";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Error from "./helpers/Error";
 
 const Profile = () => {
-  const [hasProfile, setHasProfile] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const queryClient = useQueryClient();
 
-  const fetchProfile = () => {
-    api.get('profile/')
-    .then(res => {
-      setHasProfile(true);
-      setProfile(res.data);
-    })
-    .catch(error => {
-      setHasProfile(false);
-    });
-  }
+  const profileQuery = useQuery({
+    queryKey: ['profile'],
+    queryFn: () => api.get('profile/').then(res => res.data),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    retry: 0
+  });
+  const profile = profileQuery.data;
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  const deleteProfileMutation = useMutation({
+    mutationFn: () => api.delete('profile/'),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profile']}),
+  })
 
-  if (hasProfile === null) {
+  if (profileQuery.isLoading) {
     return <Loading />;
-  } if (!hasProfile) {
-    return (
-      <ProfileForm fetchProfile={fetchProfile} />
-    );
-  }
-
-  const deleteProfile = () => {
-    api.delete('profile/');
-    fetchProfile();
-  };
+  } if (profileQuery.isError) {
+    if (profileQuery.error.status === 404) return <ProfileForm />;
+    return <Error />
+  }  
 
   return (
     <>
       <p><b>My profile</b></p>
-      {profile && <ProfileCard profile={profile} />}
-      <button onClick={deleteProfile}>Delete</button>
+      <ProfileCard profile={profile} />
+      <button onClick={() => deleteProfileMutation.mutate()}>Delete</button>
     </>
   );
 }
