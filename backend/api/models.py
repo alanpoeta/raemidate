@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 # Create your models here.
 
@@ -28,3 +30,9 @@ class Photo(models.Model):
     
     def __str__(self):
         return f"{self.profile.user}'s photo ({self.pk})"
+
+
+@receiver(post_delete, sender=Photo)
+def delete_image_file_on_delete(sender, instance, **kwargs):
+    if instance.image:
+        instance.image.delete(save=False)
