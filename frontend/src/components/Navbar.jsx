@@ -1,20 +1,21 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "./helpers/authContext";
 
-const Navbar = ({navUsername}) => {
-  if (navUsername) {
-    return (
+const Navbar = () => {
+  const { user } = useAuth();
+
+  if (!user) return (
       <nav>
-        <p>{navUsername}</p>
-        <Link to='/'>Home</Link>
-        <Link to='/profile'>Profile</Link>
-        <Link to='/login'>Logout</Link>
+        <Link to='/login'>Login</Link>
+        <Link to='/register'>Register</Link>
       </nav>
     );
-  }
   return (
     <nav>
-      <Link to='/login'>Login</Link>
-      <Link to='/register'>Register</Link>
+      <p>{user.username}</p>
+      <Link to='/'>Home</Link>
+      <Link to='/profile'>Profile</Link>
+      <Link to='/login'>Logout</Link>
     </nav>
   );
 }

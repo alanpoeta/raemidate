@@ -3,19 +3,16 @@ import api from '../api'
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers"
-import { useQueryClient } from "@tanstack/react-query"
+import { useAuth } from "./helpers/authContext"
 
-
-
-const AuthForm = ({action, setNavUsername}) => {
+const AuthForm = ({ action }) => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm();
-  const queryClient = useQueryClient();
+
+  const { logout, login } = useAuth();
 
   useEffect(() => {
-    localStorage.clear();
-    setNavUsername('');
-    queryClient.clear();
+    logout();
   }, []);
   
   let route;
@@ -33,10 +30,9 @@ const AuthForm = ({action, setNavUsername}) => {
     }
     
     if (action === 'login') {
-      localStorage.setItem('access', accessToken);
-      localStorage.setItem('refresh', refreshToken);
-      localStorage.setItem('username', fields.username);
-      setNavUsername(fields.username);
+      login(accessToken, refreshToken, {
+        username: fields.username
+      });
       navigate('/'); 
     } else {
       navigate('/login');

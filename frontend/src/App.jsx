@@ -1,34 +1,33 @@
-import { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
-import NotFound from './components/NotFound';
-import Protected from './components/Protected';
+import NotFound from './components/helpers/NotFound';
 import Navbar from './components/Navbar';
 import AuthForm from './components/AuthForm';
 import Profile from './components/Profile';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { AuthProvider, Protected } from './components/helpers/authContext';
 
 const queryClient = new QueryClient({});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
 function App() {
-  const [navUsername, setNavUsername] = useState(() => localStorage.getItem('username'));
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <Navbar navUsername={navUsername} />
+      <AuthProvider>
+        <Router>
+          <Navbar />
           <main>
             <Routes>
               <Route path='/' element={<Protected><Home /></Protected>} />
-              <Route path='/login' element={<AuthForm key='login' action='login' setNavUsername={setNavUsername}/>} />
-              <Route path='/register' element={<AuthForm key='register' action='register' setNavUsername={setNavUsername}/>} />
-              <Route path='/profile' element={<Profile />} />
+              <Route path='/profile' element={<Protected><Profile /></Protected>} />
+              <Route path='/login' element={<AuthForm key='login' action='login' />} />
+              <Route path='/register' element={<AuthForm key='register' action='register' />} />
               <Route path='*' element={<NotFound />} />
             </Routes>
           </main>
-      </Router>
+        </Router>
+      </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
