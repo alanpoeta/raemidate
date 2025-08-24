@@ -33,7 +33,7 @@ const ProfileForm = () => {
   });
 
   return (
-    <form onSubmit={handleSubmit(() => profileMutation.mutate())}>
+    <form onSubmit={handleSubmit((data) => profileMutation.mutate(data))}>
       <input
         {...register("first_name", { required: requiredErrorMessage("first_name") })}
         placeholder="First name"
