@@ -1,10 +1,9 @@
 import api from "../api";
 import ProfileCard from "./ProfileCard";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import Loading from "./Loading";
-import Error from "./Error";
+import Loading from "./helpers/Loading";
+import Error from "./helpers/Error";
 import { useEffect, useRef } from "react";
-
 
 const Home = () => {
   const queryClient = useQueryClient();
@@ -19,7 +18,6 @@ const Home = () => {
     queryFn: fetchProfiles,
     staleTime: Infinity,
   });
-
   const profiles = swipeQuery.data;
   
   const leftSwiped = useRef([]);
@@ -27,13 +25,15 @@ const Home = () => {
   
   const swipeMutation = useMutation({
     mutationFn: () => {
-      if (!leftSwiped.current.length && !rightSwiped.current.length) return Promise.resolve();
+      if (!leftSwiped.current.length && !rightSwiped.current.length) {
+        return Promise.resolve();
+      }
       return api.post("swipe/", [leftSwiped.current, rightSwiped.current]);
     },
-    onSuccess: () => {
+    onSuccess: (_, unmounting=false) => {
       leftSwiped.current = [];
       rightSwiped.current = [];
-      queryClient.invalidateQueries({ queryKey: ['swipe'] });
+      if (!unmounting) queryClient.invalidateQueries({ queryKey: ['swipe'] });
     }
   });
   
@@ -47,20 +47,18 @@ const Home = () => {
     if (direction == "left") leftSwiped.current.push(id);
     else rightSwiped.current.push(id);
     if (profiles.length !== 1) queryClient.setQueryData(["swipe"], profiles => profiles.slice(1));
-    else {
-      swipeMutation.mutate();
-    };
+    else swipeMutation.mutate();
   }
 
   useEffect(() => {
-    window.addEventListener("beforeunload", swipeMutation.mutate)
+    window.addEventListener("beforeunload", () => swipeMutation.mutate(true))
     return () => {
-      swipeMutation.mutate();
-      window.removeEventListener("beforeunload", swipeMutation.mutate);
+      swipeMutation.mutate(true);
+      window.removeEventListener("beforeunload", () => swipeMutation.mutate(true));
     };
   }, []);
   
-  if (swipeQuery.isFetching) {
+  if (swipeQuery.isLoading) {
     return <Loading />;
   } else if (swipeQuery.isError) {
     return <Error />;
