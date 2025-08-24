@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { auth } from '../api'
-import Loading from './Loading'
+import { auth } from '../../api'
+import Loading from '../Loading'
 
 const Protected = ({ children }) => {
   const [isAuthorized, setIsAuthorized] = useState(null);
