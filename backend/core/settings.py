@@ -47,7 +47,7 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'api.User'
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:5173']
+CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 'https://hh00wxcm-5173.euw.devtunnels.ms']
 CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
