@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }) => {
     .then(() => {
       const user = JSON.parse(localStorage.getItem("user"));
       setUser(user);
-    })
-    .then(() => setIsLoading(false));
+      setIsLoading(false);
+    });
   }, []);
 
   const login = (accessToken, refreshToken, user) => {
