@@ -8,10 +8,10 @@ export const auth = async () => {
     const accessToken = localStorage.getItem('access');
     const tokenExpiration = jwtDecode(accessToken).exp;
     const now = Date.now() / 1000;
-    if (tokenExpiration >= now + 10) return true;
-    const { data: { refresh: newAccessToken }} = await api.post('token/refresh/', {
+    if (tokenExpiration > now + 10) return true;
+    const { data: { access: newAccessToken }} = await api.post('token/refresh/', {
       refresh: localStorage.getItem('refresh')
-    });  
+    });
     localStorage.setItem('access', newAccessToken);
     return true;
   } catch {
