@@ -9,7 +9,7 @@ export const auth = async () => {
     const tokenExpiration = jwtDecode(accessToken).exp;
     const now = Date.now() / 1000;
     if (tokenExpiration >= now + 10) return true;
-    const { data: { newAccessToken }} = await api.post('token/refresh/', {
+    const { data: { refresh: newAccessToken }} = await api.post('token/refresh/', {
       refresh: localStorage.getItem('refresh')
     });  
     localStorage.setItem('access', newAccessToken);
@@ -21,10 +21,9 @@ export const auth = async () => {
 
 api.interceptors.request.use(
   async config => {
-    if (config.url.includes('token/')) {
+    if (config.url.includes('token/') || !await auth()) {
       return config;
     }
-    if (!await auth()) window.location.href = '/login';
     const accessToken = localStorage.getItem('access');
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -32,6 +31,17 @@ api.interceptors.request.use(
     return config;
   },
   error => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.status === 401 && error.request.responseURL !== import.meta.env.VITE_API_URL + "token/") {
+      alert("Your session has expired. Please log in again.");
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
 )
 
 export default api

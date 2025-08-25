@@ -2,13 +2,14 @@ import { useEffect } from "react"
 import api from '../api'
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
-import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers"
+import { desnakify, setServerErrors } from "../helpers"
 import { useAuth } from "./helpers/authContext"
+import { useMutation } from "@tanstack/react-query"
+import Input from "./helpers/Input"
 
 const AuthForm = ({ action }) => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm();
-
   const { logout, login } = useAuth();
 
   useEffect(() => {
@@ -16,48 +17,43 @@ const AuthForm = ({ action }) => {
   }, []);
   
   let route;
-  if (action === 'login') route = 'token/';
-  else if (action === 'register') route = 'user/';
-  else throw new Error("action not defined"); 
+  switch (action) {
+    case "login":
+      route = 'token/';
+      break;
+    case "register":
+      route = "user/";
+      break;
+    default:
+      throw new Error("action not defined");
+  }
 
-  const onSubmit = async fields => {
-    let accessToken, refreshToken;
-    try {
-      ({ data: { access: accessToken, refresh: refreshToken }} = await api.post(route, fields));
-    } catch (error) {
-      setServerErrors(error, setError);
-      return;
-    }
-    
-    if (action === 'login') {
-      login(accessToken, refreshToken, {
-        username: fields.username
-      });
-      navigate('/'); 
-    } else {
-      navigate('/login');
-    }
-  };
+  const authMutation = useMutation({
+    mutationFn: async fields => {
+      const { data } = await api.post(route, fields);
+      return data;
+    },
+    onSuccess: (data, fields) => {
+      if (action === 'login') {
+        login(data.access, data.refresh, {
+          username: fields.username
+        });
+        navigate('/'); 
+      } else {
+        navigate('/login');
+      }
+    },
+    onError: error => setServerErrors(error, setError)
+  });
 
   return (
     <>
       <h1>{desnakify(action)}</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {action === "register" &&
-          <input
-            {...register("email", { required: requiredErrorMessage("email") })}
-            placeholder="Email"
-          />
-        }
-        <input
-          {...register("username", { required: requiredErrorMessage("username") })}
-          placeholder="Username"
-        />
-        <input
-          {...register("password", { required: requiredErrorMessage("password") })}
-          type="password"
-          placeholder="Password"
-        />
+      <form onSubmit={handleSubmit(fields => authMutation.mutate(fields))}>
+        {["email", "username", "password"].map(name => {
+          if (name === "email" && action !== "register") return;
+          return <Input name={name} register={register} key={name} />;
+        })}
         <button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>

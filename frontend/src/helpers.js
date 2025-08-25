@@ -9,7 +9,6 @@ export const setServerErrors = (error, setError) => {
         setError("root", { type: "server", message: "An unexpected error occurred."});
         return;
       }
-      console.log(errors)
       for (const field in errors) {
         if (typeof errors[field] === "object") {
           setError("root", { type: "server", message: errors[field].join(' ')});
