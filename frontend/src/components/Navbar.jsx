@@ -14,6 +14,7 @@ const Navbar = () => {
     <nav>
       <p>{user.username}</p>
       <Link to='/'>Home</Link>
+      <Link to='/match'>Matches</Link>
       <Link to='/profile'>Profile</Link>
       <Link to='/login'>Logout</Link>
     </nav>

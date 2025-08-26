@@ -63,3 +63,12 @@ class SwipeView(generics.ListAPIView):
             profile.right_swiped.add(swiped_profile)
             profile.left_swiped.remove(swiped_profile)
         return Response(status=200)
+
+
+class MatchView(generics.ListAPIView):
+    serializer_class = serializers.ProfileSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        profile = self.request.user.profile  # type: ignore
+        return profile.right_swiped.all() & profile.right_swiped_by.all()

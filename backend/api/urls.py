@@ -9,4 +9,5 @@ urlpatterns = [
     path('user/', views.UserView.as_view()),
     path('profile/', views.ProfileView.as_view()),
     path('swipe/', views.SwipeView.as_view()),
+    path('match/', views.MatchView.as_view()),
 ]
