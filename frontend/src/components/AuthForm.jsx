@@ -9,7 +9,7 @@ import Input from "./helpers/Input"
 
 const AuthForm = ({ action }) => {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm();
+  const { register, handleSubmit, formState: { errors }, setError } = useForm();
   const { logout, login } = useAuth();
 
   useEffect(() => {
@@ -54,8 +54,8 @@ const AuthForm = ({ action }) => {
           if (name === "email" && action !== "register") return;
           return <Input name={name} register={register} key={name} />;
         })}
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting...' : 'Submit'}
+        <button type="submit" disabled={authMutation.isPending}>
+          {authMutation.isPending ? 'Submitting...' : 'Submit'}
         </button>
       </form>
       <ul>
