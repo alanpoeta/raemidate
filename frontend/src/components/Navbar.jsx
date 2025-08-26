@@ -16,7 +16,7 @@ const Navbar = () => {
       <Link to='/'>Home</Link>
       <Link to='/match'>Matches</Link>
       <Link to='/profile'>Profile</Link>
-      <Link to='/login'>Logout</Link>
+      <a href="/login">Logout</a>
     </nav>
   );
 }
