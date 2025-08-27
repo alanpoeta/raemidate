@@ -4,17 +4,12 @@ import Loading from "./helpers/Loading";
 import ProfileCard from "./ProfileCard";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Error from "./helpers/Error";
+import queryOptions from "../queries";
 
 const Profile = () => {
   const queryClient = useQueryClient();
 
-  const profileQuery = useQuery({
-    queryKey: ['profile'],
-    queryFn: () => api.get('profile/').then(res => res.data),
-    staleTime: Infinity,
-    gcTime: Infinity,
-    retry: 0
-  });
+  const profileQuery = useQuery(queryOptions.profile);
   const profile = profileQuery.data;
 
   const deleteProfileMutation = useMutation({

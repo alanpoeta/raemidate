@@ -5,22 +5,13 @@ import Loading from "./helpers/Loading";
 import Error from "./helpers/Error";
 import { useEffect, useRef } from "react";
 import { useAuth } from "./helpers/authContext";
+import queryOptions from "../queries";
 
 const Home = () => {
   const queryClient = useQueryClient();
   const { setCleanupFn, isLoading } = useAuth();
 
-  const fetchProfiles = async () => {
-    const data = (await api.get('swipe/')).data;
-    return data;
-  };
-  
-  const swipeQuery = useQuery({
-    queryKey: ['swipe'],
-    queryFn: fetchProfiles,
-    staleTime: Infinity,
-    gcTime: Infinity
-  });
+  const swipeQuery = useQuery(queryOptions.swipe);
   const profiles = swipeQuery.data;
   
   const leftSwiped = useRef([]);

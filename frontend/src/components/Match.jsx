@@ -1,15 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import api from "../api";
 import Loading from "./helpers/Loading";
 import Error from "./helpers/Error";
 import ProfileCard from "./ProfileCard";
+import queryOptions from "../queries";
 
 const Match = () => {
-  const { data: profiles, isLoading, isError } = useQuery({
-    queryKey: ["match"],
-    queryFn: () => api.get('match/').then(res => res.data),
-    refetchInterval: 30_000
-  })
+  const { data: profiles, isLoading, isError } = useQuery(queryOptions.match)
 
   if (isLoading) return <Loading />;
   if (isError) return <Error />;
