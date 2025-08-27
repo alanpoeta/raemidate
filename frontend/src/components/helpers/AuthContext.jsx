@@ -4,6 +4,7 @@ import { auth } from "../../api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Navigate, useNavigate  } from 'react-router-dom'
 import Loading from './Loading'
+import queriesOptions from "../../queries";
 
 const AuthContext = createContext();
 
@@ -25,6 +26,14 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      Object.values(queriesOptions).forEach(queryOption => {
+        queryClient.prefetchQuery(queryOption);
+      });
+    }
+  }, [isAuthenticated]);
 
   const login = (accessToken, refreshToken, user) => {
     setIsLoading(true);
