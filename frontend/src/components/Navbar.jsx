@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "./helpers/authContext";
 
 const Navbar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   if (!user) return (
       <nav>
@@ -16,7 +16,13 @@ const Navbar = () => {
       <Link to='/'>Home</Link>
       <Link to='/match'>Matches</Link>
       <Link to='/profile'>Profile</Link>
-      <a href="/login">Logout</a>
+      <a href="/login" onClick={e => {
+        e.preventDefault();
+
+        logout();
+      }}>
+        Logout
+      </a>
     </nav>
   );
 }

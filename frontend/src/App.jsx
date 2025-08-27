@@ -15,8 +15,8 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
+      <Router>
+        <AuthProvider>
           <Navbar />
           <main>
             <Routes>
@@ -28,8 +28,8 @@ function App() {
               <Route path='*' element={<NotFound />} />
             </Routes>
           </main>
-        </Router>
-      </AuthProvider>
+        </AuthProvider>
+      </Router>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

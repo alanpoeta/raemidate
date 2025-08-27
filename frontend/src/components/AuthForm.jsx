@@ -10,11 +10,11 @@ import Input from "./helpers/Input"
 const AuthForm = ({ action }) => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors }, setError } = useForm();
-  const { logout, login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    logout();
-  }, []);
+    if (!isLoading && isAuthenticated) navigate('/');
+  }, [isAuthenticated]);
   
   let route;
   switch (action) {
@@ -38,7 +38,6 @@ const AuthForm = ({ action }) => {
         login(data.access, data.refresh, {
           username: fields.username
         });
-        navigate('/'); 
       } else {
         navigate('/login');
       }

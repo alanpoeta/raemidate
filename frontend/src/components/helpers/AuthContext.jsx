@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { createContext, useEffect, useState } from "react";
 import { auth } from "../../api";
 import { useQueryClient } from "@tanstack/react-query";
-import { Navigate  } from 'react-router-dom'
+import { Navigate, useNavigate  } from 'react-router-dom'
 import Loading from './Loading'
 
 const AuthContext = createContext();
@@ -11,33 +11,41 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [cleanupFn, setCleanupFn] = useState(null);
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     auth()
     .then(isAuthenticated => setIsAuthenticated(isAuthenticated))
     .then(() => {
       const user = JSON.parse(localStorage.getItem("user"));
-      setUser(user);
+      if (user) setUser(user);
       setIsLoading(false);
     });
   }, []);
 
   const login = (accessToken, refreshToken, user) => {
+    setIsLoading(true);
     localStorage.setItem('access', accessToken);
     localStorage.setItem('refresh', refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
     setUser(user);
     setIsAuthenticated(true);
+    navigate('/');
     setIsLoading(false);
   }
 
-  const logout = () => {
+  const logout = async () => {
+    setIsLoading(true);
+    if (cleanupFn) await cleanupFn();
+    setCleanupFn(null);
     localStorage.clear();
     queryClient.clear();
     setUser(null);
     setIsAuthenticated(false);
+    navigate('/login');
     setIsLoading(false);
   };
 
@@ -46,7 +54,8 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     user,
     login, 
-    logout
+    logout,
+    setCleanupFn
   };
 
   return (

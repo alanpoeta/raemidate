@@ -4,9 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Loading from "./helpers/Loading";
 import Error from "./helpers/Error";
 import { useEffect, useRef } from "react";
+import { useAuth } from "./helpers/authContext";
 
 const Home = () => {
   const queryClient = useQueryClient();
+  const { setCleanupFn, isLoading } = useAuth();
 
   const fetchProfiles = async () => {
     const data = (await api.get('swipe/')).data;
@@ -17,6 +19,7 @@ const Home = () => {
     queryKey: ['swipe'],
     queryFn: fetchProfiles,
     staleTime: Infinity,
+    gcTime: Infinity
   });
   const profiles = swipeQuery.data;
   
@@ -38,11 +41,6 @@ const Home = () => {
   });
   
   const swipe = (direction) => {
-    // if (profiles.length === 9) queryClient.prefetchQuery({
-    //   queryKey: ['swipe'],
-    //   queryFn: fetchProfiles,
-    //   staleTime: 0,
-    // });
     const id = profiles[0].user;
     if (direction == "left") leftSwiped.current.push(id);
     else rightSwiped.current.push(id);
@@ -51,9 +49,10 @@ const Home = () => {
   }
 
   useEffect(() => {
-    window.addEventListener("beforeunload", () => swipeMutation.mutate(true))
+    setCleanupFn(() => async () => await swipeMutation.mutateAsync());
+    window.addEventListener("beforeunload", () => swipeMutation.mutate(true));
     return () => {
-      swipeMutation.mutate(true);
+      if (!isLoading) swipeMutation.mutate(true);
       window.removeEventListener("beforeunload", () => swipeMutation.mutate(true));
     };
   }, []);
