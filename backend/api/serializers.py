@@ -25,8 +25,8 @@ class PhotoSerializer(serializers.ModelSerializer):
         model = models.Photo
         fields = ['id', 'blob']
         
-    def get_blob(self, obj):
-        with obj.image.open("rb") as f:
+    def get_blob(self, instance):
+        with instance.image.open("rb") as f:
             return base64.b64encode(f.read()).decode("utf-8")
 
 
