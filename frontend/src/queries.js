@@ -19,7 +19,6 @@ const queryOptions = {
   match: {
     queryKey: ["match"],
     queryFn: () => api.get('match/').then(res => res.data),
-    refetchInterval: 30_000
   }
 }
 
