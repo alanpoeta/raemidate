@@ -37,7 +37,7 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.status === 401 && error.request.responseURL !== import.meta.env.VITE_API_URL + "token/") {
-      alert("Your session has expired. Please log in again.");
+      localStorage.clear();
       window.location.href = '/login';
     }
     return Promise.reject(error);
