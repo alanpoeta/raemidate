@@ -54,7 +54,7 @@ const Home = () => {
     return <Error />;
   }
 
-  if (profiles.length == 0) return <p>No profiles left to show.</p>
+  if (!profiles?.length) return <p>No profiles left to show.</p>
   
   return (
     <>
