@@ -11,43 +11,37 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
   const [cleanupFn, setCleanupFn] = useState(null);
+  const [user, setUserNaive] = useState(JSON.parse(localStorage.getItem("user")));
+  const setUser = updatedUser => {
+    if (typeof updatedUser === "function") {
+      localStorage.setItem('user', JSON.stringify(updatedUser(user)));
+    } else {
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+    setUserNaive(updatedUser);
+  };
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   useEffect(() => {
     auth()
-    .then(isAuthenticated => setIsAuthenticated(isAuthenticated))
-    .then(() => {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (user) setUser(user);
+    .then(isAuthenticated => {
+      setIsAuthenticated(isAuthenticated);
       setIsLoading(false);
     });
   }, []);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      Object.values(queriesOptions).forEach(queryOption => {
-        queryClient.prefetchQuery(queryOption);
-      });
-    }
-  }, [isAuthenticated]);
-
   const login = (accessToken, refreshToken, user) => {
-    setIsLoading(true);
     localStorage.setItem('access', accessToken);
     localStorage.setItem('refresh', refreshToken);
-    localStorage.setItem('user', JSON.stringify(user));
     setUser(user);
     setIsAuthenticated(true);
     navigate('/');
-    setIsLoading(false);
   }
 
   const logout = async () => {
-    setIsLoading(true);
     if (cleanupFn) await cleanupFn();
     setCleanupFn(null);
     localStorage.clear();
@@ -55,13 +49,13 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     navigate('/login');
-    setIsLoading(false);
   };
 
   const authValue = {
     isAuthenticated,
     isLoading,
     user,
+    setUser,
     login, 
     logout,
     setCleanupFn
@@ -81,10 +75,36 @@ export const useAuth = () => {
   return context;
 }
 
-export const Protected = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+export const Protected = ({ profileOptional = false, children }) => {
+  const { isAuthenticated, isLoading, setUser } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  
+  if (!isAuthenticated) return <Navigate to='/login' />;
+
+  useEffect(() => {
+    Object.values(queriesOptions).forEach(queryOption => {
+      if (queryOption.queryKey[0] !== 'profile') {
+        queryClient.prefetchQuery(queryOption);
+        return;
+      }
+
+      queryClient.fetchQuery(queriesOptions.profile)
+      .then(() => {
+        setUser(user => ({
+          ...user,
+          hasProfile: true
+        }));
+      }).catch(() => {
+        setUser(user => ({
+          ...user,
+          hasProfile: false
+        }));
+        if (!profileOptional) navigate('/profile');
+      });
+    });
+  }, []);
 
   if (isLoading) return <Loading />;
-  if (!isAuthenticated) return <Navigate to='/login' />;
   return children;
 }

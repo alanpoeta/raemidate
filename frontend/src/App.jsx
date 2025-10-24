@@ -21,7 +21,7 @@ function App() {
           <main>
             <Routes>
               <Route path='/' element={<Protected><Home /></Protected>} />
-              <Route path='/profile' element={<Protected><Profile /></Protected>} />
+              <Route path='/profile' element={<Protected profileOptional><Profile /></Protected>} />
               <Route path='/match' element={<Protected><Match /></Protected>} />
               <Route path='/login' element={<AuthForm key='login' action='login' />} />
               <Route path='/register' element={<AuthForm key='register' action='register' />} />
