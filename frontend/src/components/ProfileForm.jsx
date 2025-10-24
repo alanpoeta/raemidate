@@ -3,9 +3,11 @@ import { useRef } from "react";  // Add useRef
 import api from "../api";
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "./helpers/authContext";
 
 const ProfileForm = () => {
   const queryClient = useQueryClient();
+  const { setUser } = useAuth();
 
   const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm();
   const photosRef = useRef();
@@ -28,7 +30,13 @@ const ProfileForm = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profile']}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile']});
+      setUser(user => ({
+        ...user,
+        hasProfile: true
+      }))
+    },
     onError: (error) => setServerErrors(error, setError)
   });
 

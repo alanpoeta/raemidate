@@ -5,16 +5,24 @@ import ProfileCard from "./ProfileCard";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Error from "./helpers/Error";
 import queryOptions from "../queries";
+import { useAuth } from "./helpers/authContext";
 
 const Profile = () => {
   const queryClient = useQueryClient();
+  const { setUser } = useAuth();
 
   const profileQuery = useQuery(queryOptions.profile);
   const profile = profileQuery.data;
 
   const deleteProfileMutation = useMutation({
     mutationFn: () => api.delete('profile/'),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profile']}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile']});
+      setUser(user => ({
+        ...user,
+        hasProfile: false
+      }));
+    },
   })
 
   if (profileQuery.isLoading) {
