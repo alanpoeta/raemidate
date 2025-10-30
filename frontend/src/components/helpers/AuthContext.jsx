@@ -12,15 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [cleanupFn, setCleanupFn] = useState(null);
-  const [user, setUserNaive] = useState(JSON.parse(localStorage.getItem("user")));
-  const setUser = updatedUser => {
-    if (typeof updatedUser === "function") {
-      localStorage.setItem('user', JSON.stringify(updatedUser(user)));
-    } else {
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-    }
-    setUserNaive(updatedUser);
-  };
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -28,17 +20,50 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     auth()
     .then(isAuthenticated => {
-      setIsAuthenticated(isAuthenticated);
-      setIsLoading(false);
+      if (isAuthenticated) login(null, null, user, false);
+      else setIsLoading(false);
     });
   }, []);
 
-  const login = (accessToken, refreshToken, user) => {
-    localStorage.setItem('access', accessToken);
-    localStorage.setItem('refresh', refreshToken);
-    setUser(user);
+  const prefetchQueries = async () => {
+    const profile = await queryClient.fetchQuery(queriesOptions.profile)
+    const hasProfile = profile.first_name !== "";
+    setUser(user => {
+      const newUser = {
+        ...user,
+        hasProfile
+      }
+      localStorage.setItem('user', JSON.stringify(newUser));
+
+      return newUser
+    });
+    if (!hasProfile) return;
+
+    Object.values(queriesOptions).forEach(queryOption => {
+      if (queryOption.queryKey[0] !== 'profile') {
+        queryClient.prefetchQuery(queryOption);
+      }
+    });
+  }
+
+  const login = async (accessToken=null, refreshToken=null, user=null, toHome=true) => {
+    if (accessToken) localStorage.setItem('access', accessToken);
+    if (refreshToken) localStorage.setItem('refresh', refreshToken);
+    if (user) setUser(prev => {
+      const newUser = {
+        ...prev,
+        ...user
+      }
+      localStorage.setItem('user', JSON.stringify(newUser));
+
+      return newUser
+    });
+
+    await prefetchQueries();
+
     setIsAuthenticated(true);
-    navigate('/');
+    setIsLoading(false);
+    if (toHome) navigate('/');
   }
 
   const logout = async () => {
@@ -58,7 +83,8 @@ export const AuthProvider = ({ children }) => {
     setUser,
     login, 
     logout,
-    setCleanupFn
+    setCleanupFn,
+    prefetchQueries
   };
 
   return (
@@ -76,35 +102,12 @@ export const useAuth = () => {
 }
 
 export const Protected = ({ profileOptional = false, children }) => {
-  const { isAuthenticated, isLoading, setUser } = useAuth();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  
-  if (!isAuthenticated) return <Navigate to='/login' />;
-
-  useEffect(() => {
-    Object.values(queriesOptions).forEach(queryOption => {
-      if (queryOption.queryKey[0] !== 'profile') {
-        queryClient.prefetchQuery(queryOption);
-        return;
-      }
-
-      queryClient.fetchQuery(queriesOptions.profile)
-      .then(() => {
-        setUser(user => ({
-          ...user,
-          hasProfile: true
-        }));
-      }).catch(() => {
-        setUser(user => ({
-          ...user,
-          hasProfile: false
-        }));
-        if (!profileOptional) navigate('/profile');
-      });
-    });
-  }, []);
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) return <Loading />;
+  if (!isAuthenticated) return <Navigate to='/login' />;
+  if (user.hasProfile === false && !profileOptional) {
+    return <Navigate to='/profile' />;
+  }
   return children;
 }
