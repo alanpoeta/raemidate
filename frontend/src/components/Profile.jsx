@@ -36,12 +36,7 @@ const Profile = () => {
   } if (profileQuery.isError) {
     return <Error />
   }  
-  if (!user.hasProfile) return (
-    <>
-      <ProfileForm />
-      <button onClick={() => console.log(user)}>Delete</button>
-    </>
-  );
+  if (!user.hasProfile) return <ProfileForm />;
 
   return (
     <>
