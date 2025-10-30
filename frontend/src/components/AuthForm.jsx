@@ -3,7 +3,7 @@ import api from '../api'
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { desnakify, setServerErrors } from "../helpers"
-import { useAuth } from "./helpers/authContext"
+import { useAuth } from "./helpers/AuthContext"
 import { useMutation } from "@tanstack/react-query"
 import Input from "./helpers/Input"
 

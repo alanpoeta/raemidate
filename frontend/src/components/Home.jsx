@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Loading from "./helpers/Loading";
 import Error from "./helpers/Error";
 import { useEffect, useRef } from "react";
-import { useAuth } from "./helpers/authContext";
+import { useAuth } from "./helpers/AuthContext";
 import queryOptions from "../queries";
 
 const Home = () => {

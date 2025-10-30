@@ -3,7 +3,7 @@ import { useRef } from "react";  // Add useRef
 import api from "../api";
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "./helpers/authContext";
+import { useAuth } from "./helpers/AuthContext";
 
 const ProfileForm = () => {
   const queryClient = useQueryClient();
@@ -32,10 +32,15 @@ const ProfileForm = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile']});
-      setUser(user => ({
-        ...user,
-        hasProfile: true
-      }))
+      setUser(user => {
+        const newUser = {
+          ...user,
+          hasProfile: true
+        }
+        localStorage.setItem('user', JSON.stringify(newUser));
+
+        return newUser
+      })
     },
     onError: (error) => setServerErrors(error, setError)
   });
