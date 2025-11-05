@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {jwtDecode} from 'jwt-decode'
 
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL + "api/" });
 
 export const auth = async () => {
   try {
@@ -36,7 +36,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.status === 401 && error.request.responseURL !== import.meta.env.VITE_API_URL + "token/") {
+    if (error.status === 401 && error.request.responseURL !== import.meta.env.VITE_API_URL + "api/token/") {
       localStorage.clear();
       window.location.href = '/login';
     }
