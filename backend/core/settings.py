@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,12 +27,17 @@ SECRET_KEY = 'django-insecure-$9sa8*x3k&mxht=#$rzbz6@*zt9mxxy^@3%*!nmn@yl)t+8a1z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'https://6tqb3dfr-5173.euw.devtunnels.ms',
+]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,7 +53,11 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'api.User'
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 'https://hh00wxcm-5173.euw.devtunnels.ms']
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'https://6tqb3dfr-5173.euw.devtunnels.ms'
+]
+
 CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
@@ -69,6 +79,11 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ]
 }
+
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(seconds=1),
+#     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=1),
+# }
 
 ROOT_URLCONF = 'core.urls'
 
@@ -141,3 +156,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ASGI_APPLICATION = "core.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}

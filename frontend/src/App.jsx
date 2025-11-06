@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider, Protected } from './components/helpers/AuthContext';
 import Match from './components/Match';
+import DM from './components/DM';
 
 const queryClient = new QueryClient({});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
@@ -25,6 +26,7 @@ function App() {
               <Route path='/match' element={<Protected><Match /></Protected>} />
               <Route path='/login' element={<AuthForm key='login' action='login' />} />
               <Route path='/register' element={<AuthForm key='register' action='register' />} />
+              <Route path='/dm/:peerId' element={<Protected><DM /></Protected>} />
               <Route path='*' element={<NotFound />} />
             </Routes>
           </main>
