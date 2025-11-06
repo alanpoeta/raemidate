@@ -26,7 +26,7 @@ function App() {
               <Route path='/match' element={<Protected><Match /></Protected>} />
               <Route path='/login' element={<AuthForm key='login' action='login' />} />
               <Route path='/register' element={<AuthForm key='register' action='register' />} />
-              <Route path='/dm/:peerId' element={<Protected><DM /></Protected>} />
+              <Route path='/dm/:recipientId' element={<Protected><DM /></Protected>} />
               <Route path='*' element={<NotFound />} />
             </Routes>
           </main>

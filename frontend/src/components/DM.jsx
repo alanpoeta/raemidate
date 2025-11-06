@@ -1,19 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../api";
 
 const DM = () => {
   const socketRef = useRef(null);
-  const { peerId } = useParams();
+  const { recipientId } = useParams();
   const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState(""); 
+  const [text, setMessage] = useState(""); 
 
   useEffect(() => {
     console.log("Creating WS connection...")
 
     const base = new URL(import.meta.env.VITE_API_URL);
     base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';
-    base.pathname = `ws/dm/${peerId}/`;
+    base.pathname = `ws/dm/${recipientId}/`;
     base.searchParams.set('token', localStorage.getItem('access') || '');
 
     socketRef.current = new WebSocket(base.toString());
@@ -29,17 +28,17 @@ const DM = () => {
       if (socketRef.current) socketRef.current.close(1000, "component unmount");
       socketRef.current = null;
     }
-  }, [peerId])
+  }, [recipientId])
   
   return (
     <>
-      <p>Chat with: {peerId}</p>
-      {messages.map(({ sender, message }, index) => (
-        <p key={index}>{sender}: {message}</p>
+      <p>Chat with: {recipientId}</p>
+      {messages.map(({ sender, text }, index) => (
+        <p key={index}>{sender}: {text}</p>
       ))}
-      <input value={message} onChange={e => setMessage(e.target.value)} />
+      <input value={text} onChange={e => setMessage(e.target.value)} />
       <button onClick={() => {
-        socketRef.current.send(JSON.stringify({ message }));
+        socketRef.current.send(JSON.stringify({ text }));
         setMessage("");
       }}>Send</button>
     </>
