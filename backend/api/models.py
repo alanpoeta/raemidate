@@ -19,7 +19,24 @@ class Profile(models.Model):
     sexual_preference = models.CharField(choices=((s, s) for s in ("male", "female", "all")))
     left_swiped = models.ManyToManyField("self", related_name="left_swiped_by", symmetrical=False, blank=True)
     right_swiped = models.ManyToManyField("self", related_name="right_swiped_by", symmetrical=False, blank=True)
-    
+    matched = models.ManyToManyField("self", symmetrical=True, blank=True)
+
+    def swipe(self, other: 'Profile', direction):
+        if direction == "left":
+            self.left_swiped.add(other)
+            self.right_swiped.remove(other)
+            self.matched.remove(other)
+            try:
+                Conversation.get(profile1=self, profile2=other).delete()
+            except Conversation.DoesNotExist:
+                pass
+        elif direction == "right":
+            self.right_swiped.add(other)
+            self.left_swiped.remove(other)
+            if other.right_swiped.filter(pk=self).exists():
+                self.matched.add(other)
+            Conversation.get_or_create(profile1=self, profile2=other)
+        
     def __str__(self):
         return f"{self.user}'s profile"
 
@@ -39,9 +56,34 @@ def delete_image_file_on_delete(sender, instance, **kwargs):
 
 
 class Conversation(models.Model):
-    low_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="low_conversations")
-    high_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="high_conversations")
-    is_active = models.BooleanField()
+    profile1 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="low_conversations")
+    profile2 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="high_conversations")
+
+    def save(self, *args, **kwargs):
+        if self.profile1.user.pk > self.profile2.user.pk:
+            self.profile1, self.profile2 = self.profile2, self.profile1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def normalize(cls, profile1, profile2):
+        return (profile1, profile2) if profile1.user.pk < profile2.user.pk else (profile2, profile1)
+    
+    @classmethod
+    def get(cls, profile1, profile2):
+        profile1, profile2 = cls.normalize(profile1, profile2)
+        conversation = cls.objects.get(profile1=profile1, profile2=profile2)
+        if conversation.is_active:
+            return conversation
+        raise Conversation.DoesNotExist
+    
+    @classmethod
+    def get_or_create(cls, profile1, profile2):
+        profile1, profile2 = cls.normalize(profile1, profile2)
+        return cls.objects.get_or_create(profile1=profile1, profile2=profile2)
+
+    @property
+    def is_active(self):
+        return self.profile1.matched.filter(pk=self.profile2).exists()
 
 
 class Message(models.Model):

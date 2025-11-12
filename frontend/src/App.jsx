@@ -9,11 +9,13 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider, Protected } from './helpers/AuthContext';
 import Match from './pages/Match';
 import DM from './pages/DM'; 
+import { useState } from 'react';
 
 const queryClient = new QueryClient({});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
 function App() {
+  const [iProfile, setIProfile] = useState(0);
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
@@ -21,7 +23,7 @@ function App() {
           <Navbar />
           <main>
             <Routes>
-              <Route path='/' element={<Protected><Home /></Protected>} />
+              <Route path='/' element={<Protected><Home iProfile={iProfile} setIProfile={setIProfile}/></Protected>} />
               <Route path='/profile' element={<Protected profileOptional><Profile /></Protected>} />
               <Route path='/match' element={<Protected><Match /></Protected>} />
               <Route path='/login' element={<AuthForm key='login' action='login' />} />
@@ -32,7 +34,7 @@ function App() {
           </main>
         </AuthProvider>
       </Router>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

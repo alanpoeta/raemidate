@@ -1,64 +1,65 @@
-import api from "../api";
 import ProfileCard from "../components/ProfileCard";
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Loading from "../helpers/Loading";
 import Error from "../helpers/Error";
-import { useEffect, useRef } from "react";
-import { useAuth } from "../helpers/AuthContext";
 import queryOptions from "../queries";
+import useWebSocket from "../helpers/useWebSocket";
+import { useEffect } from "react";
 
-const Home = () => {
+const Home = ({ iProfile, setIProfile }) => {
   const queryClient = useQueryClient();
-  const { setCleanupFn, isLoading } = useAuth();
-
   const swipeQuery = useQuery(queryOptions.swipe);
   const profiles = swipeQuery.data;
-  
-  const leftSwiped = useRef([]);
-  const rightSwiped = useRef([]);
-  
-  const swipeMutation = useMutation({
-    mutationFn: () => {
-      if (!leftSwiped.current.length && !rightSwiped.current.length) {
-        return Promise.resolve();
-      }
-      return api.post("swipe/", [leftSwiped.current, rightSwiped.current]);
-    },
-    onSuccess: (_, unmounting=false) => {
-      leftSwiped.current = [];
-      rightSwiped.current = [];
-      if (!unmounting) queryClient.invalidateQueries({ queryKey: ['swipe'] });
+  const { socketRef, isOpen: socketIsOpen } = useWebSocket("swipe/");
+  const isLoading = !socketIsOpen || swipeQuery.isFetching;
+
+  const swipe = async (direction) => {
+    if (!socketIsOpen) return;
+
+    const id = profiles[iProfile].user
+    socketRef.current.send(JSON.stringify({ id, direction }));
+
+    if (iProfile >= profiles.length - 1) {
+      await swipeQuery.refetch();
+      setIProfile(0);
+      return;
     }
-  });
-  
-  const swipe = (direction) => {
-    const id = profiles[0].user;
-    if (direction == "left") leftSwiped.current.push(id);
-    else rightSwiped.current.push(id);
-    if (profiles.length !== 1) queryClient.setQueryData(["swipe"], profiles => profiles.slice(1));
-    else swipeMutation.mutate();
-  }
+    setIProfile(i => i + 1);
+  };
 
   useEffect(() => {
-    setCleanupFn(() => async () => await swipeMutation.mutateAsync());
-    window.addEventListener("beforeunload", () => swipeMutation.mutate(true));
-    return () => {
-      if (!isLoading) swipeMutation.mutate(true);
-      window.removeEventListener("beforeunload", () => swipeMutation.mutate(true));
+    const onKey = (e) => {
+      if (
+        e.repeat
+        || e.target 
+        && (
+          e.target.tagName === 'INPUT'
+          || e.target.tagName === 'TEXTAREA'
+          || e.target.isContentEditable
+        )
+        || !profiles?.length
+      ) return;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        swipe('left');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        swipe('right');
+      }
     };
-  }, []);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [profiles, iProfile, swipe]);
   
-  if (swipeQuery.isLoading) {
-    return <Loading />;
-  } else if (swipeQuery.isError) {
-    return <Error />;
-  }
+  if (swipeQuery.isError) return <Error />;
+  if (isLoading) return <Loading />;
+  
 
   if (!profiles?.length) return <p>No profiles left to show.</p>
   
   return (
     <>
-      <ProfileCard profile={profiles[0]} />
+      <ProfileCard profile={profiles[iProfile]} />
       <button onClick={() => swipe("left")}>Left</button>
       <button onClick={() => swipe("right")}>Right</button>
     </>

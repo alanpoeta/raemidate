@@ -7,9 +7,7 @@ from . import serializers
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        print("Connecting...")
         user = self.scope.get("user")
-        print("WS user:", getattr(user, "id", None), "anon =", getattr(user, "is_anonymous", True))
         if not user or user.is_anonymous:
             await self.close(4401)
             return
@@ -21,17 +19,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.conversation = await self.get_conversation()  # Fails when conversation does not exist
 
         if self.sender_id == self.recipient_id:
-            print("Sender and recipient are same user")
             await self.close(4400)
             return
 
         if not self.sender or not self.recipient:
-            print("Sender or recipient doesn't exist")
             await self.close(code=4404)
             return
         
         if not self.conversation:
-            print("Conversation does not exist")
             await self.close(code=4400)
             return
         
@@ -40,10 +35,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(self.dm_group_name, self.channel_name)
         await self.accept()
-        print("Connection accepted")
     
     async def disconnect(self, close_code):
-        print("Disconnecting...", close_code)
         if hasattr(self, "dm_group_name"):
             await self.channel_layer.group_discard(self.dm_group_name, self.channel_name)
     
@@ -68,9 +61,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def get_conversation(self):
-        low_profile, high_profile = sorted((self.sender, self.recipient), key=lambda profile: profile.user.id)  # type: ignore
         try:
-            return models.Conversation.objects.get(low_profile=low_profile, high_profile=high_profile, is_active=True)
+            return models.Conversation.get(profile1=self.sender, profile2=self.recipient)
         except models.Conversation.DoesNotExist:
             return None
 
@@ -88,3 +80,28 @@ def get_profile(id):
         return models.Profile.objects.get(user_id=id)
     except models.Profile.DoesNotExist:
         return None
+
+
+class SwipeConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        user = self.scope.get("user")
+        if not user or user.is_anonymous:
+            await self.close(4401)
+            return
+
+        self.profile = await get_profile(user.id)
+        await self.accept()
+    
+    async def receive(self, text_data):
+        data: dict = json.loads(text_data or "{}")
+        other_id = data["id"]
+        direction = data["direction"]
+        await self.swipe(other_id, direction)
+        
+    @database_sync_to_async
+    def swipe(self, other_id, direction):
+        try:
+            other = models.Profile.objects.get(user_id=other_id)
+            self.profile.swipe(other, direction)  # type: ignore
+        except models.Profile.DoesNotExist:
+            pass

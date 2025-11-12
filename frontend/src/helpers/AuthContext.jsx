@@ -11,7 +11,6 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [cleanupFn, setCleanupFn] = useState(null);
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 
   const queryClient = useQueryClient();
@@ -65,8 +64,6 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = async () => {
-    if (cleanupFn) await cleanupFn();
-    setCleanupFn(null);
     localStorage.clear();
     queryClient.clear();
     setUser(null);
@@ -81,7 +78,6 @@ export const AuthProvider = ({ children }) => {
     setUser,
     login, 
     logout,
-    setCleanupFn,
     prefetchQueries
   };
 

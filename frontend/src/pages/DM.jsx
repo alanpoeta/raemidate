@@ -1,54 +1,44 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import queriesOptions from "../queries";
 import api from "../api";
 import Loading from "../helpers/Loading";
+import useWebSocket from "../helpers/useWebSocket";
 
 const DM = () => {
-  const socketRef = useRef(null);
   const { recipientId } = useParams();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+
   const queryOptions = queriesOptions.message;
   queryOptions.queryFn = () => api.get(`message/${recipientId}`).then(res => res.data)
+  queryOptions.queryKey = ["message", { user: recipientId }]
   const messagesQuery = useQuery(queryOptions);
+
+  const queryClient = useQueryClient();
+
+  const { socketRef, isOpen: socketIsOpen } = useWebSocket(`dm/${recipientId}/`, {
+    onmessage: e => {
+      const message = JSON.parse(e.data);
+      setMessages(messages => [...messages, message]);
+    }
+  });
+
+  const isLoading = !socketIsOpen || messagesQuery.isLoading;
 
   const sendMessage = e => {
     e.preventDefault();
     socketRef.current.send(JSON.stringify({ text }));
     setText("");
+    queryClient.invalidateQueries({ queryKey: messagesQuery.queryKey })
   }
 
   useEffect(() => {
-    if (messagesQuery.isLoading) return;
-
-    setMessages(messagesQuery.data);
-
-    console.log("Creating WS connection...");
-
-    const base = new URL(import.meta.env.VITE_API_URL);
-    base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';
-    base.pathname = `ws/dm/${recipientId}/`;
-    base.searchParams.set('token', localStorage.getItem('access') || '');
-
-    socketRef.current = new WebSocket(base.toString());
-
-    socketRef.current.onopen = () => setIsLoading(false);
-
-    socketRef.current.onclose = e => console.error("Chat socket closed", e.code, e.reason);
-
-    socketRef.current.onmessage = e => {
-      const message = JSON.parse(e.data);
-      setMessages(messages => [...messages, message]);
-    }
-
-    return () => {
-      if (socketRef.current) socketRef.current.close(1000, "component unmount");
-      socketRef.current = null;
-    }
-  }, [recipientId, messagesQuery.isLoading])
+    if (!messagesQuery.isLoading) {
+      setMessages(messages => [...messagesQuery.data, ...messages]);
+    };
+  }, [messagesQuery.isLoading])
   
   if (isLoading) return <Loading />;
   return (

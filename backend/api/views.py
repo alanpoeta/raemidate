@@ -48,7 +48,7 @@ class SwipeView(generics.ListAPIView):
                 else Q()
             )
         )
-        return models.Profile.objects.filter(is_compatible)
+        return models.Profile.objects.filter(is_compatible)[:3]
     
     def post(self, request):
         left_swiped, right_swiped = request.data
@@ -70,7 +70,7 @@ class MatchView(generics.ListAPIView):
     
     def get_queryset(self):
         profile = self.request.user.profile  # type: ignore
-        return profile.right_swiped.all() & profile.right_swiped_by.all()
+        return profile.matched.all()
 
 
 class MessageView(generics.ListAPIView):
@@ -83,13 +83,8 @@ class MessageView(generics.ListAPIView):
         recipient_id = self.kwargs.get("recipient_id")
         recipient = models.Profile.objects.get(user_id=recipient_id)
 
-        low_profile, high_profile = sorted(
-            (sender, recipient),
-            key=lambda profile: profile.user.pk
-        )
-        conversation = models.Conversation.objects.get(
-            low_profile=low_profile,
-            high_profile=high_profile,
-            is_active=True
+        conversation = models.Conversation.get(
+            profile1=sender,
+            profile2=recipient
         )
         return models.Message.objects.filter(conversation=conversation).order_by("created_at").all()
