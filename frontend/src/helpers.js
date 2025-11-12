@@ -16,8 +16,8 @@ export const setServerErrors = (error, setError) => {
           setError("root", { type: "server", message: errors[field]});
         }
       }
-}
+};
 
 export const requiredErrorMessage = (field) => {
     return `${desnakify(field)} is required.`
-}
+};
