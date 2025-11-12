@@ -1,25 +1,27 @@
 import api from "./api";
 
-const queryOptions = {
+const queriesOptions = {
   swipe: {
     queryKey: ['swipe'],
     queryFn: () => api.get('swipe/').then(res => res.data),
     staleTime: Infinity,
-    gcTime: Infinity
   },
 
   profile: {
     queryKey: ['profile'],
     queryFn: () => api.get('profile/').then(res => res.data),
     staleTime: Infinity,
-    gcTime: Infinity,
-    retry: 0
   },
 
   match: {
     queryKey: ["match"],
     queryFn: () => api.get('match/').then(res => res.data),
+  },
+
+  message: {
+    queryKey: ["message"],
+    staleTime: Infinity
   }
 }
 
-export default queryOptions
+export default queriesOptions

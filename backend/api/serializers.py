@@ -63,3 +63,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         if request and instance.user != request.user:
             data.pop("sexual_preference")
         return data
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Message
+        fields = ["sender", "recipient", "text", "created_at"]
+        extra_kwargs = {
+            'created_at': {'read_only': True},
+            'recipient': {'write_only': True},
+        }
+
+    def get_sender(self, message):
+        return message.sender.first_name

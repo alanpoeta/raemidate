@@ -36,3 +36,20 @@ class Photo(models.Model):
 def delete_image_file_on_delete(sender, instance, **kwargs):
     if instance.image:
         instance.image.delete(save=False)
+
+
+class Conversation(models.Model):
+    low_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="low_conversations")
+    high_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="high_conversations")
+    is_active = models.BooleanField()
+
+
+class Message(models.Model):
+    sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="messages")
+    recipient = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="received_messages")
+    text = models.TextField()
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.sender} to {self.recipient} @ {self.created_at}"

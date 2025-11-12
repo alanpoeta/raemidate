@@ -4,7 +4,6 @@ from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
 from django.db.models import Q
 from rest_framework.response import Response
-from django.http import Http404
 
 
 # Create your views here.
@@ -25,7 +24,7 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView, generics.CreateAPIView)
         try:
             return models.Profile.objects.get(user=self.request.user)
         except models.Profile.DoesNotExist:
-            raise Http404("User does not have a profile.")
+            return None
 
 
 class SwipeView(generics.ListAPIView):
@@ -72,3 +71,25 @@ class MatchView(generics.ListAPIView):
     def get_queryset(self):
         profile = self.request.user.profile  # type: ignore
         return profile.right_swiped.all() & profile.right_swiped_by.all()
+
+
+class MessageView(generics.ListAPIView):
+    serializer_class = serializers.MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        sender = models.Profile.objects.get(user=self.request.user)
+
+        recipient_id = self.kwargs.get("recipient_id")
+        recipient = models.Profile.objects.get(user_id=recipient_id)
+
+        low_profile, high_profile = sorted(
+            (sender, recipient),
+            key=lambda profile: profile.user.pk
+        )
+        conversation = models.Conversation.objects.get(
+            low_profile=low_profile,
+            high_profile=high_profile,
+            is_active=True
+        )
+        return models.Message.objects.filter(conversation=conversation).order_by("created_at").all()

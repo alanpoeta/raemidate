@@ -10,4 +10,5 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view()),
     path('swipe/', views.SwipeView.as_view()),
     path('match/', views.MatchView.as_view()),
+    path('message/<int:recipient_id>/', views.MessageView.as_view())
 ]
