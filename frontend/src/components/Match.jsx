@@ -5,7 +5,7 @@ import ProfileCard from "./ProfileCard";
 import queryOptions from "../queries";
 
 const Match = () => {
-  const { data: profiles, isLoading, isError } = useQuery(queryOptions.match)
+  const { data: profiles, isLoading, isError } = useQuery(queriesOptions.match)
 
   if (isLoading) return <Loading />;
   if (isError) return <Error />;

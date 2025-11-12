@@ -39,10 +39,8 @@ export const AuthProvider = ({ children }) => {
     });
     if (!hasProfile) return;
 
-    Object.values(queriesOptions).forEach(queryOption => {
-      if (queryOption.queryKey[0] !== 'profile') {
-        queryClient.prefetchQuery(queryOption);
-      }
+    [queriesOptions.swipe, queriesOptions.match].forEach(queryOption => {
+      queryClient.prefetchQuery(queryOption);
     });
   }
 
