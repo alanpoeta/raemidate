@@ -1,12 +1,13 @@
 import { desnakify, requiredErrorMessage } from "../helpers";
 
 
-const Input = ({ name, register }) => {
+const Input = ({ name, register, ...props }) => {
   return (
     <input
       {...register(name, { required: requiredErrorMessage(name) })}
       placeholder={desnakify(name)}
       {...(name === "password" && {type: "password"})}
+      {...props}
     />
   );
 }

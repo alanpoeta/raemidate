@@ -4,6 +4,7 @@ import api from "../api";
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../helpers/AuthContext";
+import Input from "../helpers/Input";
 
 const ProfileForm = () => {
   const queryClient = useQueryClient();
@@ -47,14 +48,8 @@ const ProfileForm = () => {
 
   return (
     <form onSubmit={handleSubmit((data) => profileMutation.mutate(data))}>
-      <input
-        {...register("first_name", { required: requiredErrorMessage("first_name") })}
-        placeholder="First name"
-      />
-      <input
-        {...register("last_name", { required: requiredErrorMessage("last_name") })}
-        placeholder="Last name"
-      />
+      <Input name="first_name" register={register} />
+      <Input name="last_name" register={register} />
       <select
         {...register("gender", { required: requiredErrorMessage("gender") })}
         defaultValue="gender"
