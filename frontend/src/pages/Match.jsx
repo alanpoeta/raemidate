@@ -12,7 +12,12 @@ const Match = () => {
   if (profiles.length === 0) return <p>No matches.</p>;
 
   return (
-    profiles.map(profile => <Link key={profile.user} to={`/dm/${profile.user}`}>{profile.first_name} {profile.last_name}</Link>)
+    profiles.map(profile => (
+      <>
+        <Link key={profile.user} to={`/dm/${profile.user}`}>{profile.first_name} {profile.last_name}</Link>
+        <br />
+      </>
+    ))
   );
 }
  
