@@ -3,7 +3,7 @@ import { useRef } from "react";  // Add useRef
 import api from "../api";
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "./helpers/AuthContext";
+import { useAuth } from "../helpers/AuthContext";
 
 const ProfileForm = () => {
   const queryClient = useQueryClient();

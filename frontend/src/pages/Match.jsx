@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import Loading from "./helpers/Loading";
-import Error from "./helpers/Error";
-import ProfileCard from "./ProfileCard";
-import queryOptions from "../queries";
+import Loading from "../helpers/Loading";
+import Error from "../helpers/Error";
+import queriesOptions from "../queries";
+import { Link } from "react-router-dom";
 
 const Match = () => {
   const { data: profiles, isLoading, isError } = useQuery(queriesOptions.match)
@@ -12,7 +12,7 @@ const Match = () => {
   if (profiles.length === 0) return <p>No matches.</p>;
 
   return (
-    profiles.map(profile => <ProfileCard profile={profile} key={profile.user}/>)
+    profiles.map(profile => <Link key={profile.user} to={`/dm/${profile.user}`}>{profile.first_name} {profile.last_name}</Link>)
   );
 }
  

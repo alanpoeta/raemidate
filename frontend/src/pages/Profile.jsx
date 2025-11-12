@@ -1,11 +1,11 @@
-import ProfileForm from "./ProfileForm";
+import ProfileForm from "../components/ProfileForm";
 import api from "../api";
-import Loading from "./helpers/Loading";
-import ProfileCard from "./ProfileCard";
+import Loading from "../helpers/Loading";
+import ProfileCard from "../components/ProfileCard";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Error from "./helpers/Error";
+import Error from "../helpers/Error";
 import queriesOptions from "../queries";
-import { useAuth } from "./helpers/AuthContext";
+import { useAuth } from "../helpers/AuthContext";
 
 const Profile = () => {
   const queryClient = useQueryClient();

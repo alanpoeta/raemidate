@@ -1,4 +1,4 @@
-import { desnakify, requiredErrorMessage } from "../../helpers";
+import { desnakify, requiredErrorMessage } from "../helpers";
 
 
 const Input = ({ name, register }) => {

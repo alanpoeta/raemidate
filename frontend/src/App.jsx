@@ -1,14 +1,14 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './components/Home';
-import NotFound from './components/helpers/NotFound';
+import Home from './pages/Home';
+import NotFound from './helpers/NotFound';
 import Navbar from './components/Navbar';
 import AuthForm from './components/AuthForm';
-import Profile from './components/Profile';
+import Profile from './pages/Profile';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { AuthProvider, Protected } from './components/helpers/AuthContext';
-import Match from './components/Match';
-import DM from './components/DM';
+import { AuthProvider, Protected } from './helpers/AuthContext';
+import Match from './pages/Match';
+import DM from './pages/DM'; 
 
 const queryClient = new QueryClient({});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
@@ -32,7 +32,7 @@ function App() {
           </main>
         </AuthProvider>
       </Router>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import queriesOptions from "../queries";
 import api from "../api";
-import Loading from "./helpers/Loading";
+import Loading from "../helpers/Loading";
 
 const DM = () => {
   const socketRef = useRef(null);

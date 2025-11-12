@@ -1,10 +1,10 @@
 import api from "../api";
-import ProfileCard from "./ProfileCard";
+import ProfileCard from "../components/ProfileCard";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import Loading from "./helpers/Loading";
-import Error from "./helpers/Error";
+import Loading from "../helpers/Loading";
+import Error from "../helpers/Error";
 import { useEffect, useRef } from "react";
-import { useAuth } from "./helpers/AuthContext";
+import { useAuth } from "../helpers/AuthContext";
 import queryOptions from "../queries";
 
 const Home = () => {
