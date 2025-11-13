@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, views
 from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
@@ -88,3 +88,11 @@ class MessageView(generics.ListAPIView):
             profile2=recipient
         )
         return models.Message.objects.filter(conversation=conversation).order_by("created_at").all()
+
+
+class UnmatchView(views.APIView):
+    def delete(self, request, other_id):
+        profile = request.user.profile
+        other_profile = models.Profile.objects.get(user_id=other_id)
+        profile.matched.remove(other_profile)
+        return Response(status=200)

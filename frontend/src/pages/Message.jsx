@@ -34,6 +34,8 @@ const Message = () => {
     queryClient.invalidateQueries({ queryKey: messagesQuery.queryKey })
   }
 
+  const unmatch = () => api.delete(`unmatch/${recipientId}/`);
+
   useEffect(() => {
     if (!messagesQuery.isLoading) {
       setMessages(messages => [...messagesQuery.data, ...messages]);
@@ -42,13 +44,16 @@ const Message = () => {
   
   if (isLoading) return <Loading />;
   return (
-    <form onSubmit={sendMessage}>
-      {messages.map(({ sender, text }, index) => (
-        <p key={index}>{sender}: {text}</p>
-      ))}
-      <input value={text} onChange={e => setText(e.target.value)} />
-      <button type="submit">Send</button>
-    </form>
+    <>
+      <button onClick={unmatch}>Unmatch</button>
+      <form onSubmit={sendMessage}>
+        {messages.map(({ sender, text }, index) => (
+          <p key={index}>{sender}: {text}</p>
+        ))}
+        <input value={text} onChange={e => setText(e.target.value)} />
+        <button type="submit">Send</button>
+      </form>
+    </>
   );
 }
  
