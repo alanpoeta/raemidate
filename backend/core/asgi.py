@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 django_asgi_app = get_asgi_application()
 
-from api.routing import websocket_urlpatterns  # noqa: E402
+from api.routing import websocket_urlpatterns
 
 
 @database_sync_to_async
@@ -32,7 +32,7 @@ class JWTAuthMiddleware:
             user = AnonymousUser()
             if token_str:
                 try:
-                    token = AccessToken(token_str)  # validates signature/exp
+                    token = AccessToken(token_str)
                     user_id = token.get("user_id")
                     if user_id:
                         user = await _get_user(user_id)
