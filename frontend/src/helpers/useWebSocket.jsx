@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
-const useWebSocket = (pathname, { onopen, onclose, onmessage, onunmount } = {}) => {
+const useWebSocket = (pathname, { onopen, onclose, onmessage, onunmount, enabled = true } = {}) => {
   const [isOpen, setIsOpen] = useState(false);
   const socketRef = useRef(null);
   
   useEffect(() => {
+    if (!enabled) {
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        socketRef.current?.close(1000, "disabled");
+        setIsOpen(false);
+      }
+      return;
+    }
+
     const base = new URL(import.meta.env.VITE_API_URL);
     base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';
     base.pathname = `ws/${pathname}`;
@@ -31,7 +39,7 @@ const useWebSocket = (pathname, { onopen, onclose, onmessage, onunmount } = {}) 
       socketRef.current = null;
       if (onunmount) onunmount();
     };
-  }, [pathname])
+  }, [pathname, enabled])
   
   return { socketRef, isOpen };
 }

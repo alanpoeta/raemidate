@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 # Create your models here.
 
@@ -25,18 +27,42 @@ class Profile(models.Model):
         if direction == "left":
             self.left_swiped.add(other)
             self.right_swiped.remove(other)
-            self.matched.remove(other)
-            try:
-                Conversation.get(profile1=self, profile2=other).delete()
-            except Conversation.DoesNotExist:
-                pass
+            if self.matched.filter(user=other.user).exists():
+                self.matched.remove(other)
+                other.notify(
+                    type="unmatch",
+                    first_name=self.first_name,
+                    last_name=self.last_name
+                )
+                try:
+                    Conversation.get(profile1=self, profile2=other).delete()
+                except Conversation.DoesNotExist:
+                    pass
         elif direction == "right":
             self.right_swiped.add(other)
             self.left_swiped.remove(other)
             if other.right_swiped.filter(pk=self).exists():
                 self.matched.add(other)
-            Conversation.get_or_create(profile1=self, profile2=other)
-        
+                Conversation.get_or_create(profile1=self, profile2=other)
+                for profile1, profile2 in ((self, other), (other, self)):
+                    profile1.notify(
+                        type="match",
+                        first_name=profile2.first_name,
+                        last_name=profile2.last_name
+                    )
+
+    def notify(self, type, **kwargs):
+        channel_layer = get_channel_layer()
+        group_name = f"notification_{self.user.pk}"
+        payload = {"notification_type": type, **kwargs}
+        async_to_sync(channel_layer.group_send)(  # type: ignore
+            group_name,
+            {
+                "type": "notification",
+                "payload": payload
+            }
+        )
+
     def __str__(self):
         return f"{self.user}'s profile"
 

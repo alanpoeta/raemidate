@@ -94,5 +94,11 @@ class UnmatchView(views.APIView):
     def delete(self, request, other_id):
         profile = request.user.profile
         other_profile = models.Profile.objects.get(user_id=other_id)
-        profile.matched.remove(other_profile)
+        if profile.matched.filter(pk=other_profile).exists():
+            profile.matched.remove(other_profile)
+            other_profile.notify(
+                type="unmatch",
+                first_name=profile.first_name,
+                last_name=profile.last_name
+            )
         return Response(status=200)

@@ -105,3 +105,26 @@ class SwipeConsumer(AsyncWebsocketConsumer):
             self.profile.swipe(other, direction)  # type: ignore
         except models.Profile.DoesNotExist:
             pass
+
+
+class NotificationConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        user = self.scope.get("user")
+        if not user or user.is_anonymous:
+            await self.close(4401)
+            return
+
+        profile = await get_profile(user.id)
+        if not profile:
+            await self.close(4401)
+            return
+        self.notification_group_name = f"notification_{user.id}"
+        await self.channel_layer.group_add(self.notification_group_name, self.channel_name)
+        await self.accept()
+    
+    async def disconnect(self, close_code):
+        if hasattr(self, "notification_group_name"):
+            await self.channel_layer.group_discard(self.notification_group_name, self.channel_name)
+    
+    async def notification(self, event):
+        await self.send(text_data=json.dumps(event["payload"]))

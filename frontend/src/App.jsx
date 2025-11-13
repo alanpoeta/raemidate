@@ -10,6 +10,7 @@ import { AuthProvider, Protected } from './helpers/AuthContext';
 import Match from './pages/Match';
 import { useState } from 'react';
 import Message from './pages/Message';
+import { NotificationProvider } from './helpers/NotificationContext';
 
 const queryClient = new QueryClient({});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
@@ -20,18 +21,20 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
-          <Navbar />
-          <main>
-            <Routes>
-              <Route path='/' element={<Protected><Home iProfile={iProfile} setIProfile={setIProfile}/></Protected>} />
-              <Route path='/profile' element={<Protected profileOptional><Profile /></Protected>} />
-              <Route path='/match' element={<Protected><Match /></Protected>} />
-              <Route path='/login' element={<AuthForm key='login' action='login' />} />
-              <Route path='/register' element={<AuthForm key='register' action='register' />} />
-              <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />
-              <Route path='*' element={<NotFound />} />
-            </Routes>
-          </main>
+          <NotificationProvider>
+            <Navbar />
+            <main>
+              <Routes>
+                <Route path='/' element={<Protected><Home iProfile={iProfile} setIProfile={setIProfile}/></Protected>} />
+                <Route path='/profile' element={<Protected profileOptional><Profile /></Protected>} />
+                <Route path='/match' element={<Protected><Match /></Protected>} />
+                <Route path='/login' element={<AuthForm key='login' action='login' />} />
+                <Route path='/register' element={<AuthForm key='register' action='register' />} />
+                <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />
+                <Route path='*' element={<NotFound />} />
+              </Routes>
+            </main>
+          </NotificationProvider>
         </AuthProvider>
       </Router>
       <ReactQueryDevtools initialIsOpen={false} />
