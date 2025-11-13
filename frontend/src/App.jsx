@@ -8,8 +8,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider, Protected } from './helpers/AuthContext';
 import Match from './pages/Match';
-import DM from './pages/DM'; 
 import { useState } from 'react';
+import Message from './pages/Message';
 
 const queryClient = new QueryClient({});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
@@ -28,7 +28,7 @@ function App() {
               <Route path='/match' element={<Protected><Match /></Protected>} />
               <Route path='/login' element={<AuthForm key='login' action='login' />} />
               <Route path='/register' element={<AuthForm key='register' action='register' />} />
-              <Route path='/dm/:recipientId' element={<Protected><DM /></Protected>} />
+              <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />
               <Route path='*' element={<NotFound />} />
             </Routes>
           </main>

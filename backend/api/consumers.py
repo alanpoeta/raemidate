@@ -31,14 +31,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
         
         low_id, high_id = sorted((self.sender_id, self.recipient_id))
-        self.dm_group_name = f"dm_{low_id}_{high_id}"
+        self.message_group_name = f"message_{low_id}_{high_id}"
 
-        await self.channel_layer.group_add(self.dm_group_name, self.channel_name)
+        await self.channel_layer.group_add(self.message_group_name, self.channel_name)
         await self.accept()
     
     async def disconnect(self, close_code):
-        if hasattr(self, "dm_group_name"):
-            await self.channel_layer.group_discard(self.dm_group_name, self.channel_name)
+        if hasattr(self, "message_group_name"):
+            await self.channel_layer.group_discard(self.message_group_name, self.channel_name)
     
     async def receive(self, text_data):
         data: dict = json.loads(text_data or "{}")
@@ -49,15 +49,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         payload = await self.create_message(message)
 
         await self.channel_layer.group_send(
-            self.dm_group_name,
+            self.message_group_name,
             {
-                "type": "dm_message",
-                **payload  # type: ignore
+                "type": "message",
+                "payload": payload
             },
         )
 
-    async def dm_message(self, event):
-        await self.send(text_data=json.dumps(event))
+    async def message(self, event):
+        await self.send(text_data=json.dumps(event["payload"]))
     
     @database_sync_to_async
     def get_conversation(self):

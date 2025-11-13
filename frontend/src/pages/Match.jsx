@@ -14,7 +14,7 @@ const Match = () => {
   return (
     profiles.map(profile => (
       <>
-        <Link key={profile.user} to={`/dm/${profile.user}`}>{profile.first_name} {profile.last_name}</Link>
+        <Link key={profile.user} to={`/message/${profile.user}`}>{profile.first_name} {profile.last_name}</Link>
         <br />
       </>
     ))

@@ -6,7 +6,7 @@ import api from "../api";
 import Loading from "../helpers/Loading";
 import useWebSocket from "../helpers/useWebSocket";
 
-const DM = () => {
+const Message = () => {
   const { recipientId } = useParams();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
@@ -18,7 +18,7 @@ const DM = () => {
 
   const queryClient = useQueryClient();
 
-  const { socketRef, isOpen: socketIsOpen } = useWebSocket(`dm/${recipientId}/`, {
+  const { socketRef, isOpen: socketIsOpen } = useWebSocket(`message/${recipientId}/`, {
     onmessage: e => {
       const message = JSON.parse(e.data);
       setMessages(messages => [...messages, message]);
@@ -52,4 +52,4 @@ const DM = () => {
   );
 }
  
-export default DM;
+export default Message;
