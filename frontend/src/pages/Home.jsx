@@ -1,5 +1,5 @@
 import ProfileCard from "../components/ProfileCard";
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import Loading from "../helpers/Loading";
 import Error from "../helpers/Error";
 import queryOptions from "../queries";
@@ -7,7 +7,6 @@ import useWebSocket from "../helpers/useWebSocket";
 import { useEffect } from "react";
 
 const Home = ({ iProfile, setIProfile }) => {
-  const queryClient = useQueryClient();
   const swipeQuery = useQuery(queryOptions.swipe);
   const profiles = swipeQuery.data;
   const { socketRef, isOpen: socketIsOpen } = useWebSocket("swipe/");

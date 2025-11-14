@@ -16,7 +16,7 @@ from api.routing import websocket_urlpatterns
 
 
 @database_sync_to_async
-def _get_user(user_id):
+def get_user(user_id):
     User = get_user_model()
     return User.objects.filter(id=user_id).first() or AnonymousUser()
 
@@ -26,19 +26,15 @@ class JWTAuthMiddleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        if scope.get("type") == "websocket":
-            query = parse_qs(scope.get("query_string", b"").decode())
-            token_str = (query.get("token") or [None])[0]
-            user = AnonymousUser()
-            if token_str:
-                try:
-                    token = AccessToken(token_str)
-                    user_id = token.get("user_id")
-                    if user_id:
-                        user = await _get_user(user_id)
-                except Exception:
-                    user = AnonymousUser()
-            scope = {**scope, "user": user}
+        query = parse_qs(scope.get("query_string", b"").decode())
+        token_str = query.get("token", [None])[0]
+        user = AnonymousUser()
+        if token_str:
+            token = AccessToken(token_str)
+            user_id = token.get("user_id")
+            if user_id:
+                user = await get_user(user_id)
+        scope = {**scope, "user": user}
         return await self.app(scope, receive, send)
 
 

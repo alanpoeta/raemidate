@@ -6,7 +6,7 @@ const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
-  const { socketRef, isOpen } = useWebSocket("notification/", { enabled: isAuthenticated && user.hasProfile });
+  const { socketRef, isOpen } = useWebSocket("notification/", { enabled: isAuthenticated && user?.hasProfile });
 
   const notificationValue = {
     socketRef, isOpen
