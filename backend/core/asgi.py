@@ -34,7 +34,7 @@ class JWTAuthMiddleware:
             user_id = token.get("user_id")
             if user_id:
                 user = await get_user(user_id)
-        scope = {**scope, "user": user}
+        scope["user"] = user
         return await self.app(scope, receive, send)
 
 
