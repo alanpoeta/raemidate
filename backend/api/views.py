@@ -30,10 +30,11 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView, generics.CreateAPIView)
 class SwipeView(generics.ListAPIView):
     serializer_class = serializers.ProfileSerializer
     permission_classes = [IsAuthenticated]
+    batch_size = 3
     
     def get_queryset(self):
-        user = self.request.user  # type: ignore
-        profile = user.profile   # type: ignore
+        user = self.request.user
+        profile = user.profile
         
         swiped_users = (profile.left_swiped.all() | profile.right_swiped.all()).values_list("user", flat=True)
         left_swiped_by_users = profile.left_swiped_by.all().values_list("user", flat=True)
@@ -48,7 +49,7 @@ class SwipeView(generics.ListAPIView):
                 else Q()
             )
         )
-        return models.Profile.objects.filter(is_compatible)[:3]
+        return models.Profile.objects.filter(is_compatible)[:SwipeView.batch_size]
 
 
 class MatchView(generics.ListAPIView):
@@ -83,9 +84,4 @@ class UnmatchView(views.APIView):
         other_profile = models.Profile.objects.get(user_id=other_id)
         if profile.matched.filter(pk=other_profile).exists():
             profile.matched.remove(other_profile)
-            other_profile.notify(
-                type="unmatch",
-                first_name=profile.first_name,
-                last_name=profile.last_name
-            )
         return Response(status=200)
