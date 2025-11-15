@@ -49,19 +49,6 @@ class SwipeView(generics.ListAPIView):
             )
         )
         return models.Profile.objects.filter(is_compatible)[:3]
-    
-    def post(self, request):
-        left_swiped, right_swiped = request.data
-        profile = request.user.profile
-        for id in left_swiped:
-            swiped_profile = models.Profile.objects.get(user__id=id)
-            profile.left_swiped.add(swiped_profile)
-            profile.right_swiped.remove(swiped_profile)
-        for id in right_swiped:
-            swiped_profile = models.Profile.objects.get(user__id=id)
-            profile.right_swiped.add(swiped_profile)
-            profile.left_swiped.remove(swiped_profile)
-        return Response(status=200)
 
 
 class MatchView(generics.ListAPIView):
