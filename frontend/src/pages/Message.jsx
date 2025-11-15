@@ -12,7 +12,7 @@ const Message = () => {
   const [text, setText] = useState("");
 
   const queryOptions = queriesOptions.message;
-  queryOptions.queryFn = () => api.get(`message/${recipientId}`).then(res => res.data)
+  queryOptions.queryFn = () => api.get(`message/${recipientId}/`).then(res => res.data)
   queryOptions.queryKey = ["message", { user: recipientId }]
   const messagesQuery = useQuery(queryOptions);
 
