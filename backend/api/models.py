@@ -35,10 +35,13 @@ class Profile(models.Model):
                 self.matched.add(other)
 
     def notify(self, type, **kwargs):
+        async_to_sync(self.anotify)(type, **kwargs)
+    
+    async def anotify(self, type, **kwargs):
         channel_layer = get_channel_layer()
         group_name = f"notification_{self.user.pk}"
         payload = {"notification_type": type, **kwargs}
-        async_to_sync(channel_layer.group_send)(
+        await channel_layer.group_send(
             group_name,
             {
                 "type": "notification",
@@ -118,8 +121,7 @@ def handle_matched_change(sender, instance, action, pk_set, **kwargs):
                 for profile1, profile2 in ((instance, other), (other, instance)):
                     profile1.notify(
                         type="match",
-                        first_name=profile2.first_name,
-                        last_name=profile2.last_name
+                        name=f"{profile2.first_name} {profile2.last_name}"
                     )
         case "post_remove":
             for other_pk in pk_set:
@@ -134,8 +136,7 @@ def handle_matched_change(sender, instance, action, pk_set, **kwargs):
                     pass
                 other.notify(
                     type="unmatch",
-                    first_name=instance.first_name,
-                    last_name=instance.last_name
+                    name=f"{instance.first_name} {instance.last_name}",
                 )
         case "post_clear":
             Conversation.objects.filter(

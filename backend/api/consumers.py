@@ -56,6 +56,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "payload": payload
             },
         )
+        
+        await self.recipient.anotify(
+            type="message",
+            name=f"{self.sender.first_name} {self.sender.last_name}"
+        )
 
     async def message(self, event):
         await self.send(text_data=json.dumps(event["payload"]))
