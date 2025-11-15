@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.db.models.signals import post_delete
+from django.db.models import signals
 from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -27,35 +27,18 @@ class Profile(models.Model):
         if direction == "left":
             self.left_swiped.add(other)
             self.right_swiped.remove(other)
-            if self.matched.filter(user=other.user).exists():
-                self.matched.remove(other)
-                other.notify(
-                    type="unmatch",
-                    first_name=self.first_name,
-                    last_name=self.last_name
-                )
-                try:
-                    Conversation.get(profile1=self, profile2=other).delete()
-                except Conversation.DoesNotExist:
-                    pass
+            self.matched.remove(other)
         elif direction == "right":
             self.right_swiped.add(other)
             self.left_swiped.remove(other)
             if other.right_swiped.filter(pk=self).exists():
                 self.matched.add(other)
-                Conversation.get_or_create(profile1=self, profile2=other)
-                for profile1, profile2 in ((self, other), (other, self)):
-                    profile1.notify(
-                        type="match",
-                        first_name=profile2.first_name,
-                        last_name=profile2.last_name
-                    )
 
     def notify(self, type, **kwargs):
         channel_layer = get_channel_layer()
         group_name = f"notification_{self.user.pk}"
         payload = {"notification_type": type, **kwargs}
-        async_to_sync(channel_layer.group_send)(  # type: ignore
+        async_to_sync(channel_layer.group_send)(
             group_name,
             {
                 "type": "notification",
@@ -75,12 +58,6 @@ class Photo(models.Model):
         return f"{self.profile.user}'s photo ({self.pk})"
 
 
-@receiver(post_delete, sender=Photo)
-def delete_image_file_on_delete(sender, instance, **kwargs):
-    if instance.image:
-        instance.image.delete(save=False)
-
-
 class Conversation(models.Model):
     profile1 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="low_conversations")
     profile2 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="high_conversations")
@@ -97,19 +74,15 @@ class Conversation(models.Model):
     @classmethod
     def get(cls, profile1, profile2):
         profile1, profile2 = cls.normalize(profile1, profile2)
-        conversation = cls.objects.get(profile1=profile1, profile2=profile2)
-        if conversation.is_active:
-            return conversation
-        raise Conversation.DoesNotExist
+        return cls.objects.get(profile1=profile1, profile2=profile2)
     
     @classmethod
     def get_or_create(cls, profile1, profile2):
         profile1, profile2 = cls.normalize(profile1, profile2)
         return cls.objects.get_or_create(profile1=profile1, profile2=profile2)
-
-    @property
-    def is_active(self):
-        return self.profile1.matched.filter(pk=self.profile2).exists()
+    
+    def __str__(self):
+        return f"Conversation {self.profile1.first_name} - {self.profile2.first_name}"
 
 
 class Message(models.Model):
@@ -120,4 +93,51 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message from {self.sender} to {self.recipient} @ {self.created_at}"
+        return f"Message {self.sender.first_name} -> {self.recipient.first_name}"
+
+
+@receiver(signals.post_delete, sender=Photo)
+def delete_image_file_on_delete(sender, instance, **kwargs):
+    if instance.image:
+        instance.image.delete(save=False)
+
+
+@receiver(signals.m2m_changed, sender=Profile.matched.through)
+def handle_matched_change(sender, instance, action, pk_set, **kwargs):
+    match action:
+        case "post_add":
+            for other_pk in pk_set:
+                try:
+                    other = Profile.objects.get(pk=other_pk)
+                    conversation = Conversation.get_or_create(
+                        profile1=instance,
+                        profile2=other
+                    )
+                except Profile.DoesNotExist:
+                    pass
+                for profile1, profile2 in ((instance, other), (other, instance)):
+                    profile1.notify(
+                        type="match",
+                        first_name=profile2.first_name,
+                        last_name=profile2.last_name
+                    )
+        case "post_remove":
+            for other_pk in pk_set:
+                try:
+                    other = Profile.objects.get(pk=other_pk)
+                    conversation = Conversation.get(
+                        profile1=instance,
+                        profile2=other
+                    )
+                    conversation.delete()
+                except (Profile.DoesNotExist, Conversation.DoesNotExist):
+                    pass
+                other.notify(
+                    type="unmatch",
+                    first_name=instance.first_name,
+                    last_name=instance.last_name
+                )
+        case "post_clear":
+            Conversation.objects.filter(
+                models.Q(profile1=instance) | models.Q(profile2=instance)
+            ).delete()
