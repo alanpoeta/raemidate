@@ -7,10 +7,15 @@ import useWebSocket from "../helpers/useWebSocket";
 import { useEffect } from "react";
 
 const Home = ({ iProfile, setIProfile }) => {
-  const swipeQuery = useQuery(queryOptions.swipe);
+  const swipeQuery = useQuery({
+    ...queryOptions.swipe,
+    refetchInterval: (query) => {
+      return query.state.data?.length === 0 ? 20000 : false;
+    },
+  });
   const profiles = swipeQuery.data;
   const { socketRef, isOpen: socketIsOpen } = useWebSocket("swipe/");
-  const isLoading = !socketIsOpen || swipeQuery.isFetching;
+  const isLoading = !socketIsOpen || swipeQuery.isPending;
 
   const swipe = async (direction) => {
     if (!socketIsOpen) return;
@@ -53,8 +58,7 @@ const Home = ({ iProfile, setIProfile }) => {
   if (swipeQuery.isError) return <Error />;
   if (isLoading) return <Loading />;
   
-
-  if (!profiles?.length) return <p>No profiles left to show.</p>
+  if (!profiles?.length) return <p>No profiles left to show. Checking for new profiles...</p>
   
   return (
     <>
