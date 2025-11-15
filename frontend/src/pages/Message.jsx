@@ -22,6 +22,7 @@ const Message = () => {
     onmessage: e => {
       const message = JSON.parse(e.data);
       setMessages(messages => [...messages, message]);
+      queryClient.setQueryData(messagesQuery.queryKey, messages => [...(messages || []), message]);
     }
   });
 
@@ -31,7 +32,6 @@ const Message = () => {
     e.preventDefault();
     socketRef.current.send(JSON.stringify({ text }));
     setText("");
-    queryClient.invalidateQueries({ queryKey: messagesQuery.queryKey })
   }
 
   const unmatch = () => api.delete(`unmatch/${recipientId}/`);
@@ -40,8 +40,8 @@ const Message = () => {
     if (messagesQuery.isSuccess) {
       setMessages(messages => [...messagesQuery.data, ...messages]);
     };
-  }, [messagesQuery.isLoading])
-  
+  }, [messagesQuery.isSuccess])
+
   if (isLoading) return <Loading />;
   return (
     <>
