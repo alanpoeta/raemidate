@@ -37,7 +37,7 @@ const Message = () => {
   const unmatch = () => api.delete(`unmatch/${recipientId}/`);
 
   useEffect(() => {
-    if (!messagesQuery.isLoading) {
+    if (messagesQuery.isSuccess) {
       setMessages(messages => [...messagesQuery.data, ...messages]);
     };
   }, [messagesQuery.isLoading])
