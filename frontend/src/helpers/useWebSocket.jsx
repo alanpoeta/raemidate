@@ -19,9 +19,8 @@ const useWebSocket = (pathname, { onopen, onclose, onmessage, enabled = true } =
       const base = new URL(import.meta.env.VITE_API_URL);
       base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';
       base.pathname = `ws/${pathname}`;
-      base.searchParams.set('token', localStorage.getItem('access') || '');
-      
-      socketRef.current = new WebSocket(base.toString());
+      const accessToken = localStorage.getItem("access") || "";
+      socketRef.current = new WebSocket(base.toString(), [`Bearer.${accessToken}`]);
 
       socketRef.current.onopen = e => {
         if (onopen) onopen(e);

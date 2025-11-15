@@ -34,7 +34,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.message_group_name = f"message_{low_id}_{high_id}"
 
         await self.channel_layer.group_add(self.message_group_name, self.channel_name)
-        await self.accept()
+        subprotocol = self.scope["subprotocols"][0]
+        await self.accept(subprotocol=subprotocol)
     
     async def disconnect(self, close_code):
         if hasattr(self, "message_group_name"):
@@ -90,7 +91,8 @@ class SwipeConsumer(AsyncWebsocketConsumer):
             return
 
         self.profile = await get_profile(user.id)
-        await self.accept()
+        subprotocol = self.scope["subprotocols"][0]
+        await self.accept(subprotocol=subprotocol)
     
     async def receive(self, text_data):
         data: dict = json.loads(text_data or "{}")
@@ -120,7 +122,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             return
         self.notification_group_name = f"notification_{user.id}"
         await self.channel_layer.group_add(self.notification_group_name, self.channel_name)
-        await self.accept()
+        subprotocol = self.scope["subprotocols"][0]
+        await self.accept(subprotocol=subprotocol)
     
     async def disconnect(self, close_code):
         if hasattr(self, "notification_group_name"):

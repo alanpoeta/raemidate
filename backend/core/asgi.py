@@ -1,6 +1,4 @@
 import os
-from urllib.parse import parse_qs
-
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from channels.db import database_sync_to_async
@@ -26,8 +24,15 @@ class JWTAuthMiddleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        query = parse_qs(scope.get("query_string", b"").decode())
-        token_str = query.get("token", [None])[0]
+        token_str = None
+        subprotocols = scope.get("subprotocols", [])
+        accepted_subprotocol = None
+        prefix = "Bearer."
+        for protocol in subprotocols:
+            if protocol.startswith(prefix):
+                token_str = protocol[len(prefix):]
+                accepted_subprotocol = protocol
+                break
         user = AnonymousUser()
         if token_str:
             token = AccessToken(token_str)
@@ -35,6 +40,8 @@ class JWTAuthMiddleware:
             if user_id:
                 user = await get_user(user_id)
         scope["user"] = user
+        if accepted_subprotocol:
+            scope["subprotocols"] = [accepted_subprotocol]
         return await self.app(scope, receive, send)
 
 
