@@ -12,4 +12,5 @@ urlpatterns = [
     path('match/', views.MatchView.as_view()),
     path('message/<int:recipient_id>/', views.MessageView.as_view()),
     path('unmatch/<int:other_id>/', views.UnmatchView.as_view()),
+    path('unread_count/', views.UnreadCountView.as_view()),
 ]

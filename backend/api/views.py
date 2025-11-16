@@ -55,10 +55,22 @@ class SwipeView(generics.ListAPIView):
 class MatchView(generics.ListAPIView):
     serializer_class = serializers.ProfileSerializer
     permission_classes = [IsAuthenticated]
+    queryset = models.Match.objects.none()
     
-    def get_queryset(self):
-        profile = self.request.user.profile  # type: ignore
-        return profile.matched.all()
+    def list(self, request):
+        matches = []
+        profile = self.request.user.profile
+        for match in models.Match.objects.filter(profile1=profile).select_related('profile2'):
+            matches.append({
+                'profile': serializers.ProfileSerializer(match.profile2).data,
+                'unread_count': match.unread_count1
+            })
+        for match in models.Match.objects.filter(profile2=profile).select_related('profile1'):
+            matches.append({
+                'profile': serializers.ProfileSerializer(match.profile1).data,
+                'unread_count': match.unread_count2
+            })
+        return Response(matches)
 
 
 class MessageView(generics.ListAPIView):
@@ -70,18 +82,30 @@ class MessageView(generics.ListAPIView):
 
         recipient_id = self.kwargs.get("recipient_id")
         recipient = models.Profile.objects.get(user_id=recipient_id)
-
-        conversation = models.Conversation.get(
-            profile1=sender,
-            profile2=recipient
-        )
-        return models.Message.objects.filter(conversation=conversation).order_by("created_at").all()
+        try:
+            match = models.Match.get_between(
+                profile1=sender,
+                profile2=recipient
+            )
+            return models.Message.objects.filter(match=match).order_by("created_at").all()
+        except models.Match.DoesNotExist:
+            return models.Message.objects.none()
 
 
 class UnmatchView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request, other_id):
         profile = request.user.profile
         other_profile = models.Profile.objects.get(user_id=other_id)
         if profile.matched.filter(pk=other_profile).exists():
-            profile.matched.remove(other_profile)
+            models.Match.delete_between(profile, other_profile)
         return Response(status=200)
+
+
+class UnreadCountView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = request.user.profile
+        return Response({"unread_count": profile.get_unread_count()})

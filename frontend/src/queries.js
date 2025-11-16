@@ -19,7 +19,12 @@ const queriesOptions = {
   },
 
   message: {
-    queryKey: ["message"],
+    staleTime: Infinity
+  },
+
+  unreadCount: {
+    queryKey: ["unread_count"],
+    queryFn: () => api.get('unread_count/').then(res => res.data),
     staleTime: Infinity
   }
 }

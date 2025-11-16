@@ -16,7 +16,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.recipient_id = self.scope["url_route"]["kwargs"]["recipient_id"]  # type: ignore
         self.sender = await get_profile(user.id)
         self.recipient = await get_profile(self.recipient_id)
-        self.conversation = await self.get_conversation()  # Fails when conversation does not exist
+        self.match = await self.get_match()
 
         if self.sender_id == self.recipient_id:
             await self.close(4400)
@@ -26,7 +26,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close(code=4404)
             return
         
-        if not self.conversation:
+        if not self.match:
             await self.close(code=4400)
             return
         
@@ -59,23 +59,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         await self.recipient.anotify(
             type="message",
-            name=f"{self.sender.first_name} {self.sender.last_name}"
+            id=self.sender_id
         )
 
     async def message(self, event):
         await self.send(text_data=json.dumps(event["payload"]))
     
     @database_sync_to_async
-    def get_conversation(self):
+    def get_match(self):
         try:
-            return models.Conversation.get(profile1=self.sender, profile2=self.recipient)
-        except models.Conversation.DoesNotExist:
+            return models.Match.get_between(profile1=self.sender, profile2=self.recipient)
+        except models.Match.DoesNotExist:
             return None
 
     @database_sync_to_async
     def create_message(self, text):
         message = models.Message.objects.create(
-            sender=self.sender, recipient=self.recipient, text=text, conversation=self.conversation
+            sender=self.sender, recipient=self.recipient, text=text, match=self.match
         )
         return serializers.MessageSerializer(message).data
         
@@ -135,4 +135,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(self.notification_group_name, self.channel_name)
     
     async def notification(self, event):
+        payload = event["payload"]
+        payload["type"] = payload.pop("notification_type")
         await self.send(text_data=json.dumps(event["payload"]))

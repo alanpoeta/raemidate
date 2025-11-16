@@ -6,16 +6,17 @@ import { Link } from "react-router-dom";
 import React from "react";
 
 const Match = () => {
-  const { data: profiles, isLoading, isError } = useQuery(queriesOptions.match)
+  const { data: matches, isLoading, isError } = useQuery(queriesOptions.match)
 
   if (isLoading) return <Loading />;
   if (isError) return <Error />;
-  if (profiles.length === 0) return <p>No matches.</p>;
+  if (matches.length === 0) return <p>No matches.</p>;
 
   return (
-    profiles.map(profile => (
+    matches.map(({profile, unread_count}) => (
       <React.Fragment key={profile.user}>
         <Link to={`/message/${profile.user}`}>{profile.first_name} {profile.last_name}</Link>
+        <p>{unread_count} Notifications</p>
         <br />
       </React.Fragment>
     ))

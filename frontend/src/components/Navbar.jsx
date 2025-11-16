@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../helpers/AuthContext";
+import { useNotification } from "../helpers/NotificationContext";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { isLoading, unreadCount } = useNotification();
 
   if (!user?.username) return (
       <nav>
@@ -17,6 +19,7 @@ const Navbar = () => {
         <>
           <Link to='/'>Home</Link>
           <Link to='/match'>Matches</Link>
+          {!isLoading && <p>{unreadCount} Notifications</p>}
           <Link to='/profile'>Profile</Link>
         </>
       }
