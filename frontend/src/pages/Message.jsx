@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import queriesOptions from "../queries";
 import api from "../api";
@@ -8,21 +8,21 @@ import useWebSocket from "../helpers/useWebSocket";
 
 const Message = () => {
   const { recipientId } = useParams();
-  const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-
-  const queryOptions = queriesOptions.message;
-  queryOptions.queryFn = () => api.get(`message/${recipientId}/`).then(res => res.data)
-  queryOptions.queryKey = ["message", { user: recipientId }]
-  const messagesQuery = useQuery(queryOptions);
-
   const queryClient = useQueryClient();
+
+  const messagesKey = ["message", recipientId];
+
+  const messagesQuery = useQuery({
+    ...queriesOptions.message,
+    queryKey: messagesKey,
+    queryFn: () => api.get(`message/${recipientId}/`).then(res => res.data),
+  });
 
   const { socketRef, isOpen: socketIsOpen } = useWebSocket(`message/${recipientId}/`, {
     onmessage: e => {
-      const message = JSON.parse(e.data);
-      setMessages(messages => [...messages, message]);
-      queryClient.setQueryData(messagesQuery.queryKey, messages => [...(messages || []), message]);
+      const msg = JSON.parse(e.data);
+      queryClient.setQueryData(messagesKey, old => [...(old || []), msg]);
     }
   });
 
@@ -32,29 +32,26 @@ const Message = () => {
     e.preventDefault();
     socketRef.current.send(JSON.stringify({ text }));
     setText("");
-  }
+  };
 
   const unmatch = () => api.delete(`unmatch/${recipientId}/`);
 
-  useEffect(() => {
-    if (messagesQuery.isSuccess) {
-      setMessages(messages => [...messagesQuery.data, ...messages]);
-    };
-  }, [messagesQuery.isSuccess])
-
   if (isLoading) return <Loading />;
+
+  const messages = messagesQuery.data || [];
+
   return (
     <>
       <button onClick={unmatch}>Unmatch</button>
       <form onSubmit={sendMessage}>
-        {messages.map(({ sender, text }, index) => (
-          <p key={index}>{sender}: {text}</p>
+        {messages.map(({ sender, text }, i) => (
+          <p key={i}>{sender}: {text}</p>
         ))}
         <input value={text} onChange={e => setText(e.target.value)} />
         <button type="submit">Send</button>
       </form>
     </>
   );
-}
- 
+};
+
 export default Message;
