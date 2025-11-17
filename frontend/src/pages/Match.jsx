@@ -16,7 +16,7 @@ const Match = () => {
     matches.map(({profile, unread_count}) => (
       <React.Fragment key={profile.user}>
         <Link to={`/message/${profile.user}`}>{profile.first_name} {profile.last_name}</Link>
-        <p>{unread_count} Notifications</p>
+        {unread_count !== 0 && <p>{unread_count} Notifications</p>}
         <br />
       </React.Fragment>
     ))

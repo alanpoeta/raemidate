@@ -19,7 +19,7 @@ const Navbar = () => {
         <>
           <Link to='/'>Home</Link>
           <Link to='/match'>Matches</Link>
-          {!isLoading && <p>{unreadCount} Notifications</p>}
+          {!isLoading && unreadCount !== 0 && <p>{unreadCount} Notifications</p>}
           <Link to='/profile'>Profile</Link>
         </>
       }
