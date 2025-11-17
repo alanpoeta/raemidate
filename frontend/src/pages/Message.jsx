@@ -1,17 +1,28 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import queriesOptions from "../queries";
 import api from "../api";
 import Loading from "../helpers/Loading";
 import useWebSocket from "../helpers/useWebSocket";
+import { useNotification } from "../helpers/NotificationContext";
 
 const Message = () => {
-  const { recipientId } = useParams();
+  let { recipientId } = useParams();
+  recipientId = parseInt(recipientId);
   const [text, setText] = useState("");
   const queryClient = useQueryClient();
+  const { handleUnmatch, setActiveChatRecipient, isLoading: notificationIsLoading } = useNotification();
 
   const messagesKey = ["message", recipientId];
+
+  useEffect(() => {
+    if (notificationIsLoading) return;
+    setActiveChatRecipient(recipientId);
+    return () => {
+      setActiveChatRecipient(null);
+    };
+  }, [recipientId, notificationIsLoading]);
 
   const messagesQuery = useQuery({
     ...queriesOptions.message,
@@ -34,7 +45,15 @@ const Message = () => {
     setText("");
   };
 
-  const unmatch = () => api.delete(`unmatch/${recipientId}/`);
+  const navigate = useNavigate();
+
+  const unmatchMutation = useMutation({
+    mutationFn: () => api.delete(`match/${recipientId}/`),
+    onSuccess: () => {
+      handleUnmatch(recipientId);
+      navigate("/match");
+    },
+  })
 
   if (isLoading) return <Loading />;
 
@@ -42,7 +61,7 @@ const Message = () => {
 
   return (
     <>
-      <button onClick={unmatch}>Unmatch</button>
+      <button onClick={() => unmatchMutation.mutate()}>Unmatch</button>
       <form onSubmit={sendMessage}>
         {messages.map(({ sender, text }, i) => (
           <p key={i}>{sender}: {text}</p>

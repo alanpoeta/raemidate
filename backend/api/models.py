@@ -61,15 +61,8 @@ class Profile(models.Model):
             match = Match.get_between(self, other)
             match.increment_unread(self)
 
-        await increment_unread()
-
-    def get_unread_count(self):
-        unread_count = 0
-        for match in Match.objects.filter(profile1=self):
-            unread_count += match.unread_count1
-        for match in Match.objects.filter(profile2=self):
-            unread_count += match.unread_count2
-        return unread_count
+        if type != "unmatch":
+            await increment_unread()
 
     def __str__(self):
         return f"{self.user}'s profile"
@@ -158,7 +151,7 @@ def delete_image_file_on_delete(sender, instance, **kwargs):
 
 
 @receiver(signals.post_save, sender=Match)
-def handle_matched_change(sender, instance, created, **kwargs):
+def notify_on_match(sender, instance, created, **kwargs):
     if not created:
         return
     try:
@@ -167,6 +160,20 @@ def handle_matched_change(sender, instance, created, **kwargs):
         for profile1, profile2 in ((profile1, profile2), (profile2, profile1)):
             profile1.notify(
                 type="match",
+                id=profile2.user_id
+            )
+    except Profile.DoesNotExist:
+        pass
+
+
+@receiver(signals.pre_delete, sender=Match)
+def notify_on_unmatch(sender, instance, **kwargs):
+    try:
+        profile1 = instance.profile1
+        profile2 = instance.profile2
+        for profile1, profile2 in ((profile1, profile2), (profile2, profile1)):
+            profile1.notify(
+                type="unmatch",
                 id=profile2.user_id
             )
     except Profile.DoesNotExist:

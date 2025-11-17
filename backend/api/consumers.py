@@ -36,6 +36,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.message_group_name, self.channel_name)
         subprotocol = self.scope["subprotocols"][0]
         await self.accept(subprotocol=subprotocol)
+
+        await self.reset_unread()
     
     async def disconnect(self, close_code):
         if hasattr(self, "message_group_name"):
@@ -78,6 +80,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             sender=self.sender, recipient=self.recipient, text=text, match=self.match
         )
         return serializers.MessageSerializer(message).data
+
+    @database_sync_to_async
+    def reset_unread(self):
+        self.match.reset_unread(self.sender)
         
 
 @database_sync_to_async

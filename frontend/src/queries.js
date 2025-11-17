@@ -16,17 +16,12 @@ const queriesOptions = {
   match: {
     queryKey: ["match"],
     queryFn: () => api.get('match/').then(res => res.data),
+    staleTime: Infinity
   },
 
   message: {
     staleTime: Infinity
   },
-
-  unreadCount: {
-    queryKey: ["unread_count"],
-    queryFn: () => api.get('unread_count/').then(res => res.data),
-    staleTime: Infinity
-  }
 }
 
 export default queriesOptions

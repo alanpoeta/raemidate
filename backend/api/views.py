@@ -1,4 +1,4 @@
-from rest_framework import generics, views
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
@@ -71,6 +71,13 @@ class MatchView(generics.ListAPIView):
                 'unread_count': match.unread_count2
             })
         return Response(matches)
+    
+    def delete(self, request, other_id):
+        profile = request.user.profile
+        other_profile = models.Profile.objects.get(user_id=other_id)
+        if profile.matched.filter(pk=other_profile).exists():
+            models.Match.delete_between(profile, other_profile)
+        return Response(status=200)
 
 
 class MessageView(generics.ListAPIView):
@@ -90,22 +97,3 @@ class MessageView(generics.ListAPIView):
             return models.Message.objects.filter(match=match).order_by("created_at").all()
         except models.Match.DoesNotExist:
             return models.Message.objects.none()
-
-
-class UnmatchView(views.APIView):
-    permission_classes = [IsAuthenticated]
-
-    def delete(self, request, other_id):
-        profile = request.user.profile
-        other_profile = models.Profile.objects.get(user_id=other_id)
-        if profile.matched.filter(pk=other_profile).exists():
-            models.Match.delete_between(profile, other_profile)
-        return Response(status=200)
-
-
-class UnreadCountView(views.APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        profile = request.user.profile
-        return Response({"unread_count": profile.get_unread_count()})
