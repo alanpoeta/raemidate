@@ -6,6 +6,7 @@ from django.core.asgi import get_asgi_application
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.exceptions import ExpiredTokenError
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 django_asgi_app = get_asgi_application()
@@ -35,10 +36,13 @@ class JWTAuthMiddleware:
                 break
         user = AnonymousUser()
         if token_str:
-            token = AccessToken(token_str)
-            user_id = token.get("user_id")
-            if user_id:
-                user = await get_user(user_id)
+            try:
+                token = AccessToken(token_str)
+                user_id = token.get("user_id")
+                if user_id:
+                    user = await get_user(user_id)
+            except ExpiredTokenError:
+                pass
         scope["user"] = user
         if accepted_subprotocol:
             scope["subprotocols"] = [accepted_subprotocol]
