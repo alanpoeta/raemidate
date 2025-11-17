@@ -1,10 +1,10 @@
 import { useForm } from "react-hook-form";
-import { useRef } from "react";  // Add useRef
-import api from "../api";
-import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers";
+import { useRef } from "react";
+import api from "../helpers/api";
+import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers/helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../helpers/AuthContext";
-import Input from "../helpers/Input";
+import Input from "./Input";
 
 const ProfileForm = () => {
   const queryClient = useQueryClient();

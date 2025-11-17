@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import Loading from "../helpers/Loading";
-import Error from "../helpers/Error";
-import queriesOptions from "../queries";
+import Loading from "../components/Loading";
+import Error from "../components/Error";
+import queriesOptions from "../helpers/queries";
 import { Link } from "react-router-dom";
 import React from "react";
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { auth } from "../api"
+import { auth } from "./api"
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -25,13 +25,12 @@ const useWebSocket = (pathname, { onopen, onclose, onmessage, enabled = true } =
 
     socketRef.current.onopen = e => {
       if (onopen) onopen(e);
-      console.log("Socket opened");
       setIsOpen(true);
     }
 
     socketRef.current.onclose = e => {
       if (onclose) onclose(e);
-      console.error("Socket closed", e.code, e.reason);
+      if (e.code !== 1000) console.error("Socket closed", e.code, e.reason);
       setIsOpen(false);
       if ([WebSocket.CLOSING, WebSocket.CLOSED].includes(socketRef.current?.readyState)) {
         if (window.history.length > 1) navigate(-1);

@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import queriesOptions from "../queries";
-import api from "../api";
-import Loading from "../helpers/Loading";
+import queriesOptions from "../helpers/queries";
+import api from "../helpers/api";
+import Loading from "../components/Loading";
 import useWebSocket from "../helpers/useWebSocket";
 import { useNotification } from "../helpers/NotificationContext";
 

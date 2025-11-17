@@ -1,4 +1,4 @@
-import { desnakify } from "../helpers";
+import { desnakify } from "../helpers/helpers";
 
 const ProfileCard = ({ profile }) => {
   return (

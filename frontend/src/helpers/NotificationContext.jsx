@@ -2,7 +2,7 @@ import { useContext, createContext, useMemo, useState } from "react";
 import useWebSocket from "./useWebSocket";
 import { useAuth } from "./AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import queriesOptions from "../queries";
+import queriesOptions from "./queries";
 
 const NotificationContext = createContext();
 

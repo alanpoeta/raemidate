@@ -1,8 +1,8 @@
 import ProfileCard from "../components/ProfileCard";
 import { useQuery } from '@tanstack/react-query'
-import Loading from "../helpers/Loading";
-import Error from "../helpers/Error";
-import queryOptions from "../queries";
+import Loading from "../components/Loading";
+import Error from "../components/Error";
+import queryOptions from "../helpers/queries";
 import useWebSocket from "../helpers/useWebSocket";
 import { useEffect } from "react";
 
