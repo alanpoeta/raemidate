@@ -6,10 +6,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Error from "../components/Error";
 import queriesOptions from "../helpers/queries";
 import { useAuth } from "../helpers/AuthContext";
+import { useState } from "react";
 
 const Profile = () => {
   const queryClient = useQueryClient();
   const { user, setUser, prefetchQueries } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
 
   const profileQuery = useQuery(queriesOptions.profile);
   const profile = profileQuery.data;
@@ -38,10 +40,14 @@ const Profile = () => {
   }  
   if (!user.hasProfile) return <ProfileForm />;
 
+  if (isEditing)
+    return <ProfileForm profile={profile} onCancel={() => setIsEditing(false)} />;
+
   return (
     <>
       <p><b>My profile</b></p>
       <ProfileCard profile={profile} />
+      <button onClick={() => setIsEditing(true)}>Edit</button>
       <button onClick={() => deleteProfileMutation.mutate()}>Delete</button>
     </>
   );

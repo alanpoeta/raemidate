@@ -6,11 +6,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../helpers/AuthContext";
 import Input from "./Input";
 
-const ProfileForm = () => {
+const ProfileForm = ({ profile, onCancel }) => {
   const queryClient = useQueryClient();
   const { setUser } = useAuth();
+  const isEditing = profile ? true : false;
 
-  const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm();
+  const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm({
+    defaultValues: profile ?? {}
+  });
   const photosRef = useRef();
 
   const profileMutation = useMutation({
@@ -30,12 +33,22 @@ const ProfileForm = () => {
         formData.append('photos', file);
       });
   
+      if (isEditing)
+        return api.patch('profile/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       return api.post('profile/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile']});
+
+      if (isEditing) {
+        onCancel();
+        return;
+      }
+
       setUser(user => {
         const newUser = {
           ...user,
@@ -60,7 +73,7 @@ const ProfileForm = () => {
       />
       <select
         {...register("gender", { required: requiredErrorMessage("gender") })}
-        defaultValue="gender"
+        defaultValue={profile?.gender || "gender"}
       >
         <option value="gender" disabled>Gender</option>
         {["male", "female", "other"].map(gender => 
@@ -69,7 +82,7 @@ const ProfileForm = () => {
       </select>
       <select
         {...register("sexual_preference", { required: requiredErrorMessage("sexual_preference") })}
-        defaultValue="sexual_preference"
+        defaultValue={profile?.sexual_preference || "sexual_preference"}
       >
         <option value="sexual_preference" disabled>Who are you attracted to?</option>
         {["male", "female", "all"].map(orientation => 
@@ -105,8 +118,9 @@ const ProfileForm = () => {
       />
       
       <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Creating...' : 'Create Profile'}
+        {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Profile' : 'Create Profile')}
       </button>
+      {isEditing && <button type="button" onClick={onCancel}>Cancel</button>}
       <ul>
         {Object.keys(errors).map(field =>
           <li key={field}>{errors[field].message}</li>

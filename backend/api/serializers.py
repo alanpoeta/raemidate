@@ -42,14 +42,15 @@ class ProfileSerializer(serializers.ModelSerializer):
         }
     
     def validate(self, attrs):
-        if not self.context['request'].FILES.getlist('photos'):
+        is_profile_creation = self.instance is None
+        if is_profile_creation and not self.context['request'].FILES.getlist('photos'):
             raise serializers.ValidationError({
                 'photos': 'At least one photo is required.'
             })
         
-        birth_date = attrs.get('birth_date')
-        younger_age_diff = attrs.get('younger_age_diff')
-        older_age_diff = attrs.get('older_age_diff')
+        birth_date = attrs.get('birth_date') or self.instance.birth_date
+        younger_age_diff = attrs.get('younger_age_diff') or self.instance.younger_age_diff
+        older_age_diff = attrs.get('older_age_diff') or self.instance.older_age_diff
         
         today = date.today()
 
@@ -98,6 +99,17 @@ class ProfileSerializer(serializers.ModelSerializer):
             models.Photo.objects.create(profile=profile, image=photo)
         
         return profile
+    
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        
+        photos = self.context['request'].FILES.getlist('photos')
+        if photos:
+            instance.photos.all().delete()
+            for photo in photos:
+                models.Photo.objects.create(profile=instance, image=photo)
+        
+        return instance
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
