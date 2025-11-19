@@ -7,7 +7,7 @@ import Profile from './pages/Profile';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider, Protected } from './helpers/AuthContext';
-import Match from './pages/Match';
+import Matches from './pages/Matches';
 import { useState } from 'react';
 import Message from './pages/Message';
 import { NotificationProvider } from './helpers/NotificationContext';
@@ -27,7 +27,7 @@ function App() {
               <Routes>
                 <Route path='/' element={<Protected><Home iProfile={iProfile} setIProfile={setIProfile}/></Protected>} />
                 <Route path='/profile' element={<Protected profileOptional><Profile /></Protected>} />
-                <Route path='/match' element={<Protected><Match /></Protected>} />
+                <Route path='/matches' element={<Protected><Matches /></Protected>} />
                 <Route path='/login' element={<AuthForm key='login' action='login' />} />
                 <Route path='/register' element={<AuthForm key='register' action='register' />} />
                 <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />

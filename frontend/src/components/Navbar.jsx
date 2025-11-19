@@ -18,7 +18,7 @@ const Navbar = () => {
       {user.hasProfile &&
         <>
           <Link to='/'>Home</Link>
-          <Link to='/match'>Matches</Link>
+          <Link to='/matches'>Matches</Link>
           {!isLoading && unreadCount !== 0 && <p>{unreadCount} Notifications</p>}
           <Link to='/profile'>Profile</Link>
         </>

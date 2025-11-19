@@ -5,7 +5,7 @@ import queriesOptions from "../helpers/queries";
 import { Link } from "react-router-dom";
 import React from "react";
 
-const Match = () => {
+const Matches = () => {
   const { data: matches, isLoading, isError } = useQuery(queriesOptions.match)
 
   if (isLoading) return <Loading />;
@@ -23,4 +23,4 @@ const Match = () => {
   );
 }
  
-export default Match;
+export default Matches;
