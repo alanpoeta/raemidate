@@ -22,6 +22,9 @@ const ProfileForm = () => {
       formData.append('bio', data.bio);
       formData.append('gender', data.gender);
       formData.append('sexual_preference', data.sexual_preference);
+      formData.append('birth_date', data.birth_date);
+      formData.append('younger_age_diff', data.younger_age_diff);
+      formData.append('older_age_diff', data.older_age_diff);
       
       Array.from(photosRef.current.files).forEach(file => {
         formData.append('photos', file);
@@ -50,6 +53,11 @@ const ProfileForm = () => {
     <form onSubmit={handleSubmit((data) => profileMutation.mutate(data))}>
       <Input name="first_name" register={register} />
       <Input name="last_name" register={register} />
+      <input
+        type="date"
+        {...register("birth_date", { required: requiredErrorMessage("birth_date") })}
+        placeholder="Birth Date"
+      />
       <select
         {...register("gender", { required: requiredErrorMessage("gender") })}
         defaultValue="gender"
@@ -68,6 +76,22 @@ const ProfileForm = () => {
           <option key={orientation} value={orientation}>{desnakify(orientation)}</option>
         )}
       </select>
+      <input
+        type="number"
+        {...register("younger_age_diff", { 
+          required: requiredErrorMessage("younger_age_diff"),
+          valueAsNumber: true,
+        })}
+        placeholder="Younger Age Difference"
+      />
+      <input
+        type="number"
+        {...register("older_age_diff", { 
+          required: requiredErrorMessage("older_age_diff"),
+          valueAsNumber: true,
+        })}
+        placeholder="Older Age Difference"
+      />
       <textarea
         {...register("bio", { required: requiredErrorMessage("bio") })}
         placeholder="Bio"

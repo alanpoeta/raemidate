@@ -20,6 +20,8 @@ class Profile(models.Model):
     birth_date = models.DateField()
     gender = models.CharField(choices=((s, s) for s in ("male", "female", "other")))
     sexual_preference = models.CharField(choices=((s, s) for s in ("male", "female", "all")))
+    younger_age_diff = models.SmallIntegerField()
+    older_age_diff = models.SmallIntegerField()
     left_swiped = models.ManyToManyField("self", related_name="left_swiped_by", symmetrical=False, blank=True)
     right_swiped = models.ManyToManyField("self", related_name="right_swiped_by", symmetrical=False, blank=True)
     matched = models.ManyToManyField(

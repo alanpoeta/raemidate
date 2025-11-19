@@ -2,7 +2,9 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
-from django.db.models import Q
+from django.db.models import Q, F, Value, Func, DateField
+from django.db.models.functions import Concat
+from datetime import date
 from rest_framework.response import Response
 
 
@@ -38,6 +40,31 @@ class SwipeView(generics.ListAPIView):
         
         swiped_users = (profile.left_swiped.all() | profile.right_swiped.all()).values_list("user", flat=True)
         left_swiped_by_users = profile.left_swiped_by.all().values_list("user", flat=True)
+        
+        def add_years(birth_date, delta_years):
+            return date(
+                birth_date.year + delta_years,
+                birth_date.month,
+                birth_date.day
+            )
+        
+        youngest_other_birth_date = add_years(profile.birth_date, -profile.younger_age_diff)
+        oldest_other_birth_date = add_years(profile.birth_date, -profile.older_age_diff)
+        
+        youngest_self_limit = Func(
+            Value(profile.birth_date),
+            Concat(F('younger_age_diff'), Value(' years')),
+            function='DATE',
+            output_field=DateField(),
+        )
+
+        oldest_self_limit = Func(
+            Value(profile.birth_date),
+            Concat(F('older_age_diff'), Value(' days')),
+            function='DATE',
+            output_field=DateField(),
+        )
+
         is_compatible = (
             ~Q(user=user)
             & ~Q(user__in=swiped_users)
@@ -48,7 +75,14 @@ class SwipeView(generics.ListAPIView):
                 if profile.sexual_preference != "all"
                 else Q()
             )
+            # Other profile's birth date is within my preferences
+            & Q(birth_date__lte=youngest_other_birth_date)
+            & Q(birth_date__gte=oldest_other_birth_date)
+            # My birth date is within other profile's preferences
+            & Q(birth_date__gte=youngest_self_limit)
+            & Q(birth_date__lte=oldest_self_limit)
         )
+        
         return models.Profile.objects.filter(is_compatible)[:SwipeView.batch_size]
 
 

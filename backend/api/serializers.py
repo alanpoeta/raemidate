@@ -2,6 +2,7 @@ from rest_framework import serializers
 from . import models
 from django.contrib.auth.password_validation import validate_password
 import base64
+from datetime import date
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -35,7 +36,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Profile
-        fields = ['user', 'first_name', 'last_name', 'bio', 'gender', 'sexual_preference', "birth_date", 'photos']
+        fields = ['user', 'first_name', 'last_name', 'bio', 'gender', 'sexual_preference', "birth_date", 'younger_age_diff', 'older_age_diff', 'photos']
         extra_kwargs = {
             'user': {'read_only': True},
         }
@@ -45,6 +46,47 @@ class ProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'photos': 'At least one photo is required.'
             })
+        
+        birth_date = attrs.get('birth_date')
+        younger_age_diff = attrs.get('younger_age_diff')
+        older_age_diff = attrs.get('older_age_diff')
+        
+        today = date.today()
+
+        def add_years(birth_date, delta_years):
+            return date(
+                birth_date.year + delta_years,
+                birth_date.month,
+                birth_date.day
+            )
+        
+        youngest_preferred_birth_date = add_years(birth_date, -younger_age_diff)
+        oldest_preferred_birth_date = add_years(birth_date, -older_age_diff)
+        
+        youngest_legal_birth_date = add_years(birth_date, 3)
+        oldest_legal_birth_date = add_years(birth_date, -3)
+
+        age = (today.year - birth_date.year) - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        if age >= 16:
+            sixteen_year_old_birth_date = add_years(today, -16)
+            youngest_legal_birth_date = max(youngest_legal_birth_date, sixteen_year_old_birth_date)
+            oldest_legal_birth_date = date(1900, 1, 1)
+        
+        if youngest_preferred_birth_date > youngest_legal_birth_date:
+            raise serializers.ValidationError({
+                'younger_age_diff': 'Minimum age difference exceeds legal limits.'
+            })
+        
+        if oldest_preferred_birth_date < oldest_legal_birth_date:
+            raise serializers.ValidationError({
+                'older_age_diff': 'Maximum age difference exceeds legal limits.'
+            })
+        
+        if younger_age_diff > older_age_diff:
+            raise serializers.ValidationError({
+                'younger_age_diff': 'Minimum age difference cannot be greater than maximum age difference.'
+            })
+        
         return attrs
 
     def create(self, validated_data):
@@ -60,8 +102,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         request = self.context.get("request")
+        
         if request and instance.user != request.user:
-            data.pop("sexual_preference")
+            data.pop("sexual_preference", None)
+            data.pop("younger_age_diff", None)
+            data.pop("older_age_diff", None)
         return data
 
 
