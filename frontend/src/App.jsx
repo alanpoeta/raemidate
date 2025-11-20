@@ -12,8 +12,17 @@ import { useState } from 'react';
 import Message from './pages/Message';
 import { NotificationProvider } from './helpers/NotificationContext';
 import Settings from './pages/Settings';
+import VerifyEmail from './components/VerifyEmail';
+import VerifyEmailRequired from './components/VerifyEmailRequired';
 
-const queryClient = new QueryClient({});
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      staleTime: Infinity,
+    },
+  }
+});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
 function App() {
@@ -31,6 +40,8 @@ function App() {
                 <Route path='/matches' element={<Protected><Matches /></Protected>} />
                 <Route path='/login' element={<AuthForm key='login' action='login' />} />
                 <Route path='/register' element={<AuthForm key='register' action='register' />} />
+                <Route path='/verify-email/:token' element={<Protected authenticationOptional><VerifyEmail /></Protected>} />
+                <Route path='/verify-email-required' element={<Protected emailVerificationOptional><VerifyEmailRequired /></Protected>} />
                 <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />
                 <Route path='/settings' element={<Protected profileOptional><Settings /></Protected>} />
                 <Route path='*' element={<NotFound />} />
