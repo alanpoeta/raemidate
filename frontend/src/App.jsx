@@ -11,6 +11,7 @@ import Matches from './pages/Matches';
 import { useState } from 'react';
 import Message from './pages/Message';
 import { NotificationProvider } from './helpers/NotificationContext';
+import Settings from './pages/Settings';
 
 const queryClient = new QueryClient({});
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
@@ -31,6 +32,7 @@ function App() {
                 <Route path='/login' element={<AuthForm key='login' action='login' />} />
                 <Route path='/register' element={<AuthForm key='register' action='register' />} />
                 <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />
+                <Route path='/settings' element={<Protected profileOptional><Settings /></Protected>} />
                 <Route path='*' element={<NotFound />} />
               </Routes>
             </main>

@@ -23,6 +23,7 @@ const Navbar = () => {
           <Link to='/profile'>Profile</Link>
         </>
       }
+      <Link to='/settings'>Settings</Link>
       <a href="/login" onClick={e => {
         e.preventDefault();
         logout();

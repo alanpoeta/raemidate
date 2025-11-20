@@ -11,9 +11,15 @@ from rest_framework.response import Response
 # Create your views here.
 
 
-class UserView(generics.CreateAPIView):
+class UserView(generics.CreateAPIView, generics.DestroyAPIView):
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+    def get_permissions(self):
+        return [IsAuthenticated()] if self.request.method == 'DELETE' else []
 
 
 class ProfileView(generics.RetrieveUpdateDestroyAPIView, generics.CreateAPIView):
