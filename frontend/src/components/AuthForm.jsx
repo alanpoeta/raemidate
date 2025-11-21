@@ -83,7 +83,10 @@ const AuthForm = ({ action }) => {
         <h1>Reset Password</h1>
         <p>Enter your email address to receive a password reset link.</p>
         <form onSubmit={handleSubmit(fields => passwordResetMutation.mutate(fields.email))}>
-          <Input name="email" register={register} />
+          <input
+              {...register("email", { required: requiredErrorMessage("email") })}
+              placeholder="Email"
+          />
           <button type="submit" disabled={passwordResetMutation.isPending}>
             {passwordResetMutation.isPending ? 'Sending...' : 'Send Reset Link'}
           </button>
