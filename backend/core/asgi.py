@@ -40,7 +40,10 @@ class JWTAuthMiddleware:
                 token = AccessToken(token_str)
                 user_id = token.get("user_id")
                 if user_id:
+                    issuing_time = token.get("iat")
                     user = await get_user(user_id)
+                    if getattr(user, "password_reset_at", None) and issuing_time < user.password_reset_at.timestamp():
+                        user = AnonymousUser()
             except ExpiredTokenError:
                 pass
         scope["user"] = user

@@ -158,7 +158,7 @@ def verify_email(request, token):
     if user.is_email_verified:
         return Response({"message": "Email already verified"}, status=status.HTTP_200_OK)
 
-    if user.verification_token_sent_at and timezone.now() - user.verification_token_sent_at > timedelta(hours=TOKEN_EXPIRY_MINUTES):
+    if timezone.now() - user.verification_token_sent_at > timedelta(hours=TOKEN_EXPIRY_MINUTES):
         return Response({"message": "Token expired"}, status=status.HTTP_400_BAD_REQUEST)
 
     user.is_email_verified = True
@@ -221,10 +221,10 @@ def verify_password_reset_token(request, token):
     try:
         user = User.objects.get(verification_token=token)
     except User.DoesNotExist:
-        return Response({"valid": False, "message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
     
-    if user.verification_token_sent_at and timezone.now() - user.verification_token_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
-        return Response({"valid": False, "message": "Link expired"}, status=status.HTTP_400_BAD_REQUEST)
+    if timezone.now() - user.verification_token_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
+        return Response({"message": "Link expired"}, status=status.HTTP_400_BAD_REQUEST)
     
     return Response(status=status.HTTP_200_OK)
 
@@ -245,5 +245,6 @@ def reset_password(request, token):
     
     user.set_password(serializer.validated_data['password'])
     user.verification_token = uuid.uuid4()
-    user.save(update_fields=["password", "verification_token"])
+    user.password_reset_at = timezone.now()
+    user.save(update_fields=["password", "verification_token", "password_reset_at"])
     return Response({"message": "Password reset successfully"}, status=status.HTTP_200_OK)

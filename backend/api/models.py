@@ -17,6 +17,7 @@ class User(AbstractUser):
     is_email_verified = models.BooleanField(default=False)
     verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
     verification_token_sent_at = models.DateTimeField(null=True, blank=True)
+    password_reset_at = models.DateTimeField(null=True, blank=True)
 
     def regenerate_verification_token(self):
         self.verification_token = uuid.uuid4()
@@ -206,5 +207,3 @@ def send_verification_email(sender, instance, created, **kwargs):
             recipient_list=[instance.email],
             fail_silently=False,
         )
-        instance.verification_token_sent_at = timezone.now()
-        instance.save(update_fields=["verification_token_sent_at"])
