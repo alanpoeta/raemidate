@@ -8,8 +8,12 @@ import Input from "./Input";
 
 const ProfileForm = ({ profile, onCancel }) => {
   const queryClient = useQueryClient();
-  const { setUser } = useAuth();
+  const { setUser, user } = useAuth();
   const isEditing = profile ? true : false;
+
+  const emailParts = user.email.split('@')[0].split('.');
+  const emailFirstName = desnakify(emailParts[0]);
+  const emailLastName = desnakify(emailParts[1]);
 
   const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm({
     defaultValues: profile ?? {}
@@ -20,8 +24,6 @@ const ProfileForm = ({ profile, onCancel }) => {
     mutationFn: (data) => {
       const formData = new FormData();
       
-      formData.append('first_name', data.first_name);
-      formData.append('last_name', data.last_name);
       formData.append('bio', data.bio);
       formData.append('gender', data.gender);
       formData.append('sexual_preference', data.sexual_preference);
@@ -64,8 +66,21 @@ const ProfileForm = ({ profile, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit((data) => profileMutation.mutate(data))}>
-      <Input name="first_name" register={register} />
-      <Input name="last_name" register={register} />
+      <input
+        type="text"
+        value={profile?.first_name || emailFirstName}
+        disabled
+        placeholder="First Name"
+        style={{ backgroundColor: '#e0e0e0', cursor: 'not-allowed' }}
+      />
+      <input
+        type="text"
+        value={profile?.last_name || emailLastName}
+        disabled
+        placeholder="Last Name"
+        style={{ backgroundColor: '#e0e0e0', cursor: 'not-allowed' }}
+      />
+
       <input
         type="date"
         {...register("birth_date", { required: requiredErrorMessage("birth_date") })}

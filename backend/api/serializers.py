@@ -3,6 +3,7 @@ from . import models
 from django.contrib.auth.password_validation import validate_password
 import base64
 from datetime import date
+import re
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,6 +23,14 @@ class UserSerializer(serializers.ModelSerializer):
             return True
         except models.Profile.DoesNotExist:
             return False
+    
+    def validate_email(self, email):
+        pattern = r'^[a-z]+\.[a-z]+@(mng|rgzh|lgr)\.ch$'
+        if not re.match(pattern, email):
+            raise serializers.ValidationError(
+                'Email must be in the format {first_name}.{last_name}@{"mng"|"rgzh"|"lgr"}.ch'
+            )
+        return email
     
     def validate_password(self, value):
         validate_password(value)
@@ -51,18 +60,20 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['user', 'first_name', 'last_name', 'bio', 'gender', 'sexual_preference', "birth_date", 'younger_age_diff', 'older_age_diff', 'photos']
         extra_kwargs = {
             'user': {'read_only': True},
+            'first_name': {'read_only': True},
+            'last_name': {'read_only': True},
         }
     
-    def validate(self, attrs):
+    def validate(self, profile):
         is_profile_creation = self.instance is None
         if is_profile_creation and not self.context['request'].FILES.getlist('photos'):
             raise serializers.ValidationError({
                 'photos': 'At least one photo is required.'
             })
         
-        birth_date = attrs.get('birth_date') or self.instance.birth_date
-        younger_age_diff = attrs.get('younger_age_diff') or self.instance.younger_age_diff
-        older_age_diff = attrs.get('older_age_diff') or self.instance.older_age_diff
+        birth_date = profile.get('birth_date') or self.instance.birth_date
+        younger_age_diff = profile.get('younger_age_diff') or self.instance.younger_age_diff
+        older_age_diff = profile.get('older_age_diff') or self.instance.older_age_diff
         
         today = date.today()
 
@@ -100,10 +111,15 @@ class ProfileSerializer(serializers.ModelSerializer):
                 'younger_age_diff': 'Minimum age difference cannot be greater than maximum age difference.'
             })
         
-        return attrs
+        return profile
 
     def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
+        user = self.context['request'].user
+        validated_data['user'] = user
+        email_parts = user.email.split('@')[0].split('.')
+        validated_data['first_name'] = email_parts[0].capitalize()
+        validated_data['last_name'] = email_parts[1].capitalize()
+        
         profile = models.Profile.objects.create(**validated_data)
         
         photos = self.context['request'].FILES.getlist('photos')

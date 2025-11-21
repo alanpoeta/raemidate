@@ -1,4 +1,5 @@
 export const desnakify = text => {
+    if (!text) return text;
     text = text.replace(/_/g, " ");
     return text[0].toUpperCase() + text.slice(1);
 };
