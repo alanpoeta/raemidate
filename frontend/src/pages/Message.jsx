@@ -12,15 +12,15 @@ const Message = () => {
   recipientId = parseInt(recipientId);
   const [text, setText] = useState("");
   const queryClient = useQueryClient();
-  const { handleUnmatch, setActiveChatRecipient, isLoading: notificationIsLoading } = useNotification();
+  const { handleUnmatch, setActiveRecipientId, isLoading: notificationIsLoading } = useNotification();
 
   const messagesKey = ["message", recipientId];
 
   useEffect(() => {
     if (notificationIsLoading) return;
-    setActiveChatRecipient(recipientId);
+    setActiveRecipientId(recipientId);
     return () => {
-      setActiveChatRecipient(null);
+      setActiveRecipientId(null);
     };
   }, [recipientId, notificationIsLoading]);
 
@@ -51,7 +51,7 @@ const Message = () => {
     mutationFn: () => api.delete(`match/${recipientId}/`),
     onSuccess: () => {
       handleUnmatch(recipientId);
-      navigate("/match");
+      navigate("/matches");
     },
   })
 

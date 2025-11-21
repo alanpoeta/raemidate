@@ -8,14 +8,24 @@ const useWebSocket = (pathname, { onopen, onclose, onmessage, enabled = true } =
   const [isOpen, setIsOpen] = useState(false);
   const socketRef = useRef(null);
   const navigate = useNavigate();
-  
+
+  const onopenRef = useRef(onopen);
+  const oncloseRef = useRef(onclose);
+  const onmessageRef = useRef(onmessage);
+
+  useEffect(() => {
+    onopenRef.current = onopen;
+    oncloseRef.current = onclose;
+    onmessageRef.current = onmessage;
+  }, [onopen, onclose, onmessage]);
+
   useEffect(() => {
     if (!enabled) return;
-    
+
     auth()
     .then(isAuthenticated => {
       if (!isAuthenticated) logout();
-    })
+    });
 
     const base = new URL(import.meta.env.VITE_API_URL);
     base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -24,12 +34,12 @@ const useWebSocket = (pathname, { onopen, onclose, onmessage, enabled = true } =
     socketRef.current = new WebSocket(base.toString(), [`Bearer.${accessToken}`]);
 
     socketRef.current.onopen = e => {
-      if (onopen) onopen(e);
+      onopenRef.current?.(e);
       setIsOpen(true);
-    }
+    };
 
     socketRef.current.onclose = e => {
-      if (onclose) onclose(e);
+      oncloseRef.current?.(e);
       if (e.code !== 1000) console.error("Socket closed", e.code, e.reason);
       setIsOpen(false);
       if ([WebSocket.CLOSING, WebSocket.CLOSED].includes(socketRef.current?.readyState)) {
@@ -38,14 +48,17 @@ const useWebSocket = (pathname, { onopen, onclose, onmessage, enabled = true } =
       }
     };
 
-    socketRef.current.onmessage = onmessage;
+    socketRef.current.onmessage = e => {
+      onmessageRef.current?.(e);
+    };
+
     return () => {
       if ([WebSocket.OPEN, WebSocket.CONNECTING].includes(socketRef.current?.readyState)) {
         socketRef.current?.close(1000, "disabled");
         socketRef.current = null;
       }
     };
-  }, [pathname, enabled])
+  }, [pathname, enabled]);
   
   return { socketRef, isOpen };
 }

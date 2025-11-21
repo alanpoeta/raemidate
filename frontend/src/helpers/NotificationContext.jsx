@@ -9,7 +9,7 @@ const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
   const queryClient = useQueryClient();
   const { isAuthenticated, user } = useAuth();
-  const [activeRecipientId, setActiveRecipientId] = useState(null);
+  const [activeRecipientId, setActiveRecipientIdNaive] = useState(null);
   
   const enabled = isAuthenticated && user?.hasProfile;
   
@@ -22,8 +22,8 @@ export const NotificationProvider = ({ children }) => {
     );
   }
 
-  const setActiveChatRecipient = (recipientId) => {
-    setActiveRecipientId(recipientId);
+  const setActiveRecipientId = (recipientId) => {
+    setActiveRecipientIdNaive(recipientId);
     
     if (recipientId) {
       queryClient.setQueryData(queriesOptions.match.queryKey, matches => {
@@ -45,9 +45,8 @@ export const NotificationProvider = ({ children }) => {
       if (notification.type === "unmatch") {
         handleUnmatch(notification.id);
       } else if (notification.type === "message") {
-        if (activeRecipientId === notification.id) {
+        if (activeRecipientId === notification.id)
           return;
-        }
         
         queryClient.setQueryData(queriesOptions.match.queryKey, matches => {
           if (!matches) return matches;
@@ -79,7 +78,7 @@ export const NotificationProvider = ({ children }) => {
       unreadCount,
       isLoading: matchQuery.isLoading || !socketIsOpen,
       handleUnmatch,
-      setActiveChatRecipient,
+      setActiveRecipientId
     }
 
   return (

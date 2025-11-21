@@ -141,6 +141,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(self.notification_group_name, self.channel_name)
     
     async def notification(self, event):
-        payload = event["payload"]
+        payload = event["payload"].copy()
         payload["type"] = payload.pop("notification_type")
-        await self.send(text_data=json.dumps(event["payload"]))
+        await self.send(text_data=json.dumps(payload))
