@@ -20,9 +20,9 @@ const Navbar = () => {
           <Link to='/'>Home</Link>
           <Link to='/matches'>Matches</Link>
           {!isLoading && unreadCount !== 0 && <p>{unreadCount} Notifications</p>}
-          <Link to='/profile'>Profile</Link>
         </>
       }
+      <Link to='/profile'>Profile</Link>
       <Link to='/settings'>Settings</Link>
       <a href="/login" onClick={e => {
         e.preventDefault();
