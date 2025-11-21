@@ -30,7 +30,7 @@ class UserView(generics.CreateAPIView, generics.RetrieveDestroyAPIView):
         return [IsAuthenticated()] if self.request.method in ['DELETE', 'GET'] else []
     
 
-class ProfileView(generics.RetrieveUpdateDestroyAPIView, generics.CreateAPIView):
+class ProfileView(generics.RetrieveUpdateAPIView, generics.CreateAPIView):
     queryset = models.Profile.objects.all()
     parser_classes = [MultiPartParser, JSONParser]
     serializer_class = serializers.ProfileSerializer
