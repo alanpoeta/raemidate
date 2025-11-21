@@ -3,10 +3,10 @@ import { useAuth } from "../helpers/AuthContext";
 import { useNotification } from "../helpers/NotificationContext";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const { isLoading, unreadCount } = useNotification();
 
-  if (!user?.username) return (
+  if (!isAuthenticated) return (
       <nav>
         <Link to='/login'>Login</Link>
         <Link to='/register'>Register</Link>
