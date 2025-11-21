@@ -15,13 +15,13 @@ import uuid
 class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
     is_email_verified = models.BooleanField(default=False)
-    email_verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
-    email_verification_sent_at = models.DateTimeField(null=True, blank=True)
+    verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    verification_token_sent_at = models.DateTimeField(null=True, blank=True)
 
-    def regenerate_email_token(self):
-        self.email_verification_token = uuid.uuid4()
-        self.email_verification_sent_at = timezone.now()
-        self.save(update_fields=["email_verification_token", "email_verification_sent_at"])
+    def regenerate_verification_token(self):
+        self.verification_token = uuid.uuid4()
+        self.verification_token_sent_at = timezone.now()
+        self.save(update_fields=["verification_token", "verification_token_sent_at"])
     
 
 class Profile(models.Model):
@@ -197,7 +197,8 @@ def notify_on_unmatch(sender, instance, **kwargs):
 @receiver(signals.post_save, sender=User)
 def send_verification_email(sender, instance, created, **kwargs):
     if created and not instance.is_email_verified:
-        verification_url = f"{settings.FRONTEND_URL}/verify-email/{instance.email_verification_token}"
+        verification_url = f"{settings.FRONTEND_URL}/verify-email/{instance.verification_token}"
+        instance.regenerate_verification_token()
         send_mail(
             subject="Verify your email",
             message=f"Click the link to verify your account: {verification_url}",
@@ -205,5 +206,5 @@ def send_verification_email(sender, instance, created, **kwargs):
             recipient_list=[instance.email],
             fail_silently=False,
         )
-        instance.email_verification_sent_at = timezone.now()
-        instance.save(update_fields=["email_verification_sent_at"])
+        instance.verification_token_sent_at = timezone.now()
+        instance.save(update_fields=["verification_token_sent_at"])

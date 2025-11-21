@@ -163,3 +163,11 @@ class MessageSerializer(serializers.ModelSerializer):
 
     def get_sender(self, message):
         return message.sender.first_name
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True, required=True)
+
+    def validate_password(self, value):
+        validate_password(value)
+        return value

@@ -14,6 +14,7 @@ from .models import User
 from django.core.mail import send_mail
 from django.conf import settings
 from .permissions import IsEmailVerified
+import uuid
 
 
 # Create your views here.
@@ -144,20 +145,20 @@ class MessageView(generics.ListAPIView):
             return models.Message.objects.none()
 
 
-TOKEN_EXPIRY_HOURS = 48
+TOKEN_EXPIRY_MINUTES = 10
 
 
 @api_view(["GET"])
 def verify_email(request, token):
     try:
-        user = User.objects.get(email_verification_token=token)
+        user = User.objects.get(verification_token=token)
     except User.DoesNotExist:
         return Response({"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
     if user.is_email_verified:
         return Response({"message": "Email already verified"}, status=status.HTTP_200_OK)
 
-    if user.email_verification_sent_at and timezone.now() - user.email_verification_sent_at > timedelta(hours=TOKEN_EXPIRY_HOURS):
+    if user.verification_token_sent_at and timezone.now() - user.verification_token_sent_at > timedelta(hours=TOKEN_EXPIRY_MINUTES):
         return Response({"message": "Token expired"}, status=status.HTTP_400_BAD_REQUEST)
 
     user.is_email_verified = True
@@ -180,13 +181,69 @@ def resend_verification(request):
     if user.is_email_verified:
         return Response({"error": "Email already verified"}, status=status.HTTP_400_BAD_REQUEST)
     
-    user.regenerate_email_token()
+    user.regenerate_verification_token()
     send_mail(
         subject="Verify your email",
-        message=f"Click the link to verify your account: {settings.FRONTEND_URL}/verify-email/{user.email_verification_token}",
+        message=f"Click the link to verify your account: {settings.FRONTEND_URL}/verify-email/{user.verification_token}",
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
         fail_silently=False,
     )
     
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def request_password_reset(request):
+    email = request.data.get('email')
+    
+    if not email:
+        return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(email=email)
+        user.regenerate_verification_token()
+        send_mail(
+            subject="Reset your password",
+            message=f"Click the link to reset your password: {settings.FRONTEND_URL}/reset-password/{user.verification_token}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except User.DoesNotExist:
+        pass
+    
+    return Response({"message": "If an account exists with this email, a password reset link has been sent."}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def verify_password_reset_token(request, token):
+    try:
+        user = User.objects.get(verification_token=token)
+    except User.DoesNotExist:
+        return Response({"valid": False, "message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if user.verification_token_sent_at and timezone.now() - user.verification_token_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
+        return Response({"valid": False, "message": "Link expired"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def reset_password(request, token):
+    try:
+        user = User.objects.get(verification_token=token)
+    except User.DoesNotExist:
+        return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if user.verification_token_sent_at and timezone.now() - user.verification_token_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
+        return Response({"error": "Link expired"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer = serializers.PasswordResetSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    user.set_password(serializer.validated_data['password'])
+    user.verification_token = uuid.uuid4()
+    user.save(update_fields=["password", "verification_token"])
+    return Response({"message": "Password reset successfully"}, status=status.HTTP_200_OK)

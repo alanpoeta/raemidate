@@ -14,6 +14,7 @@ import { NotificationProvider } from './helpers/NotificationContext';
 import Settings from './pages/Settings';
 import VerifyEmail from './pages/VerifyEmail';
 import VerifyEmailRequired from './pages/VerifyEmailRequired';
+import PasswordReset from './pages/PasswordReset';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +43,7 @@ function App() {
                 <Route path='/register' element={<AuthForm key='register' action='register' />} />
                 <Route path='/verify-email/:token' element={<Protected authenticationOptional><VerifyEmail /></Protected>} />
                 <Route path='/verify-email-required' element={<Protected emailVerificationOptional><VerifyEmailRequired /></Protected>} />
+                <Route path='/reset-password/:token' element={<PasswordReset />} />
                 <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />
                 <Route path='/settings' element={<Protected profileOptional><Settings /></Protected>} />
                 <Route path='*' element={<NotFound />} />

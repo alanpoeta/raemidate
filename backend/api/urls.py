@@ -14,4 +14,7 @@ urlpatterns = [
     path('message/<int:recipient_id>/', views.MessageView.as_view()),
     path("verify-email/<uuid:token>/", views.verify_email),
     path("resend-verification/", views.resend_verification),
+    path("request-password-reset/", views.request_password_reset),
+    path("verify-password-reset-token/<uuid:token>/", views.verify_password_reset_token),
+    path("reset-password/<uuid:token>/", views.reset_password),
 ]
