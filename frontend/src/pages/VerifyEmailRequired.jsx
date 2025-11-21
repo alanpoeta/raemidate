@@ -29,20 +29,14 @@ const VerifyEmailRequired = () => {
   return (
     <>
       <h1>Verify Your Email</h1>
-      <p>
-        Please check your email inbox and click the verification link we sent you.
-      </p>
-      
-      <div>
-        <button 
-          onClick={handleResend} 
-          disabled={resendStatus.loading}
-        >
-          {resendStatus.loading ? 'Sending...' : 'Resend Verification Email'}
-        </button>
-        <button onClick={logout}>Logout</button>
-      </div>
-
+      <p>Please check your email inbox and click the verification link we sent you.</p>
+      <button 
+        onClick={handleResend} 
+        disabled={resendStatus.loading}
+      >
+        {resendStatus.loading ? 'Sending...' : 'Resend Verification Email'}
+      </button>
+      <button onClick={logout}>Logout</button>
       {resendStatus.message && <p>{resendStatus.message}</p>}
     </>
   );
