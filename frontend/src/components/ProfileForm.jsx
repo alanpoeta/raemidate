@@ -4,7 +4,6 @@ import api from "../helpers/api";
 import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers/helpers";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../helpers/AuthContext";
-import Input from "./Input";
 
 const ProfileForm = ({ profile, onCancel }) => {
   const queryClient = useQueryClient();
