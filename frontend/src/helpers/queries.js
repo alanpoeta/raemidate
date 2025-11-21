@@ -17,8 +17,8 @@ const queriesOptions = {
   },
 
   match: {
-    queryKey: ["match"],
-    queryFn: () => api.get('match/').then(res => res.data),
+    queryKey: ["matches"],
+    queryFn: () => api.get('matches/').then(res => res.data),
   },
 
   message: {},
