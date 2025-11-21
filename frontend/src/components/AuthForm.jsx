@@ -2,14 +2,13 @@ import { useEffect, useState } from "react"
 import api from '../helpers/api'
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
-import { desnakify, setServerErrors } from "../helpers/helpers"
+import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers/helpers"
 import { useAuth } from "../helpers/AuthContext"
 import { useMutation } from "@tanstack/react-query"
-import Input from "./Input"
 
 const AuthForm = ({ action }) => {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors }, setError } = useForm();
+  const { register, handleSubmit, formState: { errors }, setError, watch } = useForm();
   const { login, isAuthenticated, isLoading } = useAuth();
   const [needsVerification, setNeedsVerification] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
@@ -101,14 +100,36 @@ const AuthForm = ({ action }) => {
     );
   }
 
+  const password = watch("password");
   return (
     <>
       <h1>{desnakify(action)}</h1>
       <form onSubmit={handleSubmit(fields => authMutation.mutate(fields))}>
-        {["email", "username", "password"].map(name => {
-          if (name === "email" && action !== "register") return;
-          return <Input name={name} register={register} key={name} />;
-        })}
+        {action === "register" &&
+          <input
+            {...register("email", { required: requiredErrorMessage("email") })}
+            placeholder="Email"
+          />
+        }
+        <input
+          {...register("username", { required: requiredErrorMessage("username") })}
+          placeholder="Username"
+        />
+        <input
+          type="password"
+            {...register("password", { required: requiredErrorMessage("password") })}
+            placeholder="Password"
+          />
+        {action === "register" &&
+          <input
+            type="password"
+            {...register("password_confirm", {
+              required: requiredErrorMessage("password_confirm"),
+              validate: value => value === password || "Passwords do not match"
+            })}
+            placeholder="Confirm Password"
+          />
+        }
         <button type="submit" disabled={authMutation.isPending}>
           {authMutation.isPending ? 'Submitting...' : 'Submit'}
         </button>
