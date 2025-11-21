@@ -48,7 +48,7 @@ const AuthForm = ({ action }) => {
     return (
       <>
         <h1>Check Your Email</h1>
-        <p>We've sent a verification link to your email address. Please click the link to verify your account before logging in.</p>
+        <p>We&#39;ve sent a verification link to your email address. Please click the link to verify your account before logging in.</p>
         <button onClick={() => navigate('/login')}>Go to Login</button>
       </>
     );
