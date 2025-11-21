@@ -12,4 +12,6 @@ urlpatterns = [
     path('match/', views.MatchView.as_view()),
     path('match/<int:other_id>/', views.MatchView.as_view()),
     path('message/<int:recipient_id>/', views.MessageView.as_view()),
+    path("verify-email/<uuid:token>/", views.verify_email),
+    path("resend-verification/", views.resend_verification),
 ]

@@ -10,10 +10,10 @@ import { useState } from "react";
 
 const Profile = () => {
   const queryClient = useQueryClient();
-  const { user, setUser, prefetchQueries } = useAuth();
+  const { user, prefetchQueries } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
 
-  const profileQuery = useQuery(queriesOptions.profile);
+  const profileQuery = useQuery({...queriesOptions.profile, enabled: user.hasProfile});
   const profile = profileQuery.data;
 
   const deleteProfileMutation = useMutation({
@@ -21,15 +21,6 @@ const Profile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile']});
       prefetchQueries();
-      setUser(user => {
-        const newUser = {
-          ...user,
-          hasProfile: false
-        }
-        localStorage.setItem('user', JSON.stringify(newUser));
-
-        return newUser
-      });
     },
   })
 

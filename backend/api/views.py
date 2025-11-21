@@ -6,12 +6,20 @@ from django.db.models import Q, F, Value, Func, DateField
 from django.db.models.functions import Concat
 from datetime import date
 from rest_framework.response import Response
+from django.utils import timezone
+from datetime import timedelta
+from rest_framework.decorators import api_view
+from rest_framework import status
+from .models import User
+from django.core.mail import send_mail
+from django.conf import settings
+from .permissions import IsEmailVerified
 
 
 # Create your views here.
 
 
-class UserView(generics.CreateAPIView, generics.DestroyAPIView):
+class UserView(generics.CreateAPIView, generics.RetrieveDestroyAPIView):
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
 
@@ -19,20 +27,17 @@ class UserView(generics.CreateAPIView, generics.DestroyAPIView):
         return self.request.user
 
     def get_permissions(self):
-        return [IsAuthenticated()] if self.request.method == 'DELETE' else []
-
+        return [IsAuthenticated()] if self.request.method in ['DELETE', 'GET'] else []
+    
 
 class ProfileView(generics.RetrieveUpdateDestroyAPIView, generics.CreateAPIView):
     queryset = models.Profile.objects.all()
     parser_classes = [MultiPartParser, JSONParser]
     serializer_class = serializers.ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmailVerified]
 
     def get_object(self):
-        try:
-            return models.Profile.objects.get(user=self.request.user)
-        except models.Profile.DoesNotExist:
-            return None
+        return models.Profile.objects.get(user=self.request.user)
 
 
 class SwipeView(generics.ListAPIView):
@@ -81,10 +86,10 @@ class SwipeView(generics.ListAPIView):
                 if profile.sexual_preference != "all"
                 else Q()
             )
-            # Other profile's birth date is within my preferences
+            
             & Q(birth_date__lte=youngest_other_birth_date)
             & Q(birth_date__gte=oldest_other_birth_date)
-            # My birth date is within other profile's preferences
+            
             & Q(birth_date__gte=youngest_self_limit)
             & Q(birth_date__lte=oldest_self_limit)
         )
@@ -137,3 +142,51 @@ class MessageView(generics.ListAPIView):
             return models.Message.objects.filter(match=match).order_by("created_at").all()
         except models.Match.DoesNotExist:
             return models.Message.objects.none()
+
+
+TOKEN_EXPIRY_HOURS = 48
+
+
+@api_view(["GET"])
+def verify_email(request, token):
+    try:
+        user = User.objects.get(email_verification_token=token)
+    except User.DoesNotExist:
+        return Response({"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if user.is_email_verified:
+        return Response({"message": "Email already verified"}, status=status.HTTP_200_OK)
+
+    if user.email_verification_sent_at and timezone.now() - user.email_verification_sent_at > timedelta(hours=TOKEN_EXPIRY_HOURS):
+        return Response({"message": "Token expired"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.is_email_verified = True
+    user.save(update_fields=["is_email_verified"])
+    return Response({"message": "Email verified successfully!"}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def resend_verification(request):
+    email = request.data.get('email')
+    
+    if not email:
+        return Response({"error": "Username or email required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if user.is_email_verified:
+        return Response({"error": "Email already verified"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user.regenerate_email_token()
+    send_mail(
+        subject="Verify your email",
+        message=f"Click the link to verify your account: {settings.FRONTEND_URL}/verify-email/{user.email_verification_token}",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    
+    return Response(status=status.HTTP_200_OK)

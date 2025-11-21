@@ -167,3 +167,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "no-reply@example.com"
+FRONTEND_URL = "http://localhost:5173"

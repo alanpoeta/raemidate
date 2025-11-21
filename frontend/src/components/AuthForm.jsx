@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import api from '../helpers/api'
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
@@ -11,6 +11,7 @@ const AuthForm = ({ action }) => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors }, setError } = useForm();
   const { login, isAuthenticated, isLoading } = useAuth();
+  const [needsVerification, setNeedsVerification] = useState(false);
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) navigate('/');
@@ -33,17 +34,25 @@ const AuthForm = ({ action }) => {
       const { data } = await api.post(route, fields);
       return data;
     },
-    onSuccess: (data, fields) => {
+    onSuccess: (data) => {
       if (action === 'login') {
-        login(data.access, data.refresh, {
-          username: fields.username
-        });
+        login(data.access, data.refresh);
       } else {
-        navigate('/login');
+        setNeedsVerification(true);
       }
     },
     onError: error => setServerErrors(error, setError)
   });
+
+  if (needsVerification) {
+    return (
+      <>
+        <h1>Check Your Email</h1>
+        <p>We've sent a verification link to your email address. Please click the link to verify your account before logging in.</p>
+        <button onClick={() => navigate('/login')}>Go to Login</button>
+      </>
+    );
+  }
 
   return (
     <>

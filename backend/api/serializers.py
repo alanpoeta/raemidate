@@ -6,10 +6,22 @@ from datetime import date
 
 
 class UserSerializer(serializers.ModelSerializer):
+    has_profile = serializers.SerializerMethodField()
+
     class Meta:
         model = models.User
-        fields = ['id', 'email', 'username', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['id', 'username', 'email', 'password', 'is_email_verified', 'has_profile']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_email_verified': {'read_only': True}
+        }
+    
+    def get_has_profile(self, user):
+        try:
+            models.Profile.objects.get(user=user)
+            return True
+        except models.Profile.DoesNotExist:
+            return False
     
     def validate_password(self, value):
         validate_password(value)

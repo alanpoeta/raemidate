@@ -19,48 +19,43 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     auth()
     .then(isAuthenticated => {
-      if (isAuthenticated) login(null, null, user, false);
+      if (isAuthenticated) login();
       else setIsLoading(false);
     });
   }, []);
 
   const prefetchQueries = async () => {
-    const profile = await queryClient.fetchQuery(queriesOptions.profile)
-    const hasProfile = profile.first_name !== "";
-    setUser(user => {
-      const newUser = {
-        ...user,
-        hasProfile
-      }
-      localStorage.setItem('user', JSON.stringify(newUser));
+    queryClient.invalidateQueries({ queryKey: queriesOptions.user.queryKey })
+    const userData = await queryClient.fetchQuery(queriesOptions.user);
+    
+    const newUser = {
+      username: userData.username,
+      email: userData.email,
+      hasProfile: userData.has_profile,
+      isEmailVerified: userData.is_email_verified
+    };
 
-      return newUser
-    });
-    if (!hasProfile) return;
+    setUser(newUser);
+    localStorage.setItem("user", JSON.stringify(newUser));
 
-    [queriesOptions.swipe, queriesOptions.match].forEach(queryOption => {
-      queryClient.prefetchQuery(queryOption);
+    if (!newUser.hasProfile) return;
+
+    [queriesOptions.swipe, queriesOptions.match, queriesOptions.profile].forEach(queryOptions => {
+      queryClient.invalidateQueries({ queryKey: queryOptions.queryKey })
+      queryClient.prefetchQuery(queryOptions);
     });
   }
 
-  const login = async (accessToken=null, refreshToken=null, user=null, toHome=true) => {
+  const login = async (accessToken=null, refreshToken=null) => {
     if (accessToken) localStorage.setItem('access', accessToken);
     if (refreshToken) localStorage.setItem('refresh', refreshToken);
-    if (user) setUser(prev => {
-      const newUser = {
-        ...prev,
-        ...user
-      }
-      localStorage.setItem('user', JSON.stringify(newUser));
-
-      return newUser
-    });
 
     await prefetchQueries();
 
     setIsAuthenticated(true);
     setIsLoading(false);
-    if (toHome) navigate('/');
+    if (user.isEmailVerified)
+      navigate('/');
   }
 
   const logout = async () => {
@@ -95,13 +90,21 @@ export const useAuth = () => {
   return context;
 }
 
-export const Protected = ({ profileOptional = false, children }) => {
+export const Protected = ({ profileOptional = false, emailVerificationOptional = false, authenticationOptional = false, children }) => {
+  if (authenticationOptional) emailVerificationOptional = true;
+  if (emailVerificationOptional) profileOptional = true;
+
   const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) return <Loading />;
-  if (!isAuthenticated) return <Navigate to='/login' />;
-  if (user.hasProfile === false && !profileOptional) {
+
+  if (!isAuthenticated && !authenticationOptional) return <Navigate to='/login' />;
+
+  if (user?.isEmailVerified === false && !emailVerificationOptional)
+    return <Navigate to='/verify-email-required' />;
+
+  if (user?.hasProfile === false && !profileOptional)
     return <Navigate to='/profile' />;
-  }
+
   return children;
 }
