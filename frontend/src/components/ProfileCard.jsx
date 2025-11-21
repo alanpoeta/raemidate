@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { desnakify } from "../helpers/helpers";
 
 const ProfileCard = ({ profile }) => {
+  const [iPhoto, setIPhoto] = useState(0);
+  const photo = profile.photos[iPhoto];
+  const nPhotos = profile.photos.length;
   return (
     <section>
       {Object.keys(profile).map(key => {
@@ -9,14 +13,18 @@ const ProfileCard = ({ profile }) => {
         }
       })}
       <p>Pictures: </p>
-      {profile.photos.map(photo => (
-        <img
-          key={photo.id}
-          src={`data:image/jpeg;base64,${photo.blob}`}
-          alt="profile"
-          height="300px"
-        />
-      ))}
+      <img
+        key={photo.id}
+        src={`data:image/jpeg;base64,${photo.blob}`}
+        alt="profile"
+        height="300px"
+      />
+      {nPhotos > 1 && <>
+        <br />
+        <button onClick={() => setIPhoto(i => ((i - 1 + nPhotos) % nPhotos))}>Previous photo</button>
+        <button onClick={() => setIPhoto(i => (i + 1 + nPhotos) % nPhotos)}>Next photo</button>
+      </>}
+      
     </section>
   );
 }
