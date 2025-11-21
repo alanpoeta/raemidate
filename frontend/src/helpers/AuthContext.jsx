@@ -54,8 +54,6 @@ export const AuthProvider = ({ children }) => {
 
     setIsAuthenticated(true);
     setIsLoading(false);
-    if (user.isEmailVerified)
-      navigate('/');
   }
 
   const logout = async () => {
