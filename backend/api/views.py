@@ -72,7 +72,7 @@ class SwipeView(generics.ListAPIView):
 
         oldest_self_limit = Func(
             Value(profile.birth_date),
-            Concat(F('older_age_diff'), Value(' days')),
+            Concat(F('older_age_diff'), Value(' years')),
             function='DATE',
             output_field=DateField(),
         )
