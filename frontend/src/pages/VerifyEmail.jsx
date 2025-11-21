@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
 import api from "../helpers/api";
-import Loading from "./Loading";
+import Loading from "../components/Loading";
 import { useAuth } from "../helpers/AuthContext";
 
 const VerifyEmail = () => {

@@ -12,8 +12,8 @@ import { useState } from 'react';
 import Message from './pages/Message';
 import { NotificationProvider } from './helpers/NotificationContext';
 import Settings from './pages/Settings';
-import VerifyEmail from './components/VerifyEmail';
-import VerifyEmailRequired from './components/VerifyEmailRequired';
+import VerifyEmail from './pages/VerifyEmail';
+import VerifyEmailRequired from './pages/VerifyEmailRequired';
 
 const queryClient = new QueryClient({
   defaultOptions: {
