@@ -16,13 +16,18 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
     is_email_verified = models.BooleanField(default=False)
     verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
-    verification_token_sent_at = models.DateTimeField(null=True, blank=True)
+    email_verification_sent_at = models.DateTimeField(null=True, blank=True)
+    password_reset_sent_at = models.DateTimeField(null=True, blank=True)
     password_reset_at = models.DateTimeField(null=True, blank=True)
 
-    def regenerate_verification_token(self):
+    def regenerate_verification_token(self, token_type):
         self.verification_token = uuid.uuid4()
-        self.verification_token_sent_at = timezone.now()
-        self.save(update_fields=["verification_token", "verification_token_sent_at"])
+        if token_type == 'email':
+            self.email_verification_sent_at = timezone.now()
+            self.save(update_fields=["verification_token", "email_verification_sent_at"])
+        elif token_type == 'password':
+            self.password_reset_sent_at = timezone.now()
+            self.save(update_fields=["verification_token", "password_reset_sent_at"])
     
 
 class Profile(models.Model):
@@ -199,7 +204,7 @@ def notify_on_unmatch(sender, instance, **kwargs):
 def send_verification_email(sender, instance, created, **kwargs):
     if created and not instance.is_email_verified:
         verification_url = f"{settings.FRONTEND_URL}/verify-email/{instance.verification_token}"
-        instance.regenerate_verification_token()
+        instance.regenerate_verification_token(token_type='email')
         send_mail(
             subject="Verify your email",
             message=f"Click the link to verify your account: {verification_url}",

@@ -146,6 +146,18 @@ class MessageView(generics.ListAPIView):
 
 
 TOKEN_EXPIRY_MINUTES = 10
+RESEND_COOLDOWN_MINUTES = 1
+
+
+def get_remaining_cooldown_seconds(last_sent_at, cooldown_minutes):
+    if not last_sent_at:
+        return 0
+    elapsed = timezone.now() - last_sent_at
+    cooldown_delta = timedelta(minutes=cooldown_minutes)
+    if elapsed < cooldown_delta:
+        remaining = cooldown_delta - elapsed
+        return int(remaining.total_seconds())
+    return 0
 
 
 @api_view(["GET"])
@@ -158,7 +170,7 @@ def verify_email(request, token):
     if user.is_email_verified:
         return Response({"message": "Email already verified"}, status=status.HTTP_200_OK)
 
-    if timezone.now() - user.verification_token_sent_at > timedelta(hours=TOKEN_EXPIRY_MINUTES):
+    if user.email_verification_sent_at and timezone.now() - user.email_verification_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
         return Response({"message": "Token expired"}, status=status.HTTP_400_BAD_REQUEST)
 
     user.is_email_verified = True
@@ -181,7 +193,14 @@ def resend_verification(request):
     if user.is_email_verified:
         return Response({"error": "Email already verified"}, status=status.HTTP_400_BAD_REQUEST)
     
-    user.regenerate_verification_token()
+    remaining_seconds = get_remaining_cooldown_seconds(user.email_verification_sent_at, RESEND_COOLDOWN_MINUTES)
+    if remaining_seconds > 0:
+        return Response(
+            {"error": f"Please wait {remaining_seconds} seconds before requesting another email"}, 
+            status=status.HTTP_429_TOO_MANY_REQUESTS
+        )
+    
+    user.regenerate_verification_token(token_type='email')
     send_mail(
         subject="Verify your email",
         message=f"Click the link to verify your account: {settings.FRONTEND_URL}/verify-email/{user.verification_token}",
@@ -202,7 +221,13 @@ def request_password_reset(request):
     
     try:
         user = User.objects.get(email=email)
-        user.regenerate_verification_token()
+        remaining_seconds = get_remaining_cooldown_seconds(user.password_reset_sent_at, RESEND_COOLDOWN_MINUTES)
+        if remaining_seconds > 0:
+            return Response(
+                {"message": "If an account exists with this email, a password reset link has been sent."},
+                status=status.HTTP_200_OK
+            )
+        user.regenerate_verification_token(token_type='password')
         send_mail(
             subject="Reset your password",
             message=f"Click the link to reset your password: {settings.FRONTEND_URL}/reset-password/{user.verification_token}",
@@ -223,7 +248,7 @@ def verify_password_reset_token(request, token):
     except User.DoesNotExist:
         return Response({"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
     
-    if timezone.now() - user.verification_token_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
+    if user.password_reset_sent_at and timezone.now() - user.password_reset_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
         return Response({"message": "Link expired"}, status=status.HTTP_400_BAD_REQUEST)
     
     return Response(status=status.HTTP_200_OK)
@@ -236,7 +261,7 @@ def reset_password(request, token):
     except User.DoesNotExist:
         return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
     
-    if user.verification_token_sent_at and timezone.now() - user.verification_token_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
+    if user.password_reset_sent_at and timezone.now() - user.password_reset_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
         return Response({"error": "Link expired"}, status=status.HTTP_400_BAD_REQUEST)
     
     serializer = serializers.PasswordResetSerializer(data=request.data)
