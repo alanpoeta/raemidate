@@ -8,14 +8,50 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 import uuid
+from secured_fields import EncryptedCharField, EncryptedTextField, EncryptedMixin, lookups, fernet, utils
 
-# Create your models here.
+
+class UsernameField(EncryptedCharField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unique = True
+
+
+class EncryptedEmailField(EncryptedMixin, models.EmailField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unique = True
+
+
+class EncryptedUUIDField(EncryptedMixin, models.UUIDField):
+    def get_db_prep_save(self, value, connection):
+        if value is None:
+            return value
+        
+        val_str = str(value)
+        val_bytes = val_str.encode()
+
+        encrypted = fernet.get_fernet().encrypt(val_bytes).decode()
+        if not self.searchable:
+            return encrypted
+
+        return encrypted + self.separator + utils.hash_with_salt(val_str)
+
+
+EncryptedUUIDField.register_lookup(lookups.EncryptedExact, 'exact')
+EncryptedUUIDField.register_lookup(lookups.EncryptedIn, 'in')
+EncryptedEmailField.register_lookup(lookups.EncryptedExact, 'exact')
+EncryptedEmailField.register_lookup(lookups.EncryptedIn, 'in')
 
 
 class User(AbstractUser):
-    email = models.EmailField(unique=True, blank=False)
+    username = UsernameField(
+        max_length=150,
+        searchable=True,
+    )
+    email = EncryptedEmailField(searchable=True)
     is_email_verified = models.BooleanField(default=False)
-    verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    verification_token = EncryptedUUIDField(default=uuid.uuid4, null=True, searchable=True)
     email_verification_sent_at = models.DateTimeField(null=True, blank=True)
     password_reset_sent_at = models.DateTimeField(null=True, blank=True)
     password_reset_at = models.DateTimeField(null=True, blank=True)
@@ -32,12 +68,12 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    first_name = models.CharField(max_length=35)
-    last_name = models.CharField(max_length=35)
-    bio = models.TextField()
+    first_name = EncryptedCharField(max_length=35)
+    last_name = EncryptedCharField(max_length=35)
+    bio = EncryptedTextField()
     birth_date = models.DateField()
-    gender = models.CharField(choices=((s, s) for s in ("male", "female", "other")))
-    sexual_preference = models.CharField(choices=((s, s) for s in ("male", "female", "all")))
+    gender = EncryptedCharField(choices=((s, s) for s in ("male", "female", "other")), searchable=True)
+    sexual_preference = EncryptedCharField(choices=((s, s) for s in ("male", "female", "all")), searchable=True)
     younger_age_diff = models.SmallIntegerField()
     older_age_diff = models.SmallIntegerField()
     left_swiped = models.ManyToManyField("self", related_name="left_swiped_by", symmetrical=False, blank=True)
@@ -156,7 +192,7 @@ class Match(models.Model):
 class Message(models.Model):
     sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="messages")
     recipient = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="received_messages")
-    text = models.TextField()
+    text = EncryptedTextField()
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name="messages")
     created_at = models.DateTimeField(auto_now_add=True)
 

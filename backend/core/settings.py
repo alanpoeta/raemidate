@@ -24,6 +24,9 @@ MEDIA_ROOT = BASE_DIR
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-$9sa8*x3k&mxht=#$rzbz6@*zt9mxxy^@3%*!nmn@yl)t+8a1z'
 
+SECURED_FIELDS_KEY = "1pg6wKi2LwZOmxMCksjhIqxYMJyun0ZaPR7g9k299dc="
+SECURED_FIELDS_HASH_SALT = '8efe1495'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -49,6 +52,8 @@ INSTALLED_APPS = [
     'corsheaders',
     
     'api',
+
+    'secured_fields',
 ]
 
 AUTH_USER_MODEL = 'api.User'
