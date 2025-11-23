@@ -3,7 +3,7 @@ import api from "../helpers/api";
 import { useAuth } from "../helpers/AuthContext";
 
 const Settings = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const deleteUserMutation = useMutation({
     mutationFn: () => api.delete('user/'),
@@ -13,6 +13,8 @@ const Settings = () => {
   return (
     <div>
       <h1>Settings</h1>
+      <p>Username: {user.username}</p>
+      <p>Email: {user.email}</p>
       <button
         disabled={deleteUserMutation.isLoading}
         onClick={() => deleteUserMutation.mutate()}
