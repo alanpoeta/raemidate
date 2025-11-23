@@ -36,7 +36,7 @@ const VerifyEmail = () => {
   }, [token]);
 
   if (user?.isEmailVerified)
-    return <Navigate to="/" />
+    return <Navigate to="/" />;
 
   if (status.loading)
     return <Loading />;

@@ -196,7 +196,7 @@ def resend_verification(request):
     remaining_seconds = get_remaining_cooldown_seconds(user.email_verification_sent_at, RESEND_COOLDOWN_MINUTES)
     if remaining_seconds > 0:
         return Response(
-            {"error": f"Please wait {remaining_seconds} seconds before requesting another email"}, 
+            {"error": f"Please wait {remaining_seconds} seconds before requesting another email"},
             status=status.HTTP_429_TOO_MANY_REQUESTS
         )
     

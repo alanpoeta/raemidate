@@ -24,7 +24,7 @@ const VerifyEmailRequired = () => {
   };
 
   if (user.isEmailVerified)
-    return <Navigate to="/" />
+    return <Navigate to="/" />;
 
   return (
     <>
