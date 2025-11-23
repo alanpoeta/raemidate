@@ -45,7 +45,7 @@ function App() {
                 <Route path='/verify-email-required' element={<Protected emailVerificationOptional><VerifyEmailRequired /></Protected>} />
                 <Route path='/reset-password/:token' element={<PasswordReset />} />
                 <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />
-                <Route path='/settings' element={<Protected profileOptional><Settings /></Protected>} />
+                <Route path='/settings' element={<Protected emailVerificationOptional><Settings /></Protected>} />
                 <Route path='*' element={<NotFound />} />
               </Routes>
             </main>
