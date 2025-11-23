@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     setUser(newUser);
     localStorage.setItem("user", JSON.stringify(newUser));
 
-    if (!newUser.hasProfile) return;
+    if (!newUser.hasProfile || !newUser.isEmailVerified) return;
 
     [queriesOptions.swipe, queriesOptions.match, queriesOptions.profile].forEach(queryOptions => {
       queryClient.invalidateQueries({ queryKey: queryOptions.queryKey })
