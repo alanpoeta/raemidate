@@ -13,6 +13,7 @@ const Message = () => {
   const [text, setText] = useState("");
   const [showReport, setShowReport] = useState(false);
   const [reason, setReason] = useState("");
+  const [confirmUnmatch, setConfirmUnmatch] = useState(false);
   const reportReasons = ["Harassment", "Incorrect age", "Impersonation"];
   const queryClient = useQueryClient();
   const { handleUnmatch, setActiveRecipientId, isLoading: notificationIsLoading } = useNotification();
@@ -73,7 +74,20 @@ const Message = () => {
 
   return (
     <>
-      <button onClick={() => unmatchMutation.mutate()}>Unmatch</button>
+      {!confirmUnmatch ? (
+        <button onClick={() => setConfirmUnmatch(true)}>Unmatch</button>
+      ) : (
+        <span >
+          <span>Are you sure?</span>
+          <button
+            disabled={unmatchMutation.isLoading}
+            onClick={() => unmatchMutation.mutate()}
+          >
+            Yes, unmatch
+          </button>
+          <button onClick={() => setConfirmUnmatch(false)}>Cancel</button>
+        </span>
+      )}
       <button onClick={() => setShowReport(true)}>Report</button>
       {showReport && (
         <article>
