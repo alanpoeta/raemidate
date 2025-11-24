@@ -17,4 +17,5 @@ urlpatterns = [
     path("request-password-reset/", views.request_password_reset),
     path("verify-password-reset-token/<uuid:token>/", views.verify_password_reset_token),
     path("reset-password/<uuid:token>/", views.reset_password),
+    path("report/<int:other_id>/", views.report_conversation),
 ]

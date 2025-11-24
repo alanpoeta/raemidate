@@ -8,7 +8,7 @@ from datetime import date
 from rest_framework.response import Response
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from .models import User
 from django.core.mail import send_mail
@@ -273,3 +273,38 @@ def reset_password(request, token):
     user.password_reset_at = timezone.now()
     user.save(update_fields=["password", "verification_token", "password_reset_at"])
     return Response({"message": "Password reset successfully"}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def report_conversation(request, other_id):
+    reason = request.data.get("reason")
+    if not reason:
+        return Response({"error": "Reason required"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        reporter = request.user.profile
+        reported = models.Profile.objects.get(user_id=other_id)
+    except models.Profile.DoesNotExist:
+        return Response({"error": "Recipient not found"}, status=status.HTTP_404_NOT_FOUND)
+    try:
+        match = models.Match.get_between(reporter, reported)
+    except models.Match.DoesNotExist:
+        return Response({"error": "No existing match"}, status=status.HTTP_400_BAD_REQUEST)
+    lines = [
+        f"Report reason: {reason}",
+        f"Reporter: {reporter.first_name} {reporter.last_name} (id={reporter.user_id})",
+        f"Reported user: {reported.first_name} {reported.last_name} (id={reported.user_id})",
+        "Conversation:"
+    ]
+    messages = models.Message.objects.filter(match=match).order_by("created_at")
+    for m in messages:
+        lines.append(f"[{m.created_at}] {m.sender.first_name}: {m.text}")
+    body = "\n".join(lines)
+    send_mail(
+        subject=f"Report: {reporter.first_name} -> {reported.first_name} ({reason})",
+        message=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[settings.DEFAULT_FROM_EMAIL],
+        fail_silently=False,
+    )
+    return Response(status=status.HTTP_200_OK)

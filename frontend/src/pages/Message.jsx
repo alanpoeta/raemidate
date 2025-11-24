@@ -11,6 +11,9 @@ const Message = () => {
   let { recipientId } = useParams();
   recipientId = parseInt(recipientId);
   const [text, setText] = useState("");
+  const [showReport, setShowReport] = useState(false);
+  const [reason, setReason] = useState("");
+  const reportReasons = ["Harassment", "Incorrect age", "Impersonation"];
   const queryClient = useQueryClient();
   const { handleUnmatch, setActiveRecipientId, isLoading: notificationIsLoading } = useNotification();
 
@@ -54,6 +57,15 @@ const Message = () => {
       navigate("/matches");
     },
   })
+  
+  const reportMutation = useMutation({
+    mutationFn: () => api.post(`report/${recipientId}/`, { reason }),
+    onSuccess: () => {
+      setShowReport(false);
+      setReason("");
+      alert("Report submitted.");
+    },
+  });
 
   if (isLoading) return <Loading />;
 
@@ -62,9 +74,33 @@ const Message = () => {
   return (
     <>
       <button onClick={() => unmatchMutation.mutate()}>Unmatch</button>
+      <button onClick={() => setShowReport(true)}>Report</button>
+      {showReport && (
+        <article>
+          <h4>Report Conversation</h4>
+            <p>Select a reason. A moderator will review this conversation (all messages become visible to staff).</p>
+            <select value={reason} onChange={e => setReason(e.target.value)}>
+              <option value="">-- Reason --</option>
+              {reportReasons.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+            <button
+              disabled={!reason || reportMutation.isLoading}
+              onClick={() => reportMutation.mutate()}
+            >
+              Confirm Report
+            </button>
+            <button
+              onClick={() => {
+                setShowReport(false);
+                setReason("");
+            }}>
+              Cancel
+            </button>
+        </article>
+      )}
       <form onSubmit={sendMessage}>
-        {messages.map(({ sender, text }, i) => (
-          <p key={i}>{sender}: {text}</p>
+        {messages.map(({ sender, text, created_at }, i) => (
+          <p key={i}>{sender}: {text}  |  {created_at}</p>
         ))}
         <input value={text} onChange={e => setText(e.target.value)} />
         <button type="submit">Send</button>
