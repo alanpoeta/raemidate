@@ -51,7 +51,7 @@ class User(AbstractUser):
     )
     email = EncryptedEmailField(searchable=True)
     is_email_verified = models.BooleanField(default=False)
-    verification_token = EncryptedUUIDField(default=uuid.uuid4, null=True, searchable=True)
+    verification_token = EncryptedUUIDField(default=uuid.uuid4, searchable=True, db_index=True)
     email_verification_sent_at = models.DateTimeField(null=True, blank=True)
     password_reset_sent_at = models.DateTimeField(null=True, blank=True)
     password_reset_at = models.DateTimeField(null=True, blank=True)
@@ -71,7 +71,7 @@ class Profile(models.Model):
     first_name = EncryptedCharField(max_length=35)
     last_name = EncryptedCharField(max_length=35)
     bio = EncryptedTextField()
-    birth_date = models.DateField()
+    birth_date = models.DateField(db_index=True)
     gender = EncryptedCharField(choices=((s, s) for s in ("male", "female", "other")), searchable=True)
     sexual_preference = EncryptedCharField(choices=((s, s) for s in ("male", "female", "all")), searchable=True)
     younger_age_diff = models.SmallIntegerField()
@@ -222,6 +222,11 @@ class Message(models.Model):
     text = EncryptedTextField()
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name="messages")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["match", "created_at"]),
+        ]
 
     def __str__(self):
         return f"Message {self.sender.first_name} -> {self.recipient.first_name}"
