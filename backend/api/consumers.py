@@ -13,7 +13,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
         
         self.sender_id = user.id
-        self.recipient_id = self.scope["url_route"]["kwargs"]["recipient_id"]  # type: ignore
+        self.recipient_id = self.scope["url_route"]["kwargs"]["recipient_id"]
         self.sender = await get_profile(user.id)
         self.recipient = await get_profile(self.recipient_id)
         self.match = await self.get_match()
@@ -115,7 +115,11 @@ class SwipeConsumer(AsyncWebsocketConsumer):
     def swipe(self, other_id, direction):
         try:
             other = models.Profile.objects.get(user_id=other_id)
-            self.profile.swipe(other, direction)  # type: ignore
+            if (
+                not self.profile.right_swiped.filter(user_id=other_id).exists()
+                and not self.profile.left_swiped.filter(user_id=other_id).exists()
+            ):
+                self.profile.swipe(other, direction)
         except models.Profile.DoesNotExist:
             pass
 

@@ -101,6 +101,8 @@ class Profile(models.Model):
         return elo_change
 
     def swipe(self, other: 'Profile', direction):
+        if self == other:
+            raise ValueError("Cannot swipe on oneself.")
         if direction == "left":
             self.left_swiped.add(other)
             self.right_swiped.remove(other)
