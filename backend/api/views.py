@@ -95,9 +95,41 @@ class SwipeView(generics.ListAPIView):
             & Q(birth_date__lte=oldest_self_limit)
         )
         
-        return models.Profile.objects.filter(is_compatible).annotate(
-            elo_diff=Abs(F('elo') - Value(profile.elo))
-        ).order_by('elo_diff')[:SwipeView.batch_size]
+        queryset = []
+        i_higher = 0
+        i_lower = 0
+        
+        while len(queryset) < self.batch_size:
+            higher = models.Profile.objects.filter(
+                is_compatible,
+                elo__gte=profile.elo
+            ).order_by('elo')[i_higher:i_higher+1].first()
+            
+            lower = models.Profile.objects.filter(
+                is_compatible,
+                elo__lt=profile.elo
+            ).order_by('-elo')[i_lower:i_lower+1].first()
+            
+            if not higher and not lower:
+                break
+
+            if higher and lower:
+                higher_diff = abs(higher.elo - profile.elo)
+                lower_diff = abs(lower.elo - profile.elo)
+                if higher_diff <= lower_diff:
+                    queryset.append(higher)
+                    i_higher += 1
+                else:
+                    queryset.append(lower)
+                    i_lower += 1
+            elif higher:
+                queryset.append(higher)
+                i_higher += 1
+            else:
+                queryset.append(lower)
+                i_lower += 1
+        
+        return queryset
 
 
 class MatchView(generics.ListAPIView):
