@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
 from django.db.models import Q, F, Value, Func, DateField
-from django.db.models.functions import Concat
+from django.db.models.functions import Abs, Concat
 from datetime import date
 from rest_framework.response import Response
 from django.utils import timezone
@@ -95,7 +95,9 @@ class SwipeView(generics.ListAPIView):
             & Q(birth_date__lte=oldest_self_limit)
         )
         
-        return models.Profile.objects.filter(is_compatible)[:SwipeView.batch_size]
+        return models.Profile.objects.filter(is_compatible).annotate(
+            elo_diff=Abs(F('elo') - Value(profile.elo))
+        ).order_by('elo_diff')[:SwipeView.batch_size]
 
 
 class MatchView(generics.ListAPIView):

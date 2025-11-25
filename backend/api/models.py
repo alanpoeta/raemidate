@@ -76,6 +76,8 @@ class Profile(models.Model):
     sexual_preference = EncryptedCharField(choices=((s, s) for s in ("male", "female", "all")), searchable=True)
     younger_age_diff = models.SmallIntegerField()
     older_age_diff = models.SmallIntegerField()
+    elo = models.IntegerField(default=0)
+    swiped_on_count = models.PositiveIntegerField(default=0)
     left_swiped = models.ManyToManyField("self", related_name="left_swiped_by", symmetrical=False, blank=True)
     right_swiped = models.ManyToManyField("self", related_name="right_swiped_by", symmetrical=False, blank=True)
     matched = models.ManyToManyField(
@@ -85,14 +87,37 @@ class Profile(models.Model):
         blank=True
     )
 
+    def get_elo_change(self, swiper_elo, direction):
+        if self.swiped_on_count < 10:
+            k_factor = 40
+        elif self.swiped_on_count < 30:
+            k_factor = 20
+        else:
+            k_factor = 10
+        
+        expected_score = 1 / (1 + 10 ** ((swiper_elo - self.elo) / 400))
+        actual_score = 1 if direction == "right" else 0
+        elo_change = round(k_factor * (actual_score - expected_score))
+        return elo_change
+
     def swipe(self, other: 'Profile', direction):
         if direction == "left":
             self.left_swiped.add(other)
             self.right_swiped.remove(other)
             Match.delete_between(self, other)
+            
+            other.elo += other.get_elo_change(self.elo, direction)
+            other.swiped_on_count += 1
+            other.save(update_fields=['elo', 'swiped_on_count'])
+            
         elif direction == "right":
             self.right_swiped.add(other)
             self.left_swiped.remove(other)
+            
+            other.elo += other.get_elo_change(self.elo, direction)
+            other.swiped_on_count += 1
+            other.save(update_fields=['elo', 'swiped_on_count'])
+            
             if other.right_swiped.filter(pk=self).exists():
                 Match.get_or_create_between(self, other)
 
