@@ -94,14 +94,13 @@ class ProfileSerializer(serializers.ModelSerializer):
         if age >= 16:
             sixteen_year_old_birth_date = add_years(today, -16)
             youngest_legal_birth_date = max(youngest_legal_birth_date, sixteen_year_old_birth_date)
-            oldest_legal_birth_date = date(1900, 1, 1)
         
         if youngest_preferred_birth_date > youngest_legal_birth_date:
             raise serializers.ValidationError({
                 'younger_age_diff': 'Minimum age difference exceeds legal limits.'
             })
         
-        if oldest_preferred_birth_date < oldest_legal_birth_date:
+        if age < 16 and oldest_preferred_birth_date < oldest_legal_birth_date:
             raise serializers.ValidationError({
                 'older_age_diff': 'Maximum age difference exceeds legal limits.'
             })
