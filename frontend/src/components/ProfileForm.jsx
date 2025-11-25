@@ -11,8 +11,8 @@ const ProfileForm = ({ profile, onCancel }) => {
   const isEditing = profile ? true : false;
 
   const emailParts = user.email.split('@')[0].split('.');
-  const emailFirstName = desnakify(emailParts[0]);
-  const emailLastName = desnakify(emailParts[1]);
+  const emailFirstName = desnakify(emailParts?.[0]);
+  const emailLastName = desnakify(emailParts?.[1]);
 
   const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm({
     defaultValues: profile ?? {}
@@ -126,6 +126,7 @@ const ProfileForm = ({ profile, onCancel }) => {
       
       <input
         type="file"
+        accept="image/*"
         multiple
         ref={photosRef}
         name="photos"
