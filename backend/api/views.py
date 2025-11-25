@@ -285,6 +285,8 @@ def report_conversation(request, other_id):
         return Response({"error": "Reason required"}, status=status.HTTP_400_BAD_REQUEST)
     try:
         reporter = request.user.profile
+        if reporter.user_id == other_id:
+            return Response({"error": "Cannot report yourself"}, status=status.HTTP_400_BAD_REQUEST)
         reported = models.Profile.objects.get(user_id=other_id)
     except models.Profile.DoesNotExist:
         return Response({"error": "Recipient not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -295,7 +297,7 @@ def report_conversation(request, other_id):
     lines = [
         f"Report reason: {reason}",
         f"Reporter: {reporter.first_name} {reporter.last_name} (id={reporter.user_id})",
-        f"Reported user: {reported.first_name} {reported.last_name} (id={reported.user_id})",
+        f"Reported: {reported.first_name} {reported.last_name} (id={reported.user_id})",
         "Conversation:"
     ]
     messages = models.Message.objects.filter(match=match).order_by("created_at")
@@ -304,6 +306,37 @@ def report_conversation(request, other_id):
     body = "\n".join(lines)
     send_mail(
         subject=f"Report: {reporter.first_name} -> {reported.first_name} ({reason})",
+        message=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[settings.DEFAULT_FROM_EMAIL],
+        fail_silently=False,
+    )
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def report_profile(request, other_id):
+    reason = request.data.get("reason")
+    if not reason:
+        return Response({"error": "Reason required"}, status=status.HTTP_400_BAD_REQUEST)
+    reporter = request.user.profile
+    if reporter.user_id == other_id:
+        return Response({"error": "Cannot report yourself"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        reported = models.Profile.objects.get(user_id=other_id)
+    except models.Profile.DoesNotExist:
+        return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    lines = [
+        f"Report reason: {reason}",
+        f"Reporter: {reporter.first_name} {reporter.last_name} (id={reporter.user_id})",
+        f"Reported: {reported.first_name} {reported.last_name} (id={reported.user_id})",
+    ]
+    body = "\n".join(lines)
+
+    send_mail(
+        subject=f"Profile Report: {reporter.first_name} -> {reported.first_name} ({reason})",
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[settings.DEFAULT_FROM_EMAIL],
