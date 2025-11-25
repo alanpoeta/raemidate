@@ -15,7 +15,7 @@ const Home = ({ iProfile, setIProfile }) => {
   });
   const profiles = swipeQuery.data;
   const { socketRef, isOpen: socketIsOpen } = useWebSocket("swipe/");
-  const isLoading = !socketIsOpen || swipeQuery.isPending;
+  const isLoading = !socketIsOpen || swipeQuery.isFetching;
 
   const swipe = async (direction) => {
     if (!socketIsOpen) return;
