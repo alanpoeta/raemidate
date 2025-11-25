@@ -13,8 +13,8 @@ const Message = () => {
   const [text, setText] = useState("");
   const [showReport, setShowReport] = useState(false);
   const [reason, setReason] = useState("");
-  const [confirmUnmatch, setConfirmUnmatch] = useState(false);
-  const reportReasons = ["Harassment", "Incorrect age", "Impersonation"];
+  const [showConfirmUnmatch, setConfirmUnmatch] = useState(false);
+  const reportReasons = ["Harassment/Inappropriate behavior", "Incorrect age", "Impersonation"];
   const queryClient = useQueryClient();
   const { handleUnmatch, setActiveRecipientId, isLoading: notificationIsLoading } = useNotification();
 
@@ -60,7 +60,7 @@ const Message = () => {
   })
   
   const reportMutation = useMutation({
-    mutationFn: () => api.post(`report/${recipientId}/`, { reason }),
+    mutationFn: () => api.post(`report-conversation/${recipientId}/`, { reason }),
     onSuccess: () => {
       setShowReport(false);
       setReason("");
@@ -74,10 +74,14 @@ const Message = () => {
 
   return (
     <>
-      {!confirmUnmatch ? (
-        <button onClick={() => setConfirmUnmatch(true)}>Unmatch</button>
-      ) : (
-        <span >
+      {!showConfirmUnmatch && !showReport && (
+        <>
+          <button onClick={() => setConfirmUnmatch(true)}>Unmatch</button>
+          <button onClick={() => setShowReport(true)}>Report</button>
+        </>
+      )}
+      {showConfirmUnmatch && (
+        <>
           <span>Are you sure?</span>
           <button
             disabled={unmatchMutation.isLoading}
@@ -86,9 +90,8 @@ const Message = () => {
             Yes, unmatch
           </button>
           <button onClick={() => setConfirmUnmatch(false)}>Cancel</button>
-        </span>
+        </>
       )}
-      <button onClick={() => setShowReport(true)}>Report</button>
       {showReport && (
         <article>
           <h4>Report Conversation</h4>
@@ -112,13 +115,17 @@ const Message = () => {
             </button>
         </article>
       )}
-      <form onSubmit={sendMessage}>
-        {messages.map(({ sender, text, created_at }, i) => (
-          <p key={i}>{sender}: {text}  |  {created_at}</p>
-        ))}
-        <input value={text} onChange={e => setText(e.target.value)} />
-        <button type="submit">Send</button>
-      </form>
+      {(!showConfirmUnmatch && !showReport) && (
+        <>
+          <form onSubmit={sendMessage}>
+            {messages.map(({ sender, text, created_at }, i) => (
+              <p key={i}>{sender}: {text}  |  {created_at}</p>
+            ))}
+            <input value={text} onChange={e => setText(e.target.value)} />
+            <button type="submit">Send</button>
+          </form>
+        </>
+      )}
     </>
   );
 };
