@@ -30,6 +30,10 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Email must be in the format {first_name}.{last_name}@{"mng"|"rgzh"|"lgr"}.ch'
             )
+        if models.BannedEmail.is_banned(email):
+            raise serializers.ValidationError(
+                'Email is banned.'
+            )
         return email
     
     def validate_password(self, value):

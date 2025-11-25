@@ -44,6 +44,14 @@ EncryptedEmailField.register_lookup(lookups.EncryptedExact, 'exact')
 EncryptedEmailField.register_lookup(lookups.EncryptedIn, 'in')
 
 
+class BannedEmail(models.Model):
+    email_hash = models.CharField(max_length=128, unique=True, db_index=True)
+
+    @classmethod
+    def is_banned(cls, email: str) -> bool:
+        return cls.objects.filter(email_hash=utils.hash_with_salt(email)).exists()
+
+
 class User(AbstractUser):
     username = UsernameField(
         max_length=150,
@@ -65,6 +73,9 @@ class User(AbstractUser):
             self.password_reset_sent_at = timezone.now()
             self.save(update_fields=["verification_token", "password_reset_sent_at"])
     
+    def ban(self):
+        BannedEmail.objects.get_or_create(email_hash=utils.hash_with_salt(self.email))
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
@@ -95,7 +106,7 @@ class Profile(models.Model):
         else:
             k_factor = 10
         
-        expected_score = 1 / (1 + 10 ** ((swiper_elo - self.elo) / 400))
+        expected_score = 1 / (1 + 10**((swiper_elo - self.elo)/400))
         actual_score = 1 if direction == "right" else 0
         elo_change = round(k_factor * (actual_score - expected_score))
         return elo_change
