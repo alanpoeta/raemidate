@@ -88,9 +88,9 @@ class Profile(models.Model):
     )
 
     def get_elo_change(self, swiper_elo, direction):
-        if self.swiped_on_count < 10:
+        if self.swiped_on_count < 25:
             k_factor = 40
-        elif self.swiped_on_count < 30:
+        elif self.swiped_on_count < 100:
             k_factor = 20
         else:
             k_factor = 10
