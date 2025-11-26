@@ -42,7 +42,6 @@ function App() {
                 <Route path='/login' element={<AuthForm key='login' action='login' />} />
                 <Route path='/register' element={<AuthForm key='register' action='register' />} />
                 <Route path='/verify-email/:token' element={<Protected authenticationOptional><VerifyEmail /></Protected>} />
-                <Route path='/verify-email-required' element={<Protected emailVerificationOptional><VerifyEmailRequired /></Protected>} />
                 <Route path='/reset-password/:token' element={<PasswordReset />} />
                 <Route path='/message/:recipientId' element={<Protected><Message /></Protected>} />
                 <Route path='/settings' element={<Protected emailVerificationOptional><Settings /></Protected>} />

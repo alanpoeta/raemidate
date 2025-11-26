@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Navigate, useNavigate  } from 'react-router-dom'
 import Loading from '../components/Loading'
 import queriesOptions from "./queries";
+import VerifyEmailRequired from "../pages/VerifyEmailRequired";
 
 const AuthContext = createContext();
 
@@ -99,7 +100,7 @@ export const Protected = ({ profileOptional = false, emailVerificationOptional =
   if (!isAuthenticated && !authenticationOptional) return <Navigate to='/login' />;
 
   if (user?.isEmailVerified === false && !emailVerificationOptional)
-    return <Navigate to='/verify-email-required' />;
+    return <VerifyEmailRequired />;
 
   if (user?.hasProfile === false && !profileOptional)
     return <Navigate to='/profile' />;
