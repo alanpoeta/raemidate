@@ -11,21 +11,23 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 # from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = BASE_DIR
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$9sa8*x3k&mxht=#$rzbz6@*zt9mxxy^@3%*!nmn@yl)t+8a1z'
-
-SECURED_FIELDS_KEY = "1pg6wKi2LwZOmxMCksjhIqxYMJyun0ZaPR7g9k299dc="
-SECURED_FIELDS_HASH_SALT = '8efe1495'
+SECRET_KEY = os.getenv("SECRET_KEY")
+SECURED_FIELDS_KEY = os.getenv("SECURED_FIELDS_KEY")
+SECURED_FIELDS_HASH_SALT = os.getenv("SECURED_FIELDS_HASH_SALT")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -179,6 +181,11 @@ CHANNEL_LAYERS = {
     },
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "no-reply@example.com"
 FRONTEND_URL = "http://localhost:5173"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "raemidate@gmail.com"
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")

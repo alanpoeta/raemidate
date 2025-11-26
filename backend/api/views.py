@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
 from django.db.models import Q, F, Value, Func, DateField
-from django.db.models.functions import Abs, Concat
+from django.db.models.functions import Concat
 from datetime import date
 from rest_framework.response import Response
 from django.utils import timezone
@@ -29,7 +29,7 @@ class UserView(generics.CreateAPIView, generics.RetrieveDestroyAPIView):
 
     def get_permissions(self):
         return [IsAuthenticated()] if self.request.method in ['DELETE', 'GET'] else []
-    
+
 
 class ProfileView(generics.RetrieveUpdateAPIView, generics.CreateAPIView):
     queryset = models.Profile.objects.all()
@@ -237,8 +237,8 @@ def resend_verification(request):
     user.regenerate_verification_token(token_type='email')
     send_mail(
         subject="Verify your email",
-        message=f"Click the link to verify your account: {settings.FRONTEND_URL}/verify-email/{user.verification_token}",
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        message=f"Click the link to verify your email address: {settings.FRONTEND_URL}/verify-email/{user.verification_token}",
+        from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email],
         fail_silently=False,
     )
@@ -258,21 +258,21 @@ def request_password_reset(request):
         remaining_seconds = get_remaining_cooldown_seconds(user.password_reset_sent_at, RESEND_COOLDOWN_MINUTES)
         if remaining_seconds > 0:
             return Response(
-                {"message": "If an account exists with this email, a password reset link has been sent."},
+                {"message": "If an account exists with this email address, a password reset link has been sent."},
                 status=status.HTTP_200_OK
             )
         user.regenerate_verification_token(token_type='password')
         send_mail(
             subject="Reset your password",
             message=f"Click the link to reset your password: {settings.FRONTEND_URL}/reset-password/{user.verification_token}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=settings.EMAIL_HOST_USER,
             recipient_list=[user.email],
             fail_silently=False,
         )
     except User.DoesNotExist:
         pass
     
-    return Response({"message": "If an account exists with this email, a password reset link has been sent."}, status=status.HTTP_200_OK)
+    return Response({"message": "If an account exists with this email address, a password reset link has been sent."}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -339,8 +339,8 @@ def report_conversation(request, other_id):
     send_mail(
         subject=f"Report: {reporter.first_name} -> {reported.first_name} ({reason})",
         message=body,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[settings.DEFAULT_FROM_EMAIL],
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[settings.EMAIL_HOST_USER],
         fail_silently=False,
     )
     return Response(status=status.HTTP_200_OK)
@@ -370,8 +370,8 @@ def report_profile(request, other_id):
     send_mail(
         subject=f"Profile Report: {reporter.first_name} -> {reported.first_name} ({reason})",
         message=body,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[settings.DEFAULT_FROM_EMAIL],
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[settings.EMAIL_HOST_USER],
         fail_silently=False,
     )
     return Response(status=status.HTTP_200_OK)
