@@ -63,6 +63,7 @@ class User(AbstractUser):
     email_verification_sent_at = models.DateTimeField(null=True, blank=True)
     password_reset_sent_at = models.DateTimeField(null=True, blank=True)
     password_reset_at = models.DateTimeField(null=True, blank=True)
+    accepted_tos = models.BooleanField(default=False)
 
     def regenerate_verification_token(self, token_type):
         self.verification_token = uuid.uuid4()

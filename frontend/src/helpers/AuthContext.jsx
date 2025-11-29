@@ -6,6 +6,7 @@ import { Navigate, useNavigate  } from 'react-router-dom'
 import Loading from '../components/Loading'
 import queriesOptions from "./queries";
 import VerifyEmailRequired from "../pages/VerifyEmailRequired";
+import TOS from "../pages/TOS";
 
 const AuthContext = createContext();
 
@@ -33,7 +34,8 @@ export const AuthProvider = ({ children }) => {
       username: userData.username,
       email: userData.email,
       hasProfile: userData.has_profile,
-      isEmailVerified: userData.is_email_verified
+      isEmailVerified: userData.is_email_verified,
+      acceptedTos: userData.accepted_tos
     };
 
     setUser(newUser);
@@ -89,20 +91,25 @@ export const useAuth = () => {
   return context;
 }
 
-export const Protected = ({ profileOptional = false, emailVerificationOptional = false, authenticationOptional = false, children }) => {
+export const Protected = ({ profileOptional = false, acceptedTosOptional = false, emailVerificationOptional = false, authenticationOptional = false, children }) => {
   if (authenticationOptional) emailVerificationOptional = true;
-  if (emailVerificationOptional) profileOptional = true;
+  if (emailVerificationOptional) acceptedTosOptional = true;
+  if (acceptedTosOptional) profileOptional = true;
 
   const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) return <Loading />;
 
-  if (!isAuthenticated && !authenticationOptional) return <Navigate to='/login' />;
+  if (!isAuthenticated && !authenticationOptional)
+    return <Navigate to='/login' />;
 
-  if (user?.isEmailVerified === false && !emailVerificationOptional)
+  if (!user?.isEmailVerified && !emailVerificationOptional)
     return <VerifyEmailRequired />;
 
-  if (user?.hasProfile === false && !profileOptional)
+  if (!user?.acceptedTos && !acceptedTosOptional)
+    return <TOS />;
+
+  if (!user?.hasProfile && !profileOptional)
     return <Navigate to='/profile' />;
 
   return children;
