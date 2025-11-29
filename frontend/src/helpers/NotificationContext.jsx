@@ -68,10 +68,7 @@ export const NotificationProvider = ({ children }) => {
     }
   });
   
-  const unreadCount = useMemo(
-    () => (matchesQuery.data || []).reduce((sum, match) => sum + (match.unread_count || 0), 0),
-    [matchesQuery.data]
-  );
+  const unreadCount = (matchesQuery.data || []).reduce((sum, match) => sum + (match.unread_count || 0), 0);
 
   const notificationValue = {
       unreadCount,
