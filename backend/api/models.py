@@ -168,6 +168,11 @@ class Match(models.Model):
     @classmethod
     def normalize(cls, profile1, profile2):
         return (profile1, profile2) if profile1.user.pk < profile2.user.pk else (profile2, profile1)
+
+    @classmethod
+    def exists_between(cls, profile1, profile2):
+        profile1, profile2 = cls.normalize(profile1, profile2)
+        return cls.objects.filter(profile1=profile1, profile2=profile2).exists()
     
     @classmethod
     def get_between(cls, profile1, profile2):

@@ -152,7 +152,7 @@ class MatchView(generics.ListAPIView):
     def delete(self, request, other_id):
         profile = request.user.profile
         other_profile = models.Profile.objects.get(user_id=other_id)
-        if profile.matched.filter(pk=other_profile).exists():
+        if models.Match.exists_between(profile, other_profile):
             models.Match.delete_between(profile, other_profile)
         return Response(status=200)
 
