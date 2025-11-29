@@ -4,7 +4,7 @@ import api from "../helpers/api";
 import { Navigate } from "react-router-dom";
 
 const VerifyEmailRequired = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [resendStatus, setResendStatus] = useState({ loading: false, message: "" });
 
   const handleResend = async () => {
@@ -36,7 +36,6 @@ const VerifyEmailRequired = () => {
       >
         {resendStatus.loading ? 'Sending...' : 'Resend Verification Email'}
       </button>
-      <button onClick={logout}>Logout</button>
       {resendStatus.message && <p>{resendStatus.message}</p>}
     </>
   );
