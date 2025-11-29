@@ -20,13 +20,13 @@ export const NotificationProvider = ({ children }) => {
       queriesOptions.matches.queryKey,
       prev => prev ? prev.filter(match => match.profile.user !== id) : prev
     );
-  }
+  };
 
   const setActiveRecipientId = (recipientId) => {
     setActiveRecipientIdNaive(recipientId);
     
     if (recipientId) {
-      queryClient.setQueryData(queriesOptions.match.queryKey, matches => {
+      queryClient.setQueryData(queriesOptions.matches.queryKey, matches => {
         if (!matches) return matches;
         return matches.map(match => 
           match.profile.user === recipientId
@@ -35,7 +35,7 @@ export const NotificationProvider = ({ children }) => {
         );
       });
     }
-  }
+  };
 
   const { isOpen: socketIsOpen } = useWebSocket("notification/", {
     enabled,
@@ -48,7 +48,7 @@ export const NotificationProvider = ({ children }) => {
         if (activeRecipientId === notification.id)
           return;
         
-        queryClient.setQueryData(queriesOptions.match.queryKey, matches => {
+        queryClient.setQueryData(queriesOptions.matches.queryKey, matches => {
           if (!matches) return matches;
           const i = matches.findIndex(match => match.profile.user === notification.id);
           if (i === -1) return matches;
@@ -63,9 +63,8 @@ export const NotificationProvider = ({ children }) => {
           ];
         });
       } else if (notification.type === "match") {
-        queryClient.invalidateQueries({ queryKey: queriesOptions.match.queryKey });
+        queryClient.invalidateQueries({ queryKey: queriesOptions.matches.queryKey });
       }
-
     }
   });
   
