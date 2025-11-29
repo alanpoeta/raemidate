@@ -1,14 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import queriesOptions from "../helpers/queries";
 import api from "../helpers/api";
 import Loading from "../components/Loading";
 import useWebSocket from "../helpers/useWebSocket";
 import { useNotification } from "../helpers/NotificationContext";
 
-const Message = () => {
-  let { recipientId } = useParams();
+const Message = ({ recipientId, navigate }) => {
   recipientId = parseInt(recipientId);
   const [text, setText] = useState("");
   const [showReport, setShowReport] = useState(false);
@@ -49,13 +47,11 @@ const Message = () => {
     setText("");
   };
 
-  const navigate = useNavigate();
-
   const unmatchMutation = useMutation({
     mutationFn: () => api.delete(`match/${recipientId}/`),
     onSuccess: () => {
       handleUnmatch(recipientId);
-      navigate("/matches");
+      navigate('matches');
     },
   })
   

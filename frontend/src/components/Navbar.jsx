@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../helpers/AuthContext";
 import { useNotification } from "../helpers/NotificationContext";
 
-const Navbar = () => {
+const Navbar = ({ navigate }) => {
   const { user, logout, isAuthenticated } = useAuth();
   const { isLoading, unreadCount } = useNotification();
 
@@ -19,13 +19,13 @@ const Navbar = () => {
           <p>{user.username}</p>
           {user.hasProfile &&
             <>
-              <Link to='/'>Home</Link>
-              <Link to='/matches'>Matches</Link>
+              <a href="#" onClick={e => { e.preventDefault(); navigate('home'); }}>Home</a>
+              <a href="#" onClick={e => { e.preventDefault(); navigate('matches'); }}>Matches</a>
               {!isLoading && unreadCount !== 0 && <p>{unreadCount} Notifications</p>}
             </>
           }
-          <Link to='/profile'>Profile</Link>
-          <Link to='/settings'>Settings</Link>
+          <a href="#" onClick={e => { e.preventDefault(); navigate('profile'); }}>Profile</a>
+          <a href="#" onClick={e => { e.preventDefault(); navigate('settings'); }}>Settings</a>
           <a href="/login" onClick={e => {
             e.preventDefault();
             logout();

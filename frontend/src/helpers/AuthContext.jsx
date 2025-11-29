@@ -2,11 +2,8 @@ import { useContext } from "react";
 import { createContext, useEffect, useState } from "react";
 import { auth } from "./api";
 import { useQueryClient } from "@tanstack/react-query";
-import { Navigate, useNavigate } from 'react-router-dom';
-import Loading from '../components/Loading';
+import { useNavigate } from 'react-router-dom';
 import queriesOptions from "./queries";
-import VerifyEmailRequired from "../pages/VerifyEmailRequired";
-import TOS from "../pages/TOS";
 
 const AuthContext = createContext();
 
@@ -82,35 +79,11 @@ export const AuthProvider = ({ children }) => {
       { children }
     </AuthContext.Provider>
   );
-}
+};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (!context) throw new Error("useAuth must be used within AuthProvider.");
   return context;
-}
-
-export const Protected = ({ profileOptional = false, acceptedTosOptional = false, emailVerificationOptional = false, authenticationOptional = false, children }) => {
-  if (authenticationOptional) emailVerificationOptional = true;
-  if (emailVerificationOptional) acceptedTosOptional = true;
-  if (acceptedTosOptional) profileOptional = true;
-
-  const { isAuthenticated, isLoading, user } = useAuth();
-
-  if (isLoading) return <Loading />;
-
-  if (!isAuthenticated && !authenticationOptional)
-    return <Navigate to='/login' />;
-
-  if (!user?.isEmailVerified && !emailVerificationOptional)
-    return <VerifyEmailRequired />;
-
-  if (!user?.acceptedTos && !acceptedTosOptional)
-    return <TOS />;
-
-  if (!user?.hasProfile && !profileOptional)
-    return <Navigate to='/profile' />;
-
-  return children;
-}
+};
