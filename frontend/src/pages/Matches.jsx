@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import React from "react";
 
 const Matches = () => {
-  const { data: matches, isLoading, isError } = useQuery(queriesOptions.match)
+  const { data: matches, isLoading, isError } = useQuery(queriesOptions.matches);
 
   if (isLoading) return <Loading />;
   if (isError) return <Error />;

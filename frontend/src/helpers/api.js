@@ -1,5 +1,5 @@
-import axios from 'axios'
-import {jwtDecode} from 'jwt-decode'
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 const api = axios.create({ baseURL: import.meta.env.VITE_API_URL + "api/" });
 
@@ -16,7 +16,7 @@ export const auth = async () => {
     return true;
   } catch {
     return false;
-  }
+  };
 };  
 
 api.interceptors.request.use(
@@ -44,4 +44,4 @@ api.interceptors.response.use(
   }
 )
 
-export default api
+export default api;

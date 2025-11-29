@@ -14,12 +14,12 @@ const Profile = () => {
   const profileQuery = useQuery({...queriesOptions.profile, enabled: user.hasProfile});
   const profile = profileQuery.data;
 
-  if (profileQuery.isLoading) {
+  if (profileQuery.isLoading)
     return <Loading />;
-  } if (profileQuery.isError) {
-    return <Error />
-  }  
-  if (!user.hasProfile) return <ProfileForm />;
+  if (profileQuery.isError)
+    return <Error />;
+  if (!user.hasProfile)
+    return <ProfileForm />;
 
   if (isEditing)
     return <ProfileForm profile={profile} onCancel={() => setIsEditing(false)} />;

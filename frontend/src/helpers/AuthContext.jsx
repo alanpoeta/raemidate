@@ -2,8 +2,8 @@ import { useContext } from "react";
 import { createContext, useEffect, useState } from "react";
 import { auth } from "./api";
 import { useQueryClient } from "@tanstack/react-query";
-import { Navigate, useNavigate  } from 'react-router-dom'
-import Loading from '../components/Loading'
+import { Navigate, useNavigate } from 'react-router-dom';
+import Loading from '../components/Loading';
 import queriesOptions from "./queries";
 import VerifyEmailRequired from "../pages/VerifyEmailRequired";
 import TOS from "../pages/TOS";
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
     if (!newUser.hasProfile || !newUser.isEmailVerified || !newUser.acceptedTos) return;
 
-    [queriesOptions.swipe, queriesOptions.match, queriesOptions.profile].forEach(queryOptions => {
+    [queriesOptions.swipe, queriesOptions.matches, queriesOptions.profile].forEach(queryOptions => {
       queryClient.invalidateQueries({ queryKey: queryOptions.queryKey })
       queryClient.prefetchQuery(queryOptions);
     });

@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react"
-import api from '../helpers/api'
-import { useNavigate } from "react-router-dom"
-import { useForm } from "react-hook-form"
-import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers/helpers"
-import { useAuth } from "../helpers/AuthContext"
-import { useMutation } from "@tanstack/react-query"
+import { useEffect, useState } from "react";
+import api from '../helpers/api';
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { desnakify, requiredErrorMessage, setServerErrors } from "../helpers/helpers";
+import { useAuth } from "../helpers/AuthContext";
+import { useMutation } from "@tanstack/react-query";
 
 const AuthForm = ({ action }) => {
   const navigate = useNavigate();

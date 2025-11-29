@@ -16,7 +16,7 @@ const queriesOptions = {
     queryFn: () => api.get('profile/').then(res => res.data),
   },
 
-  match: {
+  matches: {
     queryKey: ["matches"],
     queryFn: () => api.get('matches/').then(res => res.data),
   },
@@ -24,4 +24,4 @@ const queriesOptions = {
   message: {},
 }
 
-export default queriesOptions
+export default queriesOptions;

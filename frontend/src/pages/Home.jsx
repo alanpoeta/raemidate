@@ -1,5 +1,5 @@
 import ProfileCard from "../components/ProfileCard";
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query';
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 import queryOptions from "../helpers/queries";

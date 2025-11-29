@@ -13,11 +13,11 @@ export const NotificationProvider = ({ children }) => {
   
   const enabled = isAuthenticated && user?.hasProfile && user?.isEmailVerified && user?.acceptedTos;
   
-  const matchQuery = useQuery({...queriesOptions.match, enabled});
+  const matchesQuery = useQuery({...queriesOptions.matches, enabled});
   
   const handleUnmatch = (id) => {
     queryClient.setQueryData(
-      queriesOptions.match.queryKey,
+      queriesOptions.matches.queryKey,
       prev => prev ? prev.filter(match => match.profile.user !== id) : prev
     );
   }
@@ -70,13 +70,13 @@ export const NotificationProvider = ({ children }) => {
   });
   
   const unreadCount = useMemo(
-    () => (matchQuery.data || []).reduce((sum, match) => sum + (match.unread_count || 0), 0),
-    [matchQuery.data]
+    () => (matchesQuery.data || []).reduce((sum, match) => sum + (match.unread_count || 0), 0),
+    [matchesQuery.data]
   );
 
   const notificationValue = {
       unreadCount,
-      isLoading: matchQuery.isLoading || !socketIsOpen,
+      isLoading: matchesQuery.isLoading || !socketIsOpen,
       handleUnmatch,
       setActiveRecipientId
     }
@@ -86,10 +86,10 @@ export const NotificationProvider = ({ children }) => {
       {children}
     </NotificationContext.Provider>
   );
-}
+};
 
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (!context) throw new Error("useNotification must be used within NotificationProvider.");
   return context;
-}
+};

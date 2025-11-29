@@ -17,9 +17,6 @@ from . import permissions
 import uuid
 
 
-# Create your views here.
-
-
 class UserView(generics.CreateAPIView, generics.RetrieveDestroyAPIView):
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer

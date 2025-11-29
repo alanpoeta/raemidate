@@ -4,8 +4,8 @@ import NotFound from './components/NotFound';
 import Navbar from './components/Navbar';
 import AuthForm from './components/AuthForm';
 import Profile from './pages/Profile';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider, Protected } from './helpers/AuthContext';
 import Matches from './pages/Matches';
 import { useState } from 'react';
@@ -55,4 +55,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

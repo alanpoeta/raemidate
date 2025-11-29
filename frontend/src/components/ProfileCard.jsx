@@ -8,9 +8,8 @@ const ProfileCard = ({ profile }) => {
   return (
     <section>
       {Object.keys(profile).map(key => {
-        if (!["photos", "user"].includes(key)) {
+        if (!["photos", "user"].includes(key))
           return <p key={key}><b>{desnakify(key)}</b>: {profile[key]}</p>;
-        }
       })}
       <p>Pictures: </p>
       <img
