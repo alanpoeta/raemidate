@@ -26,7 +26,7 @@ const TOS = () => {
       <h3>Definitions</h3>
       <p>
         For the purposes of these Terms: <strong>"Account"</strong> means the user account you create;
-        <strong>"Content"</strong> means any text, images or media you upload; <strong>"Personal Data"</strong>
+        <strong> "Content"</strong> means any text, images or media you upload; <strong>"Personal Data"</strong>
         means information that identifies you; and <strong>"Controller"</strong> means Rämidate (operator).
       </p>
 
@@ -107,8 +107,7 @@ const TOS = () => {
       <ul>
         <li>Account information: email, username, hashed password</li>
         <li>
-          Profile data: profile photos, bio, first name, gender, sexual preference, age, and other
-          optional profile fields you provide when you sign up or update your profile.
+          Profile data: profile photos, first and last name, bio, birth date, gender, sexual preference, age preferences
         </li>
         <li>Usage and matching data: swipe/match history and message metadata to operate the core service.</li>
         <li>Messages: messages you send and receive are stored to deliver the chat experience.</li>
