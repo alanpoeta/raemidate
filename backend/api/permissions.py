@@ -14,7 +14,7 @@ class IsTosAccepted(IsEmailVerified):
 
     def has_permission(self, request, view):
         user = request.user
-        return super().has_permission() and user.accepted_tos
+        return super().has_permission(request, view) and user.accepted_tos
 
 
 class hasProfile(IsTosAccepted):
@@ -22,4 +22,4 @@ class hasProfile(IsTosAccepted):
 
     def has_permission(self, request, view):
         user = request.user
-        return super().has_permission() and user.has_profile
+        return super().has_permission(request, view) and user.has_profile
