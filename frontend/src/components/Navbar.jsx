@@ -6,30 +6,34 @@ const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const { isLoading, unreadCount } = useNotification();
 
-  if (!isAuthenticated) return (
-      <nav>
-        <Link to='/login'>Login</Link>
-        <Link to='/register'>Register</Link>
-      </nav>
-    );
   return (
     <nav>
-      <p>{user.username}</p>
-      {user.hasProfile &&
+      {!isAuthenticated ? (
         <>
-          <Link to='/'>Home</Link>
-          <Link to='/matches'>Matches</Link>
-          {!isLoading && unreadCount !== 0 && <p>{unreadCount} Notifications</p>}
+          <Link to='/login'>Login</Link>
+          <Link to='/register'>Register</Link>
         </>
-      }
-      <Link to='/profile'>Profile</Link>
-      <Link to='/settings'>Settings</Link>
-      <a href="/login" onClick={e => {
-        e.preventDefault();
-        logout();
-      }}>
-        Logout
-      </a>
+      ) : (
+        <>
+          <p>{user.username}</p>
+          {user.hasProfile &&
+            <>
+              <Link to='/'>Home</Link>
+              <Link to='/matches'>Matches</Link>
+              {!isLoading && unreadCount !== 0 && <p>{unreadCount} Notifications</p>}
+            </>
+          }
+          <Link to='/profile'>Profile</Link>
+          <Link to='/settings'>Settings</Link>
+          <a href="/login" onClick={e => {
+            e.preventDefault();
+            logout();
+          }}>
+            Logout
+          </a>
+        </>
+      )}
+      <p>Support available at: raemidate@gmail.com</p>
     </nav>
   );
 }
