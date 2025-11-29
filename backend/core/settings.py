@@ -35,7 +35,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    'https://6tqb3dfr-5173.euw.devtunnels.ms',
+    '6tqb3dfr-5173.euw.devtunnels.ms',
 ]
 
 
