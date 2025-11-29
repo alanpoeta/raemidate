@@ -13,7 +13,7 @@ const VerifyEmailRequired = () => {
       await api.post('resend-verification/');
       setResendStatus({ 
         loading: false, 
-        message: "Verification email sent! Please check your inbox." 
+        message: "Verification email sent! Please check your inbox and spam." 
       });
     } catch (error) {
       setResendStatus({ 
