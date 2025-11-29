@@ -115,6 +115,15 @@ class Profile(models.Model):
         async_to_sync(self.anotify)(**kwargs)
     
     async def anotify(self, type, id):
+        @sync_to_async
+        def increment_unread():
+            other = Profile.objects.get(user_id=id)
+            match = Match.get_between(self, other)
+            match.increment_unread(self)
+
+        if type != "unmatch":
+            await increment_unread()
+        
         channel_layer = get_channel_layer()
         group_name = f"notification_{self.user_id}"
         payload = {"notification_type": type, "id": id}
@@ -125,15 +134,6 @@ class Profile(models.Model):
                 "payload": payload
             }
         )
-
-        @sync_to_async
-        def increment_unread():
-            other = Profile.objects.get(user_id=id)
-            match = Match.get_between(self, other)
-            match.increment_unread(self)
-
-        if type != "unmatch":
-            await increment_unread()
 
     def __str__(self):
         return f"{self.user}'s profile"
@@ -259,8 +259,8 @@ def notify_on_unmatch(sender, instance, **kwargs):
 @receiver(signals.post_save, sender=User)
 def send_verification_email(sender, instance, created, **kwargs):
     if created and not instance.is_email_verified:
-        verification_url = f"{settings.FRONTEND_URL}/verify-email/{instance.verification_token}"
         instance.regenerate_verification_token(token_type='email')
+        verification_url = f"{settings.FRONTEND_URL}/verify-email/{instance.verification_token}"
         send_mail(
             subject="Verify your email",
             message=f"Click the link to verify your account: {verification_url}",
