@@ -91,6 +91,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         oldest_legal_birth_date = add_years(birth_date, -3)
 
         age = (today.year - birth_date.year) - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        if age < 14:
+            raise serializers.ValidationError({
+                'birth_date': 'Minimum age is 14 years.'
+            })
+
         if age >= 16:
             sixteen_year_old_birth_date = add_years(today, -16)
             youngest_legal_birth_date = max(youngest_legal_birth_date, sixteen_year_old_birth_date)
