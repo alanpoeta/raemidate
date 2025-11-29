@@ -13,7 +13,6 @@ import Message from './pages/Message';
 import { NotificationProvider } from './helpers/NotificationContext';
 import Settings from './pages/Settings';
 import VerifyEmail from './pages/VerifyEmail';
-import VerifyEmailRequired from './pages/VerifyEmailRequired';
 import PasswordReset from './pages/PasswordReset';
 
 const queryClient = new QueryClient({
