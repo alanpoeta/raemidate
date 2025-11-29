@@ -13,7 +13,7 @@ const TOS = () => {
   });
 
   return (
-    <section style={{ maxWidth: 900, margin: '0 auto', padding: 20 }}>
+    <>
       <h1>Terms of Service — Rämidate</h1>
       <p>Effective date: 2025-11-29</p>
 
@@ -206,27 +206,24 @@ const TOS = () => {
         For support or legal inquiries contact: raemidate@gmail.com
       </p>
 
-      <div style={{ marginTop: 20 }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <input
-            type="checkbox"
-            name="accept"
-            checked={isChecked}
-            onChange={e => setIsChecked(e.target.checked)}
-            required
-          />
-          <span>I have read and agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong> for Rämidate</span>
-        </label>
-        <br />
-        <button
-          onClick={() => acceptMutation.mutate()}
-          disabled={!isChecked || acceptMutation.isPending}
-          style={{ marginTop: 12, padding: '8px 16px' }}
-        >
-          {acceptMutation.isPending ? 'Accepting...' : 'Accept Terms & Privacy Policy'}
-        </button>
-      </div>
-    </section>
+      <label>
+        <input
+          type="checkbox"
+          name="accept"
+          checked={isChecked}
+          onChange={e => setIsChecked(e.target.checked)}
+          required
+        />
+        <span>I have read and agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong> for Rämidate</span>
+      </label>
+      <br />
+      <button
+        onClick={() => acceptMutation.mutate()}
+        disabled={!isChecked || acceptMutation.isPending}
+      >
+        {acceptMutation.isPending ? 'Accepting...' : 'Accept Terms & Privacy Policy'}
+      </button>
+    </>
   );
 }
 
