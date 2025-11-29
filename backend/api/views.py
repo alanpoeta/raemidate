@@ -32,7 +32,7 @@ class ProfileView(generics.RetrieveUpdateAPIView, generics.CreateAPIView):
     queryset = models.Profile.objects.all()
     parser_classes = [MultiPartParser, JSONParser]
     serializer_class = serializers.ProfileSerializer
-    permission_classes = [permissions.hasProfile]
+    permission_classes = [permissions.IsTosAccepted]
 
     def get_object(self):
         return models.Profile.objects.get(user=self.request.user)
@@ -41,7 +41,7 @@ class ProfileView(generics.RetrieveUpdateAPIView, generics.CreateAPIView):
 class SwipeView(generics.ListAPIView):
     serializer_class = serializers.ProfileSerializer
     permission_classes = [permissions.hasProfile]
-    batch_size = 3
+    batch_size = 10
     
     def get_queryset(self):
         user = self.request.user
