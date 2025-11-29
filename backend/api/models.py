@@ -77,6 +77,14 @@ class User(AbstractUser):
     def ban(self):
         BannedEmail.objects.get_or_create(email_hash=utils.hash_with_salt(self.email))
 
+    @property
+    def has_profile(self):
+        try:
+            Profile.objects.get(user=self)
+            return True
+        except Profile.DoesNotExist:
+            return False
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

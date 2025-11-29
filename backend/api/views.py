@@ -13,7 +13,7 @@ from rest_framework import status
 from .models import User
 from django.core.mail import send_mail
 from django.conf import settings
-from .permissions import IsEmailVerified
+from . import permissions
 import uuid
 
 
@@ -35,7 +35,7 @@ class ProfileView(generics.RetrieveUpdateAPIView, generics.CreateAPIView):
     queryset = models.Profile.objects.all()
     parser_classes = [MultiPartParser, JSONParser]
     serializer_class = serializers.ProfileSerializer
-    permission_classes = [IsAuthenticated, IsEmailVerified]
+    permission_classes = [permissions.hasProfile]
 
     def get_object(self):
         return models.Profile.objects.get(user=self.request.user)
@@ -43,7 +43,7 @@ class ProfileView(generics.RetrieveUpdateAPIView, generics.CreateAPIView):
 
 class SwipeView(generics.ListAPIView):
     serializer_class = serializers.ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.hasProfile]
     batch_size = 3
     
     def get_queryset(self):
@@ -134,7 +134,7 @@ class SwipeView(generics.ListAPIView):
 
 class MatchView(generics.ListAPIView):
     serializer_class = serializers.ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.hasProfile]
     queryset = models.Match.objects.none()
     
     def list(self, request):
@@ -162,7 +162,7 @@ class MatchView(generics.ListAPIView):
 
 class MessageView(generics.ListAPIView):
     serializer_class = serializers.MessageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.hasProfile]
 
     def get_queryset(self):
         sender = models.Profile.objects.get(user=self.request.user)
@@ -213,17 +213,9 @@ def verify_email(request, token):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def resend_verification(request):
-    email = request.data.get('email')
-    
-    if not email:
-        return Response({"error": "Username or email required"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        user = User.objects.get(email=email)
-    except User.DoesNotExist:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-    
+    user = request.user
     if user.is_email_verified:
         return Response({"error": "Email already verified"}, status=status.HTTP_400_BAD_REQUEST)
     
@@ -310,7 +302,7 @@ def reset_password(request, token):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.hasProfile])
 def report_conversation(request, other_id):
     reason = request.data.get("reason")
     if not reason:
@@ -347,7 +339,7 @@ def report_conversation(request, other_id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.hasProfile])
 def report_profile(request, other_id):
     reason = request.data.get("reason")
     if not reason:
@@ -374,4 +366,13 @@ def report_profile(request, other_id):
         recipient_list=[settings.EMAIL_HOST_USER],
         fail_silently=False,
     )
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.IsEmailVerified])
+def accept_tos(request):
+    user = request.user
+    user.accepted_tos = True
+    user.save(update_fields=["accepted_tos"])
     return Response(status=status.HTTP_200_OK)

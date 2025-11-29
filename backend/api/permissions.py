@@ -6,4 +6,20 @@ class IsEmailVerified(BasePermission):
 
     def has_permission(self, request, view):
         user = request.user
-        return bool(user and user.is_authenticated and user.is_email_verified)
+        return user.is_authenticated and user.is_email_verified
+
+
+class IsTosAccepted(IsEmailVerified):
+    message = "TOS hasn't been accepted."
+
+    def has_permission(self, request, view):
+        user = request.user
+        return super().has_permission() and user.accepted_tos
+
+
+class hasProfile(IsTosAccepted):
+    message = "User doesn't have profile."
+
+    def has_permission(self, request, view):
+        user = request.user
+        return super().has_permission() and user.has_profile

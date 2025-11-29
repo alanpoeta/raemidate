@@ -18,11 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
     
     def get_has_profile(self, user):
-        try:
-            models.Profile.objects.get(user=user)
-            return True
-        except models.Profile.DoesNotExist:
-            return False
+        return user.has_profile
     
     def validate_email(self, email):
         pattern = r'^[a-z]+\.[a-z]+@(mng|rgzh|lgr)\.ch$'
