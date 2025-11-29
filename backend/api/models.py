@@ -8,40 +8,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 import uuid
-from secured_fields import EncryptedCharField, EncryptedTextField, EncryptedMixin, lookups, fernet, utils
-
-
-class UsernameField(EncryptedCharField):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.unique = True
-
-
-class EncryptedEmailField(EncryptedMixin, models.EmailField):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.unique = True
-
-
-class EncryptedUUIDField(EncryptedMixin, models.UUIDField):
-    def get_db_prep_save(self, value, connection):
-        if value is None:
-            return value
-        
-        val_str = str(value)
-        val_bytes = val_str.encode()
-
-        encrypted = fernet.get_fernet().encrypt(val_bytes).decode()
-        if not self.searchable:
-            return encrypted
-
-        return encrypted + self.separator + utils.hash_with_salt(val_str)
-
-
-EncryptedUUIDField.register_lookup(lookups.EncryptedExact, 'exact')
-EncryptedUUIDField.register_lookup(lookups.EncryptedIn, 'in')
-EncryptedEmailField.register_lookup(lookups.EncryptedExact, 'exact')
-EncryptedEmailField.register_lookup(lookups.EncryptedIn, 'in')
+from secured_fields import EncryptedCharField, EncryptedTextField, utils
+from .fields import UsernameField, EncryptedEmailField, EncryptedUUIDField
 
 
 class BannedEmail(models.Model):
