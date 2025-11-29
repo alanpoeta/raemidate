@@ -8,6 +8,7 @@ const Navbar = () => {
 
   return (
     <nav>
+      <img src="src/assets/logo.png" height="45px"/>
       {!isAuthenticated ? (
         <>
           <Link to='/login'>Login</Link>
