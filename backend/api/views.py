@@ -41,7 +41,7 @@ class ProfileView(generics.RetrieveUpdateAPIView, generics.CreateAPIView):
 class SwipeView(generics.ListAPIView):
     serializer_class = serializers.ProfileSerializer
     permission_classes = [permissions.hasProfile]
-    batch_size = 10
+    batch_size = 5
     
     def get_queryset(self):
         user = self.request.user
