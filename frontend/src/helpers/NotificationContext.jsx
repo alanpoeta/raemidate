@@ -11,7 +11,7 @@ export const NotificationProvider = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const [activeRecipientId, setActiveRecipientIdNaive] = useState(null);
   
-  const enabled = isAuthenticated && user?.hasProfile;
+  const enabled = isAuthenticated && user?.hasProfile && user?.isEmailVerified && user?.acceptedTos;
   
   const matchQuery = useQuery({...queriesOptions.match, enabled});
   
