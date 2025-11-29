@@ -10,7 +10,7 @@ const VerifyEmailRequired = () => {
   const handleResend = async () => {
     setResendStatus({ loading: true, message: "" });
     try {
-      await api.post('resend-verification/', { email: user.email });
+      await api.post('resend-verification/');
       setResendStatus({ 
         loading: false, 
         message: "Verification email sent! Please check your inbox." 
