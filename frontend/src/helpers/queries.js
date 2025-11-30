@@ -9,6 +9,8 @@ const queriesOptions = {
   swipe: {
     queryKey: ['swipe'],
     queryFn: () => api.get('swipe/').then(res => res.data),
+    refetchOnMount: query => query.state.data?.length === 0 ? 'always' : false,
+    refetchInterval: query => query.state.data?.length === 0 ? 20000 : false,
   },
 
   profile: {

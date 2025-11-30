@@ -10,9 +10,6 @@ import api from "../helpers/api";
 const Home = ({ iProfile, setIProfile }) => {
   const swipeQuery = useQuery({
     ...queryOptions.swipe,
-    refetchInterval: (query) => {
-      return query.state.data?.length === 0 ? 20000 : false;
-    },
   });
   const profiles = swipeQuery.data;
   const { socketRef, isOpen: socketIsOpen } = useWebSocket("swipe/");
