@@ -155,8 +155,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = serializers.SerializerMethodField()
-
     class Meta:
         model = models.Message
         fields = ["sender", "recipient", "text", "created_at"]
@@ -164,9 +162,6 @@ class MessageSerializer(serializers.ModelSerializer):
             'created_at': {'read_only': True},
             'recipient': {'write_only': True},
         }
-
-    def get_sender(self, message):
-        return message.sender.first_name
 
 
 class PasswordResetSerializer(serializers.Serializer):

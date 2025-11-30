@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import queriesOptions from "../helpers/queries";
 import api from "../helpers/api";
 import Loading from "../components/Loading";
@@ -17,6 +17,12 @@ const Message = ({ recipientId, navigate }) => {
   const { handleUnmatch, setActiveRecipientId, isLoading: notificationIsLoading } = useNotification();
 
   const messagesKey = ["message", recipientId];
+
+  const matchesQuery = useQuery(queriesOptions.matches);
+  const recipientProfile = useMemo(
+    () => (matchesQuery.data || []).find(i => i.profile.user === recipientId),
+    [recipientId]
+  )
 
   useEffect(() => {
     if (notificationIsLoading) return;
@@ -115,7 +121,7 @@ const Message = ({ recipientId, navigate }) => {
         <>
           <form onSubmit={sendMessage}>
             {messages.map(({ sender, text, created_at }, i) => (
-              <p key={i}>{sender}: {text}  |  {created_at}</p>
+              <p key={i}>{sender === recipientProfile.user ? recipientProfile.first_name : "You"}: {text}  |  {created_at}</p>
             ))}
             <input value={text} onChange={e => setText(e.target.value)} />
             <button type="submit">Send</button>
