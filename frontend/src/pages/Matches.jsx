@@ -13,6 +13,11 @@ const Matches = ({ navigate }) => {
   return (
     matches.map(({profile, unread_count}) => (
       <React.Fragment key={profile.user}>
+        <img
+          src={`data:image/jpeg;base64,${profile.photos[0].blob}`}
+          alt="Profile picture"
+          height="20px"
+        />
         <a
           href="#"
           onClick={e => { e.preventDefault(); navigate('message', { recipientId: profile.user }); }}

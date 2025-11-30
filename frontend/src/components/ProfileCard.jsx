@@ -15,7 +15,7 @@ const ProfileCard = ({ profile }) => {
       <img
         key={photo.id}
         src={`data:image/jpeg;base64,${photo.blob}`}
-        alt="profile"
+        alt="Profile picture"
         height="300px"
       />
       {nPhotos > 1 && <>
