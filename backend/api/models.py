@@ -9,7 +9,7 @@ from django.conf import settings
 from django.utils import timezone
 import uuid
 from secured_fields import EncryptedCharField, EncryptedTextField, utils
-from .fields import UsernameField, EncryptedEmailField, EncryptedUUIDField
+from .fields import EncryptedUsernameField, EncryptedEmailField, EncryptedUUIDField
 
 
 class BannedEmail(models.Model):
@@ -21,7 +21,7 @@ class BannedEmail(models.Model):
 
 
 class User(AbstractUser):
-    username = UsernameField(
+    username = EncryptedUsernameField(
         max_length=150,
         searchable=True,
     )

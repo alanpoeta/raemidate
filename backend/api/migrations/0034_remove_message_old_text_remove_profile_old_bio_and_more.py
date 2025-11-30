@@ -50,6 +50,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='username',
-            field=api.models.UsernameField(max_length=150, searchable=True),
+            field=api.models.EncryptedUsernameField(max_length=150, searchable=True),
         ),
     ]

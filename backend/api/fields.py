@@ -2,7 +2,7 @@ from secured_fields import EncryptedCharField, EncryptedMixin, lookups, fernet, 
 from django.db import models
 
 
-class UsernameField(EncryptedCharField):
+class EncryptedUsernameField(EncryptedCharField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.unique = True
