@@ -139,12 +139,12 @@ class MatchView(generics.ListAPIView):
         profile = self.request.user.profile
         for match in models.Match.objects.filter(profile1=profile).select_related('profile2'):
             matches.append({
-                'profile': serializers.ProfileSerializer(match.profile2).data,
+                'profile': serializers.ProfileSerializer(match.profile2, context={'request': request}).data,
                 'unread_count': match.unread_count1
             })
         for match in models.Match.objects.filter(profile2=profile).select_related('profile1'):
             matches.append({
-                'profile': serializers.ProfileSerializer(match.profile1).data,
+                'profile': serializers.ProfileSerializer(match.profile1, context={'request': request}).data,
                 'unread_count': match.unread_count2
             })
         return Response(matches)
