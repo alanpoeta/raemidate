@@ -42,40 +42,46 @@ export const NotificationProvider = ({ children }) => {
     onmessage: e => {
       const notification = JSON.parse(e.data);
       
-      if (notification.type === "unmatch") {
+      if (notification.type === "unmatch")
         handleUnmatch(notification.id);
-      } else if (notification.type === "message") {
-        if (activeRecipientId === notification.id)
-          return;
-        
+
+      else if (notification.type === "message") {
+        if (activeRecipientId !== notification.id)
+          queryClient.invalidateQueries({
+            queryKey: ["message", notification.id]
+          });
+
         queryClient.setQueryData(queriesOptions.matches.queryKey, matches => {
           if (!matches) return matches;
-          const i = matches.findIndex(match => match.profile.user === notification.id);
-          if (i === -1) return matches;
+          const iMatch = matches.findIndex(match => match.profile.user === notification.id);
+          if (iMatch === -1) return matches;
+
+          const updatedMatch = {
+            ...matches[iMatch],
+            unread_count: (activeRecipientId === notification.id)
+              ? 0
+              : matches[iMatch].unread_count + 1
+          };
           
-          return [
-            ...matches.slice(0, i),
-            {
-              ...matches[i],
-              unread_count: matches[i].unread_count + 1
-            },
-            ...matches.slice(i + 1)
-          ];
+
+
+          return [updatedMatch, ...matches.filter((m, i) => i !== iMatch)];
         });
-      } else if (notification.type === "match") {
-        queryClient.invalidateQueries({ queryKey: queriesOptions.matches.queryKey });
       }
+
+      else if (notification.type === "match")
+        queryClient.invalidateQueries({ queryKey: queriesOptions.matches.queryKey });
     }
   });
   
   const unreadCount = (matchesQuery.data || []).reduce((sum, match) => sum + (match.unread_count || 0), 0);
 
   const notificationValue = {
-      unreadCount,
-      isLoading: matchesQuery.isLoading || !socketIsOpen,
-      handleUnmatch,
-      setActiveRecipientId
-    }
+    unreadCount,
+    isLoading: matchesQuery.isLoading || !socketIsOpen,
+    handleUnmatch,
+    setActiveRecipientId
+  }
 
   return (
     <NotificationContext.Provider value={notificationValue}>

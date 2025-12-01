@@ -43,7 +43,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.reset_unread()
     
     async def disconnect(self, close_code):
-        self.recipient_of.pop(self.sender_id)
+        if hasattr(self, "sender_id") and self.sender_id in self.recipient_of:
+            self.recipient_of.pop(self.sender_id)
         if hasattr(self, "message_group_name"):
             await self.channel_layer.group_discard(self.message_group_name, self.channel_name)
     
@@ -84,6 +85,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = models.Message.objects.create(
             sender=self.sender, recipient=self.recipient, text=text, match=self.match
         )
+
+        try:
+            self.match.last_notification_at = message.created_at
+            self.match.save(update_fields=['last_notification_at'])
+        except Exception:
+            pass
+
         return serializers.MessageSerializer(message).data
 
     @database_sync_to_async

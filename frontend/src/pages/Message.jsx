@@ -16,12 +16,10 @@ const Message = ({ recipientId, navigate }) => {
   const queryClient = useQueryClient();
   const { handleUnmatch, setActiveRecipientId, isLoading: notificationIsLoading } = useNotification();
 
-  const messagesKey = ["message", recipientId];
-
   const matchesQuery = useQuery(queriesOptions.matches);
   const recipientProfile = useMemo(
-    () => (matchesQuery.data || []).find(i => i.profile.user === recipientId),
-    [recipientId]
+    () => (matchesQuery.data || []).find(i => i.profile.user === recipientId)?.profile,
+    [matchesQuery.data, recipientId]
   )
 
   useEffect(() => {
@@ -32,6 +30,7 @@ const Message = ({ recipientId, navigate }) => {
     };
   }, [recipientId, notificationIsLoading]);
 
+  const messagesKey = ["message", recipientId];
   const messagesQuery = useQuery({
     ...queriesOptions.message,
     queryKey: messagesKey,

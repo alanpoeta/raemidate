@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
-from django.db.models import Q, F, Value, Func, DateField
+from django.db.models import Q, F, Value, Func, DateField, Case, When, IntegerField
 from django.db.models.functions import Concat
 from datetime import date
 from rest_framework.response import Response
@@ -132,20 +132,33 @@ class SwipeView(generics.ListAPIView):
 class MatchView(generics.ListAPIView):
     serializer_class = serializers.ProfileSerializer
     permission_classes = [permissions.hasProfile]
-    queryset = models.Match.objects.none()
+    
+    def get_queryset(self):
+        profile = self.request.user.profile
+
+        return (
+            models.Match.objects
+            .filter(Q(profile1=profile) | Q(profile2=profile))
+            .select_related('profile1', 'profile2')
+            .annotate(
+                unread_count=Case(
+                    When(profile1_id=profile.pk, then=F('unread_count1')),
+                    When(profile2_id=profile.pk, then=F('unread_count2')),
+                    output_field=IntegerField()
+                )
+            )
+            .order_by('-last_notification_at')
+        )
     
     def list(self, request):
-        matches = []
         profile = self.request.user.profile
-        for match in models.Match.objects.filter(profile1=profile).select_related('profile2'):
+
+        matches = []
+        for match in self.get_queryset():
+            other_profile = match.profile2 if match.profile1.pk == profile.pk else match.profile1
             matches.append({
-                'profile': serializers.ProfileSerializer(match.profile2, context={'request': request}).data,
-                'unread_count': match.unread_count1
-            })
-        for match in models.Match.objects.filter(profile2=profile).select_related('profile1'):
-            matches.append({
-                'profile': serializers.ProfileSerializer(match.profile1, context={'request': request}).data,
-                'unread_count': match.unread_count2
+                'profile': serializers.ProfileSerializer(other_profile, context={'request': request}).data,
+                'unread_count': match.unread_count
             })
         return Response(matches)
     
@@ -171,7 +184,7 @@ class MessageView(generics.ListAPIView):
                 profile1=sender,
                 profile2=recipient
             )
-            return models.Message.objects.filter(match=match).order_by("created_at").all()
+            return models.Message.objects.filter(match=match).order_by("created_at")
         except models.Match.DoesNotExist:
             return models.Message.objects.none()
 

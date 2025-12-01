@@ -152,6 +152,7 @@ class Match(models.Model):
     profile2 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="high_matches")
     unread_count1 = models.PositiveSmallIntegerField(default=0)
     unread_count2 = models.PositiveSmallIntegerField(default=0)
+    last_notification_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         constraints = [
