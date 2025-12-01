@@ -122,7 +122,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         validated_data['user'] = user
         email_parts = user.email.split('@')[0].split('.')
         validated_data['first_name'] = email_parts[0].capitalize()
-        validated_data['last_name'] = email_parts[1].capitalize()
+        if len(email_parts) > 1:
+            validated_data['last_name'] = email_parts[1].capitalize()
+        else:
+            validated_data['last_name'] = ""
         
         profile = models.Profile.objects.create(**validated_data)
         
