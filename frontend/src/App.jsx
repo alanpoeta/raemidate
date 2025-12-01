@@ -25,7 +25,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <AuthProvider>
+        <AuthProvider resetPage={() => setPage({ name: 'home', params: {} })}>
           <NotificationProvider>
             <Navbar navigate={(name, params) => setPage({ name, params })} />
             <main>

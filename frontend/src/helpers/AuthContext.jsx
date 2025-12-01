@@ -15,7 +15,7 @@ import Message from "../pages/Message";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children, resetPage }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
@@ -68,6 +68,7 @@ export const AuthProvider = ({ children }) => {
     queryClient.clear();
     setUser(null);
     setIsAuthenticated(false);
+    resetPage();
     navigate('/login');
   };
 
