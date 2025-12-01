@@ -18,7 +18,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const [user, setUser] = useState({});
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
 
     if (!newUser.hasProfile || !newUser.isEmailVerified || !newUser.acceptedTos) return;
 

@@ -50,15 +50,10 @@ const ProfileForm = ({ profile, onCancel }) => {
         return;
       }
 
-      setUser(user => {
-        const newUser = {
+      setUser(user => ({
           ...user,
           hasProfile: true
-        }
-        localStorage.setItem('user', JSON.stringify(newUser));
-
-        return newUser
-      })
+      }))
     },
     onError: (error) => setServerErrors(error, setError)
   });
