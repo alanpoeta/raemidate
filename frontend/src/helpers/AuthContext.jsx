@@ -2,8 +2,16 @@ import { useContext } from "react";
 import { createContext, useEffect, useState } from "react";
 import { auth } from "./api";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import queriesOptions from "./queries";
+import Loading from "../components/Loading";
+import Settings from "../pages/Settings";
+import VerifyEmailRequired from "../pages/VerifyEmailRequired";
+import TOS from "../pages/TOS";
+import Profile from "../pages/Profile";
+import Home from "../pages/Home";
+import Matches from "../pages/Matches";
+import Message from "../pages/Message";
 
 const AuthContext = createContext();
 
@@ -86,4 +94,26 @@ export const useAuth = () => {
 
   if (!context) throw new Error("useAuth must be used within AuthProvider.");
   return context;
+};
+
+export const MainContent = ({ page, navigate, iProfile, setIProfile }) => {
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  if (isLoading) return <Loading />;
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (page.name === "settings") return <Settings navigate={navigate} />;
+  if (!user?.isEmailVerified) return <VerifyEmailRequired />;
+  if (!user?.acceptedTos) return <TOS />;
+  if (!user?.hasProfile) return <Profile />;
+
+  switch (page.name) {
+    case "home":
+      return <Home iProfile={iProfile} setIProfile={setIProfile} navigate={navigate} />;
+    case "profile":
+      return <Profile navigate={navigate} />;
+    case "matches":
+      return <Matches navigate={navigate} />;
+    case "message":
+      return <Message recipientId={page.params.recipientId} navigate={navigate} />;
+  }
 };

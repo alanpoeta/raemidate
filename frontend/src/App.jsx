@@ -1,22 +1,13 @@
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Home from './pages/Home';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import NotFound from './components/NotFound';
 import Navbar from './components/Navbar';
 import AuthForm from './components/AuthForm';
-import Profile from './pages/Profile';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { AuthProvider, useAuth } from './helpers/AuthContext';
-import Loading from './components/Loading';
-import Matches from './pages/Matches';
+import { AuthProvider, MainContent } from './helpers/AuthContext';
 import { useState } from 'react';
-import Message from './pages/Message';
 import { NotificationProvider } from './helpers/NotificationContext';
-import Settings from './pages/Settings';
 import VerifyEmail from './pages/VerifyEmail';
-import VerifyEmailRequired from './pages/VerifyEmailRequired';
 import PasswordReset from './pages/PasswordReset';
-import TOS from './pages/TOS.jsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,27 +55,5 @@ function App() {
     </QueryClientProvider>
   );
 }
-
-const MainContent = ({ page, navigate, iProfile, setIProfile }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
-
-  if (isLoading) return <Loading />;
-  if (!isAuthenticated) return <Navigate to="/login" />;
-  if (page.name === "settings") return <Settings navigate={navigate} />;
-  if (!user?.isEmailVerified) return <VerifyEmailRequired />;
-  if (!user?.acceptedTos) return <TOS />;
-  if (!user?.hasProfile) return <Profile />;
-
-  switch (page.name) {
-    case "home":
-      return <Home iProfile={iProfile} setIProfile={setIProfile} navigate={navigate} />;
-    case "profile":
-      return <Profile navigate={navigate} />;
-    case "matches":
-      return <Matches navigate={navigate} />;
-    case "message":
-      return <Message recipientId={page.params.recipientId} navigate={navigate} />;
-  }
-};
 
 export default App;
