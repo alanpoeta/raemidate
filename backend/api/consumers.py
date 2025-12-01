@@ -6,6 +6,8 @@ from . import serializers
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
+    recipient_of = {}
+
     async def connect(self):
         user = self.scope.get("user")
         if not user or user.is_anonymous:
@@ -35,11 +37,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(self.message_group_name, self.channel_name)
         subprotocol = self.scope["subprotocols"][0]
+        self.recipient_of[self.sender_id] = self.recipient_id
         await self.accept(subprotocol=subprotocol)
 
         await self.reset_unread()
     
     async def disconnect(self, close_code):
+        self.recipient_of.pop(self.sender_id)
         if hasattr(self, "message_group_name"):
             await self.channel_layer.group_discard(self.message_group_name, self.channel_name)
     
@@ -59,10 +63,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             },
         )
         
-        await self.recipient.anotify(
-            type="message",
-            id=self.sender_id
-        )
+        if self.recipient_of.get(self.recipient_id) != self.sender_id:
+            await self.recipient.anotify(
+                type="message",
+                id=self.sender_id
+            )
 
     async def message(self, event):
         await self.send(text_data=json.dumps(event["payload"]))
