@@ -239,7 +239,11 @@ def resend_verification(request):
     user.regenerate_verification_token(token_type='email')
     send_mail(
         subject="Verify your email",
-        message=f"Click the link to verify your email address: {settings.FRONTEND_URL}/verify-email/{user.verification_token}",
+        message=(
+            "Someone is trying to create a Rämidate account with this email address.\n"
+            f"If this is you, click the link to verify your email address: {settings.FRONTEND_URL}/verify-email/{user.verification_token}\n"
+            "If this wasn't you, please disregard this email. No further action is needed."
+        ),
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email],
         fail_silently=False,
@@ -266,7 +270,11 @@ def request_password_reset(request):
         user.regenerate_verification_token(token_type='password')
         send_mail(
             subject="Reset your password",
-            message=f"Click the link to reset your password: {settings.FRONTEND_URL}/reset-password/{user.verification_token}",
+            message=(
+                "Someone is trying to reset your Rämidate password.\n"
+                f"If this is you, click the link to reset your password: {settings.FRONTEND_URL}/reset-password/{user.verification_token}\n"
+                "If this wasn't you, please disregard this email. No further action is needed."
+            ),
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=[user.email],
             fail_silently=False,

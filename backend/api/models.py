@@ -269,7 +269,11 @@ def send_verification_email(sender, instance, created, **kwargs):
         verification_url = f"{settings.FRONTEND_URL}/verify-email/{instance.verification_token}"
         send_mail(
             subject="Verify your email",
-            message=f"Click the link to verify your account: {verification_url}",
+            message=(
+                "Someone is trying to create a Rämidate account with this email address.\n"
+                f"If this is you, click the link to verify your email address: {verification_url}\n"
+                "If this wasn't you, please disregard this email. No further action is needed."
+            ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[instance.email],
             fail_silently=False,
