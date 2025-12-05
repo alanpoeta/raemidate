@@ -1,13 +1,39 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/src/assets/logo.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rämidate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#e11d48', // rose-600
+              secondary: '#fb7185', // rose-400
+            }
+          }
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "react-hook-form": "https://aistudiocdn.com/react-hook-form@^7.67.0",
+    "@tanstack/react-query": "https://aistudiocdn.com/@tanstack/react-query@^5.90.11",
+    "@tanstack/react-query-devtools": "https://aistudiocdn.com/@tanstack/react-query-devtools@^5.91.1"
+  }
+}
+</script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

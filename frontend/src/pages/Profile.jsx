@@ -14,22 +14,29 @@ const Profile = () => {
   const profileQuery = useQuery({...queriesOptions.profile, enabled: user.hasProfile});
   const profile = profileQuery.data;
 
-  if (profileQuery.isLoading)
-    return <Loading />;
-  if (profileQuery.isError)
-    return <Error />;
-  if (!user.hasProfile)
-    return <ProfileForm />;
+  if (profileQuery.isLoading) return <Loading />;
+  if (profileQuery.isError) return <Error />;
+  if (!user.hasProfile) return <ProfileForm />;
 
   if (isEditing)
     return <ProfileForm profile={profile} onCancel={() => setIsEditing(false)} />;
 
   return (
-    <>
-      <p><b>My profile</b></p>
-      <ProfileCard profile={profile} />
-      <button onClick={() => setIsEditing(true)}>Edit</button>
-    </>
+    <div className="h-full flex flex-col">
+      <div className="flex-1 relative overflow-hidden bg-gray-100">
+         <ProfileCard profile={profile} />
+         
+         {/* Edit Button Overlay */}
+         <div className="absolute top-4 right-4 z-20">
+           <button 
+             onClick={() => setIsEditing(true)}
+             className="bg-white/90 backdrop-blur text-gray-800 px-4 py-2 rounded-full font-bold shadow-lg text-sm border border-white/50"
+           >
+             Edit Profile
+           </button>
+         </div>
+      </div>
+    </div>
   );
 }
  
