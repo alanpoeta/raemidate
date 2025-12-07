@@ -10,6 +10,7 @@ from django.utils import timezone
 import uuid
 from secured_fields import EncryptedCharField, EncryptedTextField, utils
 from .fields import EncryptedUsernameField, EncryptedEmailField, EncryptedUUIDField
+import os
 
 
 class BannedEmail(models.Model):
@@ -266,7 +267,7 @@ def notify_on_unmatch(sender, instance, **kwargs):
 def send_verification_email(sender, instance, created, **kwargs):
     if created and not instance.is_email_verified:
         instance.regenerate_verification_token(token_type='email')
-        verification_url = f"{settings.FRONTEND_URL}/verify-email/{instance.verification_token}"
+        verification_url = f"{os.environ["FRONTEND_URL"]}/verify-email/{instance.verification_token}"
         send_mail(
             subject="Verify your email",
             message=(

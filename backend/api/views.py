@@ -15,6 +15,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from . import permissions
 import uuid
+import os
 
 
 class UserView(generics.CreateAPIView, generics.RetrieveDestroyAPIView):
@@ -241,7 +242,7 @@ def resend_verification(request):
         subject="Verify your email",
         message=(
             "Someone is trying to create a Rämidate account with this email address.\n"
-            f"If this is you, click the link to verify your email address: {settings.FRONTEND_URL}/verify-email/{user.verification_token}\n"
+            f"If this is you, click the link to verify your email address: {os.environ["FRONTEND_URL"]}/verify-email/{user.verification_token}\n"
             "If this wasn't you, please disregard this email. No further action is needed."
         ),
         from_email=settings.EMAIL_HOST_USER,
@@ -272,7 +273,7 @@ def request_password_reset(request):
             subject="Reset your password",
             message=(
                 "Someone is trying to reset your Rämidate password.\n"
-                f"If this is you, click the link to reset your password: {settings.FRONTEND_URL}/reset-password/{user.verification_token}\n"
+                f"If this is you, click the link to reset your password: {os.environ["FRONTEND_URL"]}/reset-password/{user.verification_token}\n"
                 "If this wasn't you, please disregard this email. No further action is needed."
             ),
             from_email=settings.EMAIL_HOST_USER,

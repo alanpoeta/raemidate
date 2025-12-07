@@ -25,17 +25,27 @@ load_dotenv(BASE_DIR / ".env")
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
-SECURED_FIELDS_KEY = os.getenv("SECURED_FIELDS_KEY")
-SECURED_FIELDS_HASH_SALT = os.getenv("SECURED_FIELDS_HASH_SALT")
+SECRET_KEY = os.environ["SECRET_KEY"]
+SECURED_FIELDS_KEY = os.environ["SECURED_FIELDS_KEY"]
+SECURED_FIELDS_HASH_SALT = os.environ["SECURED_FIELDS_HASH_SALT"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
+FRONTEND_DOMAIN = os.environ["FRONTEND_URL"]
+FRONTEND_DOMAIN = FRONTEND_DOMAIN[FRONTEND_DOMAIN.index("//") + 2:]
+if ":" in FRONTEND_DOMAIN:
+    FRONTEND_DOMAIN = FRONTEND_DOMAIN[:FRONTEND_DOMAIN.index(":")]
+
+BACKEND_DOMAIN = os.environ["BACKEND_URL"]
+BACKEND_DOMAIN = BACKEND_DOMAIN[BACKEND_DOMAIN.index("//") + 2:]
+if ":" in BACKEND_DOMAIN:
+    BACKEND_DOMAIN = BACKEND_DOMAIN[:BACKEND_DOMAIN.index(":")]
+
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    '6tqb3dfr-5173.euw.devtunnels.ms',
+    BACKEND_DOMAIN,
+    FRONTEND_DOMAIN
 ]
 
 
@@ -61,8 +71,8 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'api.User'
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'https://6tqb3dfr-5173.euw.devtunnels.ms'
+    os.environ["BACKEND_URL"],
+    os.environ["FRONTEND_URL"],
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -181,11 +191,9 @@ CHANNEL_LAYERS = {
     },
 }
 
-FRONTEND_URL = "http://localhost:5173"
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "raemidate@gmail.com"
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
