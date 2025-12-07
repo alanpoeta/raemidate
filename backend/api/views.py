@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
 from rest_framework.parsers import MultiPartParser, JSONParser
-from django.db.models import Q, F, Value, Func, DateField, Case, When, IntegerField
+from django.db.models import Q, F, Value, Func, DateField, Case, When, IntegerField, ExpressionWrapper
 from django.db.models.functions import Concat
 from datetime import date
 from rest_framework.response import Response
@@ -61,14 +61,20 @@ class SwipeView(generics.ListAPIView):
         youngest_other_birth_date = add_years(profile.birth_date, -profile.younger_age_diff)
         oldest_other_birth_date = add_years(profile.birth_date, -profile.older_age_diff)
         
-        youngest_self_limit = Func(
+        youngest_self_limit = ExpressionWrapper(
+            F('birth_date') + F('younger_age_diff') * timedelta(days=365),
+            output_field=DateField()
+        ) if settings.DEPLOY else Func(
             Value(profile.birth_date),
             Concat(F('younger_age_diff'), Value(' years')),
             function='DATE',
             output_field=DateField(),
         )
 
-        oldest_self_limit = Func(
+        oldest_self_limit = ExpressionWrapper(
+            F('birth_date') + F('older_age_diff') * timedelta(days=365),
+            output_field=DateField()
+        ) if settings.DEPLOY else Func(
             Value(profile.birth_date),
             Concat(F('older_age_diff'), Value(' years')),
             function='DATE',

@@ -3,10 +3,6 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from channels.db import database_sync_to_async
 from django.core.asgi import get_asgi_application
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
-from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework_simplejwt.exceptions import ExpiredTokenError
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 django_asgi_app = get_asgi_application()
@@ -16,6 +12,9 @@ from api.routing import websocket_urlpatterns
 
 @database_sync_to_async
 def get_user(user_id):
+    from django.contrib.auth import get_user_model
+    from django.contrib.auth.models import AnonymousUser
+
     User = get_user_model()
     return User.objects.filter(id=user_id).first() or AnonymousUser()
 
@@ -25,6 +24,10 @@ class JWTAuthMiddleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
+        from django.contrib.auth.models import AnonymousUser
+        from rest_framework_simplejwt.tokens import AccessToken
+        from rest_framework_simplejwt.exceptions import ExpiredTokenError
+        
         token_str = None
         subprotocols = scope.get("subprotocols", [])
         accepted_subprotocol = None

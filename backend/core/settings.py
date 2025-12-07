@@ -13,13 +13,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-# from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = BASE_DIR
 load_dotenv(BASE_DIR / ".env")
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -31,6 +29,7 @@ SECURED_FIELDS_HASH_SALT = os.environ["SECURED_FIELDS_HASH_SALT"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+DEPLOY = True
 
 
 FRONTEND_DOMAIN = os.environ["FRONTEND_URL"]
@@ -70,7 +69,7 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'api.User'
 
-CORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
     os.environ["BACKEND_URL"],
     os.environ["FRONTEND_URL"],
 ]
@@ -79,6 +78,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -97,6 +97,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
 }
+
+# from datetime import timedelta
 
 # SIMPLE_JWT = {
 #     "ACCESS_TOKEN_LIFETIME": timedelta(seconds=1),
@@ -126,8 +128,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
+    'default': dj_database_url.config(
+        conn_max_age=600
+    ) if DEPLOY else {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
@@ -176,6 +182,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# This production code might break development mode, so we check whether we're in DEBUG mode
+if DEPLOY:
+    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
+    # and renames the files with unique names for each version to support long-term caching
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -186,7 +201,10 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [
+                os.environ["REDIS_URL"] if DEPLOY
+                else ("127.0.0.1", 6379)
+            ],
         },
     },
 }
