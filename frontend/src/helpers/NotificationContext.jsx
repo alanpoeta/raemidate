@@ -6,7 +6,7 @@ import queriesOptions from "./queries";
 
 const NotificationContext = createContext();
 
-export const NotificationProvider = ({ children }) => {
+export const NotificationProvider = ({ navigate, children }) => {
   const queryClient = useQueryClient();
   const { isAuthenticated, user } = useAuth();
   const [activeRecipientId, setActiveRecipientIdNaive] = useState(null);
@@ -15,7 +15,7 @@ export const NotificationProvider = ({ children }) => {
   
   const matchesQuery = useQuery({...queriesOptions.matches, enabled});
   
-  const handleUnmatch = (id) => {
+  const handleUnmatch = id => {
     queryClient.setQueryData(
       queriesOptions.matches.queryKey,
       prev => prev ? prev.filter(match => match.profile.user !== id) : prev
@@ -25,7 +25,7 @@ export const NotificationProvider = ({ children }) => {
   const setActiveRecipientId = (recipientId) => {
     setActiveRecipientIdNaive(recipientId);
     
-    if (recipientId) {
+    if (recipientId)
       queryClient.setQueryData(queriesOptions.matches.queryKey, matches => {
         if (!matches) return matches;
         return matches.map(match => 
@@ -34,7 +34,6 @@ export const NotificationProvider = ({ children }) => {
             : match
         );
       });
-    }
   };
 
   const { isOpen: socketIsOpen } = useWebSocket("notification/", {
@@ -42,8 +41,11 @@ export const NotificationProvider = ({ children }) => {
     onmessage: e => {
       const notification = JSON.parse(e.data);
       
-      if (notification.type === "unmatch")
+      if (notification.type === "unmatch") {
         handleUnmatch(notification.id);
+        if (activeRecipientId === notification.id)
+          navigate("matches");
+      }
 
       else if (notification.type === "message") {
         if (activeRecipientId !== notification.id)
