@@ -36,7 +36,7 @@ const Navbar = ({ navigate }) => {
   return (
     <nav className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 shrink-0 z-50 relative">
       <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate && navigate('home')}>
-        <img src="/src/assets/logo.png" className="h-8 w-auto" alt="Logo"/>
+        <img src="/logo.png" className="h-8 w-auto" alt="Logo"/>
         <span className="text-xl font-bold text-primary tracking-tight">Rämidate</span>
       </div>
 
