@@ -21,10 +21,10 @@ class UserSerializer(serializers.ModelSerializer):
         return user.has_profile
     
     def validate_email(self, email):
-        pattern = r'^[a-z]+\.[a-z]+@(mng|rgzh|lgr)\.ch$'
+        pattern = r'^[a-z]+\.[a-z]+@(mng|rgzh|lgr|ksstadelhofen|ksh|kshp)\.ch$'
         if not re.match(pattern, email):
             raise serializers.ValidationError(
-                'Email must be in the format {first_name}.{last_name}@{"mng"|"rgzh"|"lgr"}.ch'
+                'Email must be in the format {first_name}.{last_name}@{"mng"|"rgzh"|"lgr"|"ksstadelhofen"|"ksh"|"kshp"}.ch'
             )
         if models.BannedEmail.is_banned(email):
             raise serializers.ValidationError(
