@@ -145,7 +145,6 @@ const ProfileForm = ({ profile, onCancel }) => {
         }
       `}</style>
 
-      <p>profileMutation.isPending: {toString(profileMutation.isPending)}</p>
       <div className="p-6 flex-1">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-800">{isEditing ? 'Edit Profile' : 'Create Profile'}</h2>
