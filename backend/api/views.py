@@ -234,12 +234,12 @@ def verify_email(request, token):
 def resend_verification(request):
     user = request.user
     if user.is_email_verified:
-        return Response({"error": "Email already verified"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Email already verified."}, status=status.HTTP_400_BAD_REQUEST)
     
     remaining_seconds = get_remaining_cooldown_seconds(user.email_verification_sent_at, RESEND_COOLDOWN_MINUTES)
     if remaining_seconds > 0:
         return Response(
-            {"error": f"Please wait {remaining_seconds} seconds before requesting another email"},
+            {"error": f"Please wait {remaining_seconds} seconds before requesting another email."},
             status=status.HTTP_429_TOO_MANY_REQUESTS
         )
     
@@ -264,7 +264,7 @@ def request_password_reset(request):
     email = request.data.get('email')
     
     if not email:
-        return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
         user = User.objects.get(email=email)
@@ -310,10 +310,10 @@ def reset_password(request, token):
     try:
         user = User.objects.get(verification_token=token)
     except User.DoesNotExist:
-        return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
     
     if user.password_reset_sent_at and timezone.now() - user.password_reset_sent_at > timedelta(minutes=TOKEN_EXPIRY_MINUTES):
-        return Response({"error": "Link expired"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Link expired."}, status=status.HTTP_400_BAD_REQUEST)
     
     serializer = serializers.PasswordResetSerializer(data=request.data)
     if not serializer.is_valid():
@@ -335,14 +335,14 @@ def report_conversation(request, other_id):
     try:
         reporter = request.user.profile
         if reporter.user_id == other_id:
-            return Response({"error": "Cannot report yourself"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Cannot report yourself."}, status=status.HTTP_400_BAD_REQUEST)
         reported = models.Profile.objects.get(user_id=other_id)
     except models.Profile.DoesNotExist:
-        return Response({"error": "Recipient not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Recipient not found."}, status=status.HTTP_404_NOT_FOUND)
     try:
         match = models.Match.get_between(reporter, reported)
     except models.Match.DoesNotExist:
-        return Response({"error": "No existing match"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "No existing match."}, status=status.HTTP_400_BAD_REQUEST)
     lines = [
         f"Report reason: {reason}",
         f"Reporter: {reporter.first_name} {reporter.last_name} (id={reporter.user_id})",
@@ -368,14 +368,14 @@ def report_conversation(request, other_id):
 def report_profile(request, other_id):
     reason = request.data.get("reason")
     if not reason:
-        return Response({"error": "Reason required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Reason required."}, status=status.HTTP_400_BAD_REQUEST)
     reporter = request.user.profile
     if reporter.user_id == other_id:
-        return Response({"error": "Cannot report yourself"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Cannot report yourself."}, status=status.HTTP_400_BAD_REQUEST)
     try:
         reported = models.Profile.objects.get(user_id=other_id)
     except models.Profile.DoesNotExist:
-        return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
     lines = [
         f"Report reason: {reason}",

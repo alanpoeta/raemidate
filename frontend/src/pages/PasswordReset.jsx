@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { requiredErrorMessage, setServerErrors } from "../helpers/helpers";
 import Loading from "../components/Loading";
 import { useAuth } from "../helpers/AuthContext";
+import { Container, Input, Button } from "../components/AuthUI";
 
 const PasswordReset = () => {
   const { isLoading, isAuthenticated } = useAuth();
@@ -55,40 +56,47 @@ const PasswordReset = () => {
 
   if (isValidToken === false)
     return (
-      <>
-        <h1>Password Reset Failed</h1>
-        <p>{errorMessage}</p>
-        <p>Redirecting to home page...</p>
-      </>
+      <Container title="Reset Failed">
+        <div className="text-center text-red-500 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-12 h-12 mx-auto mb-2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+          </svg>
+          <p className="font-medium">{errorMessage}</p>
+        </div>
+        <p className="text-center text-gray-500 text-sm">Redirecting to home page...</p>
+      </Container>
     );
 
   return (
-    <>
-      <h1>Reset Your Password</h1>
+    <Container title="Set New Password">
       <form onSubmit={handleSubmit((data) => resetMutation.mutate(data))}>
-        <input
+        <Input
           type="password"
           {...register("password", { required: requiredErrorMessage("password") })}
           placeholder="New Password"
+          error={errors.password}
         />
-        <input
+        <Input
           type="password"
           {...register("password_confirm", {
             required: requiredErrorMessage("password_confirm"),
             validate: value => value === password || "Passwords do not match"
           })}
           placeholder="Confirm Password"
+          error={errors.password_confirm}
         />
-        <button type="submit" disabled={resetMutation.isPending}>
-          {resetMutation.isPending ? 'Resetting...' : 'Reset Password'}
-        </button>
+        <div className="pt-2">
+          <Button disabled={resetMutation.isPending}>
+            {resetMutation.isPending ? 'Resetting...' : 'Reset Password'}
+          </Button>
+        </div>
       </form>
-      <ul>
-        {Object.keys(errors).map(field =>
-          <li key={field}>{errors[field].message}</li>
-        )}
-      </ul>
-    </>
+      {errors.root && (
+        <div className="mt-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center border border-red-100">
+          {errors.root.message}
+        </div>
+      )}
+    </Container>
   );
 };
 

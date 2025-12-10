@@ -38,7 +38,10 @@ const VerifyEmailRequired = () => {
         <h1 className="text-2xl font-bold text-gray-900 mb-3">Verify Your Email</h1>
         
         <p className="text-gray-600 mb-8 leading-relaxed">
-          Please check your email <strong>inbox</strong> and <strong>junk folder</strong> and click the verification link we sent you to unlock all features.
+          Please check your email <strong>inbox </strong>
+          and <strong>junk folder</strong> and click the
+          verification link we sent you to unlock all features.
+          The verification email may take a <strong>few minutes</strong> to arrive.
         </p>
         
         <button 

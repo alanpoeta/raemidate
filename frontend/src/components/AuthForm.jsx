@@ -5,42 +5,7 @@ import { useForm } from "react-hook-form";
 import { requiredErrorMessage, setServerErrors } from "../helpers/helpers";
 import { useAuth } from "../helpers/AuthContext";
 import { useMutation } from "@tanstack/react-query";
-
-const Container = ({ children, title }) => (
-  <div className="min-h-full flex items-center justify-center p-6 bg-white sm:bg-transparent">
-    <div className="w-full max-w-sm">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{title}</h1>
-      </div>
-      {children}
-    </div>
-  </div>
-);
-
-const Input = ({ error, ...props }) => (
-  <div className="mb-4">
-    <input
-      className={`w-full px-4 py-3 rounded-xl bg-gray-50 border ${error ? 'border-red-300 focus:ring-red-200' : 'border-gray-200 focus:ring-primary/20'} focus:border-primary focus:outline-none focus:ring-4 transition-all`}
-      {...props}
-    />
-    {error && <p className="text-red-500 text-xs mt-1 ml-1">{error.message}</p>}
-  </div>
-);
-
-const Button = ({ children, disabled, type = "submit", onClick, secondary }) => (
-  <button
-    type={type}
-    disabled={disabled}
-    onClick={onClick}
-    className={`w-full py-3.5 rounded-xl font-bold text-lg transition-transform active:scale-[0.98] ${
-      secondary 
-      ? 'bg-transparent text-gray-500 hover:text-gray-700' 
-      : 'bg-primary text-white shadow-lg shadow-primary/30 hover:shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed'
-    }`}
-  >
-    {children}
-  </button>
-);
+import { Container, Input, Button } from "./AuthUI";
 
 const AuthForm = ({ action }) => {
   const navigate = useNavigate();
@@ -103,9 +68,10 @@ const AuthForm = ({ action }) => {
           </div>
           <p className="text-gray-600 leading-relaxed">
             We&#39;ve sent a verification link to your email address.
-            Please check your inbox and click the link to 
-            verify your account before logging in.
-            <br/><span className="text-sm text-gray-400">Remember to check your spam folder.</span>
+            Please check your <strong>inbox </strong>
+            and <strong>junk folder</strong>. Please click the
+            link to verify your account before logging in.
+            The verification email may take a <strong>few minutes</strong> to arrive.
           </p>
           <Button onClick={() => navigate('/login')}>Go to Login</Button>
         </div>
@@ -116,7 +82,10 @@ const AuthForm = ({ action }) => {
     if (resetEmailSent)
       return (
         <Container title="Email Sent">
-          <p className="text-center text-gray-600 mb-6">If an account exists with this email, a password reset link has been sent.</p>
+          <p className="text-center text-gray-600 mb-6">
+            If an account exists with this email, a password reset link has been sent.
+            The verification email may take a <strong>few minutes</strong> to arrive.
+          </p>
           <Button onClick={() => {
             setForgotPassword(false);
             setResetEmailSent(false);
