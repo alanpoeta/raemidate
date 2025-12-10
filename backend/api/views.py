@@ -197,7 +197,7 @@ class MessageView(generics.ListAPIView):
 
 
 TOKEN_EXPIRY_MINUTES = 10
-RESEND_COOLDOWN_MINUTES = 1
+RESEND_COOLDOWN_MINUTES = 5
 
 
 def get_remaining_cooldown_seconds(last_sent_at, cooldown_minutes):
