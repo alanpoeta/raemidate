@@ -26,7 +26,7 @@ const ProfileForm = ({ profile, onCancel }) => {
   const emailFirstName = desnakify(emailParts?.[0]);
   const emailLastName = desnakify(emailParts?.[1]);
 
-  const { register, handleSubmit, formState: { isSubmitting, errors }, setError, watch } = useForm({
+  const { register, handleSubmit, formState: { errors }, setError, watch } = useForm({
     defaultValues: profile ?? {}
   });
   const photosRef = useRef();
@@ -145,6 +145,7 @@ const ProfileForm = ({ profile, onCancel }) => {
         }
       `}</style>
 
+      <p>profileMutation.isPending: {toString(profileMutation.isPending)}</p>
       <div className="p-6 flex-1">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-800">{isEditing ? 'Edit Profile' : 'Create Profile'}</h2>
@@ -281,10 +282,10 @@ const ProfileForm = ({ profile, onCancel }) => {
         )}
         <button 
           type="submit" 
-          disabled={isSubmitting}
+          disabled={profileMutation.isPending}
           className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 disabled:opacity-70"
         >
-          {isSubmitting ? 'Saving...' : (isEditing ? 'Save Changes' : 'Complete Profile')}
+          {profileMutation.isPending ? 'Saving...' : (isEditing ? 'Save Changes' : 'Complete Profile')}
         </button>
       </div>
     </form>
