@@ -28,7 +28,7 @@ SECURED_FIELDS_KEY = os.environ["SECURED_FIELDS_KEY"]
 SECURED_FIELDS_HASH_SALT = os.environ["SECURED_FIELDS_HASH_SALT"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 DEPLOY = True
 
 
