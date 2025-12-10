@@ -53,6 +53,12 @@ class User(AbstractUser):
             return True
         except Profile.DoesNotExist:
             return False
+    
+    def __str__(self):
+        profile = Profile.objects.filter(user=self).first()
+        if profile:
+            return profile.full_name
+        return " ".join([name.capitalize() for name in self.email.split("@")[0].split(".")])
 
 
 class Profile(models.Model):
@@ -136,8 +142,12 @@ class Profile(models.Model):
             }
         )
 
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
     def __str__(self):
-        return f"{self.user}'s profile"
+        return f"{self.full_name}'s profile"
 
 
 class Photo(models.Model):
@@ -145,7 +155,7 @@ class Photo(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='photos')
     
     def __str__(self):
-        return f"{self.profile.user}'s photo ({self.pk})"
+        return f"{self.profile.full_name}'s photo ({self.pk})"
 
 
 class Match(models.Model):
@@ -208,7 +218,7 @@ class Match(models.Model):
             self.save(update_fields=['unread_count2'])
 
     def __str__(self):
-        return f"Match {self.profile1.first_name} - {self.profile2.first_name}"
+        return f"Match {self.profile1.full_name} - {self.profile2.full_name}"
 
 
 class Message(models.Model):
@@ -224,7 +234,7 @@ class Message(models.Model):
         ]
 
     def __str__(self):
-        return f"Message {self.sender.first_name} -> {self.recipient.first_name}"
+        return f"Message {self.sender.full_name} -> {self.recipient.full_name}"
 
 
 @receiver(signals.post_delete, sender=Photo)
