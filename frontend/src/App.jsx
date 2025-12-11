@@ -33,8 +33,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider resetPage={() => navigate("home")}>
         <NotificationProvider navigate={navigate}>
-          <div className="min-h-screen bg-gray-100 flex justify-center items-start sm:items-center font-sans text-gray-800">
-            <div className="w-full sm:max-w-md h-[100dvh] sm:h-[90vh] bg-white sm:rounded-2xl shadow-xl overflow-hidden flex flex-col relative">
+          <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden sm:static sm:h-auto sm:min-h-screen bg-gray-100 flex justify-center items-start sm:items-center font-sans text-gray-800">
+            <div className="w-full h-full sm:max-w-md sm:h-[90vh] bg-white sm:rounded-2xl shadow-xl overflow-hidden flex flex-col relative">
               <Navbar navigate={navigate} />
               <main className="flex-1 overflow-y-auto overflow-x-hidden relative scrollbar-hide">
                 <Routes>
