@@ -61,7 +61,7 @@ const ProfileCard = ({ profile }) => {
 
       {/* Info Gradient Overlay */}
       <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-10 flex flex-col justify-end p-6">
-        <div className="text-white mb-16 sm:mb-4">
+        <div className="text-white mb-16">
           <div className="flex items-baseline gap-2 mb-1">
             <h2 className="text-3xl font-bold">{profile.first_name} {profile.last_name}</h2>
             <span className="text-xl font-medium opacity-90">{getAge(profile.birth_date)}</span>
