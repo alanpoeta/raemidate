@@ -48,7 +48,7 @@ const Matches = ({ navigate }) => {
               {profile.first_name} {profile.last_name}
             </h3>
             <p className="text-sm text-gray-500 truncate">
-               {unread_count > 0 ? <span className="text-primary font-medium">New message</span> : "Tap to chat"}
+               {unread_count > 0 ? <span className="text-primary font-medium">Notification</span> : "Tap to chat"}
             </p>
           </div>
 
