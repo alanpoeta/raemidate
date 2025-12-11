@@ -205,11 +205,11 @@ const Message = ({ recipientId, navigate }) => {
       </div>
 
       {/* Input Area */}
-      <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-100 flex gap-2 items-center">
+      <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-100 flex gap-2 items-center shrink-0">
         <input 
           value={text} 
           onChange={e => setText(e.target.value)} 
-          className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+          className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 text-base sm:text-sm"
           placeholder="Type a message..."
         />
         <button 
