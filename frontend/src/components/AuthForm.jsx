@@ -118,7 +118,7 @@ const AuthForm = ({ action }) => {
 
   const password = watch("password");
   return (
-    <Container title={action === "login" ? "Welcome Back" : "Create Account"}>
+    <Container title={action === "login" ? "Log In" : "Create Account"}>
       <form onSubmit={handleSubmit(fields => authMutation.mutate(fields))} className="space-y-2">
         {action === "register" &&
           <Input

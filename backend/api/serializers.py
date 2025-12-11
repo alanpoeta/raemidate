@@ -24,7 +24,8 @@ class UserSerializer(serializers.ModelSerializer):
         pattern = r'^[a-z]+\.[a-z]+@(mng|rgzh|lgr|ksstadelhofen|ksh|kshp)\.ch$'
         if not re.match(pattern, email):
             raise serializers.ValidationError(
-                'Email must be in the format {first_name}.{last_name}@{"mng"|"rgzh"|"lgr"|"ksstadelhofen"|"ksh"|"kshp"}.ch'
+                'Please enter a school email '
+                '(mng, rgzh, lgr, ksstadelhofen, ksh, or kshp).'
             )
         if models.BannedEmail.is_banned(email):
             raise serializers.ValidationError(
