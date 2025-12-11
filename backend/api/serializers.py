@@ -73,8 +73,10 @@ class ProfileSerializer(serializers.ModelSerializer):
             })
         
         birth_date = profile.get('birth_date') or self.instance.birth_date
-        younger_age_diff = profile.get('younger_age_diff') or self.instance.younger_age_diff
-        older_age_diff = profile.get('older_age_diff') or self.instance.older_age_diff
+        younger_age_diff = profile.get('younger_age_diff')
+        younger_age_diff = younger_age_diff if younger_age_diff is not None else self.instance.younger_age_diff
+        older_age_diff = profile.get('older_age_diff')
+        older_age_diff = older_age_diff if older_age_diff is not None else self.instance.older_age_diff
         
         today = date.today()
 
