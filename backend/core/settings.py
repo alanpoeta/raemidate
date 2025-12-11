@@ -32,19 +32,22 @@ DEBUG = False
 DEPLOY = True
 
 
-FRONTEND_DOMAIN = os.environ["FRONTEND_URL"]
-FRONTEND_DOMAIN = FRONTEND_DOMAIN[FRONTEND_DOMAIN.index("//") + 2:]
-if ":" in FRONTEND_DOMAIN:
-    FRONTEND_DOMAIN = FRONTEND_DOMAIN[:FRONTEND_DOMAIN.index(":")]
+def domain_from_url(url):
+    domain = url
+    domain = domain[domain.index("//") + 2:]
+    if ":" in domain:
+        domain = domain[:domain.index(":")]
+    return domain
 
-BACKEND_DOMAIN = os.environ["BACKEND_URL"]
-BACKEND_DOMAIN = BACKEND_DOMAIN[BACKEND_DOMAIN.index("//") + 2:]
-if ":" in BACKEND_DOMAIN:
-    BACKEND_DOMAIN = BACKEND_DOMAIN[:BACKEND_DOMAIN.index(":")]
+
+BACKEND_DOMAIN = domain_from_url(os.environ["BACKEND_URL"])
+FRONTEND_DOMAIN = domain_from_url(os.environ["FRONTEND_URL"])
 
 ALLOWED_HOSTS = [
     BACKEND_DOMAIN,
-    FRONTEND_DOMAIN
+    FRONTEND_DOMAIN,
+    "localhost",
+    "127.0.0.1"
 ]
 
 
@@ -72,6 +75,7 @@ AUTH_USER_MODEL = 'api.User'
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
     os.environ["BACKEND_URL"],
     os.environ["FRONTEND_URL"],
+    "http://localhost:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
