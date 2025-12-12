@@ -69,7 +69,7 @@ const PasswordReset = () => {
 
   return (
     <Container title="Set New Password">
-      <form onSubmit={handleSubmit((data) => resetMutation.mutate(data))}>
+      <form onSubmit={handleSubmit((data) => resetMutation.mutate(data))} autoComplete="off">
         <Input
           type="password"
           {...register("password", { required: requiredErrorMessage("password") })}

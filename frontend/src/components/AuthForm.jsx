@@ -96,7 +96,7 @@ const AuthForm = ({ action }) => {
     return (
       <Container title="Reset Password">
         <p className="text-center text-gray-500 mb-6 text-sm">Enter your email address to receive a password reset link.</p>
-        <form onSubmit={handleSubmit(fields => passwordResetMutation.mutate(fields.email))}>
+        <form onSubmit={handleSubmit(fields => passwordResetMutation.mutate(fields.email))} autoComplete="off">
           <Input
             {...register("email", { required: requiredErrorMessage("email") })}
             placeholder="Email address"
@@ -119,7 +119,7 @@ const AuthForm = ({ action }) => {
   const password = watch("password");
   return (
     <Container title={action === "login" ? "Log In" : "Create Account"}>
-      <form onSubmit={handleSubmit(fields => authMutation.mutate(fields))} className="space-y-2">
+      <form onSubmit={handleSubmit(fields => authMutation.mutate(fields))} className="space-y-2" autoComplete="off">
         {action === "register" &&
           <Input
             {...register("email", { required: requiredErrorMessage("email") })}
@@ -134,10 +134,10 @@ const AuthForm = ({ action }) => {
         />
         <Input
           type="password"
-            {...register("password", { required: requiredErrorMessage("password") })}
-            placeholder="Password"
-            error={errors.password}
-          />
+          {...register("password", { required: requiredErrorMessage("password") })}
+          placeholder="Password"
+          error={errors.password}
+        />
         {action === "register" &&
           <Input
             type="password"
