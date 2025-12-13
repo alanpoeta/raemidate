@@ -54,7 +54,6 @@ export const NotificationProvider = ({ navigate, children }) => {
           });
 
         queryClient.setQueryData(queriesOptions.matches.queryKey, matches => {
-          if (!matches) return matches;
           const iMatch = matches.findIndex(match => match.profile.user === notification.id);
           if (iMatch === -1) return matches;
 

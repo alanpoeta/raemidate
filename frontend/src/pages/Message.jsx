@@ -16,7 +16,6 @@ const Message = ({ recipientId, navigate }) => {
   const messagesEndRef = useRef(null);
   
   const reportReasons = ["Harassment/Inappropriate behavior", "Incorrect age", "Impersonation"];
-  const queryClient = useQueryClient();
   const { handleUnmatch, setActiveRecipientId, isLoading: notificationIsLoading } = useNotification();
 
   const matchesQuery = useQuery(queriesOptions.matches);
@@ -40,10 +39,19 @@ const Message = ({ recipientId, navigate }) => {
     queryFn: () => api.get(`message/${recipientId}/`).then(res => res.data),
   });
 
+  const queryClient = useQueryClient();
+
   const { socketRef, isOpen: socketIsOpen } = useWebSocket(`message/${recipientId}/`, {
     onmessage: e => {
-      const msg = JSON.parse(e.data);
-      queryClient.setQueryData(messagesKey, old => [...(old || []), msg]);
+      const message = JSON.parse(e.data);
+      queryClient.setQueryData(messagesKey, messages => [...(messages || []), message]);
+
+      queryClient.setQueryData(queriesOptions.matches.queryKey, matches => {
+        const iMatch = matches.findIndex(match => match.profile.user === recipientId);
+        if (iMatch === -1 || iMatch == 0) return matches;
+
+        return [matches[iMatch], ...matches.filter((m, i) => i !== iMatch)];
+      });
     }
   });
 
