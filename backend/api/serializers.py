@@ -20,6 +20,13 @@ class UserSerializer(serializers.ModelSerializer):
     def get_has_profile(self, user):
         return user.has_profile
     
+    def validate_username(self, username):
+        if not username.isalnum():
+            raise serializers.ValidationError(
+                'Username must be alphanumeric.'
+            )
+        return username
+    
     def validate_email(self, email):
         pattern = r'^[a-z]+\.[a-z]+@(mng|rgzh|lgr|ksstadelhofen|ksh|kshp)\.ch$'
         if not re.match(pattern, email):
