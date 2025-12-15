@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { NotificationProvider } from './helpers/NotificationContext';
 import VerifyEmail from './pages/VerifyEmail';
 import PasswordReset from './pages/PasswordReset';
+import TOS from './pages/TOS';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,6 +26,11 @@ function App() {
   
   let navigateNaive = useNavigate();
   const navigate = (name, params={}) => {
+    if (name[0] === "/") {
+      navigateNaive(name);
+      return;
+    }
+
     navigateNaive("/");
     setPage({ name, params });
   };
@@ -53,6 +59,7 @@ function App() {
                   <Route path='/register' element={<AuthForm key='register' action='register' />} />
                   <Route path='/verify-email/:token' element={<VerifyEmail />} />
                   <Route path='/reset-password/:token' element={<PasswordReset />} />
+                  <Route path='/tos' element={<TOS view_only />} />
                   <Route path='*' element={<NotFound />} />
                 </Routes>
               </main>

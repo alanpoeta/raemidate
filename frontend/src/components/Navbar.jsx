@@ -99,13 +99,14 @@ const Navbar = ({ navigate }) => {
                   <div className="px-4 py-2 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
                     {user.username}
                   </div>
-                  {isAuthenticated && (
+                  {isAuthenticated && 
                     <>
                       <NavItem label="My Profile" target="profile" />
+                      <NavItem label="Settings" target="settings" />
+                      <NavItem label="ToS & Privacy Policy" target="/tos" />
+                      <NavItem label="Logout" onClick={logout} />
                     </>
-                  )}
-                  <NavItem label="Settings" target="settings" />
-                  <NavItem label="Logout" onClick={logout} />
+                  }
                   <div className="border-t border-gray-100 mt-2 pt-2 px-4 text-xs text-gray-400">
                     Need help? Found a bug? <br/> raemidate@gmail.com
                   </div>

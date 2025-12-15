@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import api from '../helpers/api';
 import { useAuth } from '../helpers/AuthContext';
 
-const TOS = () => {
+const TOS = ({ view_only = false }) => {
   const [isChecked, setIsChecked] = useState(false);
   const { prefetchQueries } = useAuth();
 
@@ -207,27 +207,29 @@ const TOS = () => {
         </p>
       </div>
 
-      <div className="mt-8 bg-gray-50 p-6 rounded-xl border border-gray-100 sticky bottom-6 shadow-lg">
-        <label className="flex items-start gap-3 cursor-pointer mb-4">
-          <input
-            type="checkbox"
-            name="accept"
-            checked={isChecked}
-            onChange={e => setIsChecked(e.target.checked)}
-            required
-            className="mt-1 w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary"
-          />
-          <span className="text-sm text-gray-700">I have read and agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong> for Rämidate</span>
-        </label>
-        
-        <button
-          onClick={() => acceptMutation.mutate()}
-          disabled={!isChecked || acceptMutation.isPending}
-          className="w-full py-3.5 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-        >
-          {acceptMutation.isPending ? 'Accepting...' : 'Accept Terms & Privacy Policy'}
-        </button>
-      </div>
+      {!view_only &&
+        <div className="mt-8 bg-gray-50 p-6 rounded-xl border border-gray-100 sticky bottom-6 shadow-lg">
+          <label className="flex items-start gap-3 cursor-pointer mb-4">
+            <input
+              type="checkbox"
+              name="accept"
+              checked={isChecked}
+              onChange={e => setIsChecked(e.target.checked)}
+              required
+              className="mt-1 w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary"
+            />
+            <span className="text-sm text-gray-700">I have read and agree to the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong> for Rämidate</span>
+          </label>
+          
+          <button
+            onClick={() => acceptMutation.mutate()}
+            disabled={!isChecked || acceptMutation.isPending}
+            className="w-full py-3.5 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+          >
+            {acceptMutation.isPending ? 'Accepting...' : 'Accept Terms & Privacy Policy'}
+          </button>
+        </div>
+      }
     </div>
   );
 }

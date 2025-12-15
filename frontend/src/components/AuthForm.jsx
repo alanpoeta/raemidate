@@ -182,6 +182,10 @@ const AuthForm = ({ action }) => {
           <>Already have an account? <span onClick={() => navigate('/login')} className="text-primary font-bold cursor-pointer hover:underline">Log in</span></>
         )}
       </div>
+
+      <div className="mt-8 text-center text-sm text-gray-500">
+          <span onClick={() => navigate('/tos')} className="text-primary font-bold cursor-pointer hover:underline">Terms of Service & Privacy Policy</span>
+      </div>
     </Container>
   );
 };
