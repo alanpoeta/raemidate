@@ -118,7 +118,7 @@ const AuthForm = ({ action }) => {
 
   const password = watch("password");
   return (
-    <Container title={action === "login" ? "Log In" : "Create Account"}>
+    <Container title={action === "login" ? "Login" : "Create Account"}>
       <form onSubmit={handleSubmit(fields => authMutation.mutate(fields))} className="space-y-2" autoComplete="off">
         {action === "register" &&
           <Input
@@ -152,7 +152,7 @@ const AuthForm = ({ action }) => {
         
         <div className="pt-2">
           <Button disabled={authMutation.isPending}>
-            {authMutation.isPending ? 'Please wait...' : (action === "login" ? "Log In" : "Sign Up")}
+            {authMutation.isPending ? 'Please wait...' : (action === "login" ? "Login" : "Sign Up")}
           </Button>
         </div>
 
