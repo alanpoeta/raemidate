@@ -110,6 +110,7 @@ const TOS = ({ view_only = false }) => {
           <li>
             Profile data: profile photos, first and last name, bio, birth date, gender, sexual preference, age preferences
           </li>
+          <li>During registration, the user’s real name is derived from the school email address for identification and impersonation prevention.</li>
           <li>Usage and matching data: swipe/match history and message metadata to operate the core service.</li>
           <li>Messages: messages you send and receive are stored to deliver the chat experience.</li>
           <li>Device & analytics data: device metadata, IP addresses and analytics used to monitor service health.</li>
@@ -129,6 +130,12 @@ const TOS = ({ view_only = false }) => {
           email address to an email delivery service when sending email verification.
           These limited disclosures are solely to enable delivery of those emails and are not used for
           profiling or advertising.
+        </p>
+        <p className="mb-4">
+          Our services are hosted by <strong>Render Services, Inc.</strong>, a company 
+          headquartered in the <strong>USA</strong>. While our servers and databases 
+          are physically located in <strong>Frankfurt, Germany</strong>, Render Services, Inc. 
+          maintains legal control over the infrastructure.
         </p>
 
         <h3 className="text-lg font-bold text-gray-800 mt-6 mb-2">Cookies, tracking & local storage</h3>
@@ -175,7 +182,8 @@ const TOS = ({ view_only = false }) => {
         <p className="mb-4">
           We use reasonable technical and organizational measures to help protect personal data. This includes:
           data transport protections (TLS/HTTPS) and encryption of selected sensitive fields before storing them
-          in the database. These steps help reduce the risk of unauthorized access to stored personal data.
+          in the database. These steps help reduce the risk of unauthorized access to stored personal data. All data is stored in 
+          databases encrypted at rest and in transit using AES-256 encryption.
         </p>
         <p className="mb-4">
           Please be aware that the App must be able to decrypt certain data to provide normal functionality (for example,
