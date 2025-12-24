@@ -9,19 +9,6 @@ const ProfileCard = ({ profile }) => {
 
   const photo = profile.photos[iPhoto];
 
-  // Helper to show age if birth_date exists
-  const getAge = (dateString) => {
-    if (!dateString) return "";
-    const today = new Date();
-    const birthDate = new Date(dateString);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
   const nextPhoto = () => setIPhoto(i => (i + 1 + nPhotos) % nPhotos);
   const prevPhoto = () => setIPhoto(i => (i - 1 + nPhotos) % nPhotos);
 
@@ -64,7 +51,7 @@ const ProfileCard = ({ profile }) => {
         <div className="text-white mb-16">
           <div className="flex items-baseline gap-2 mb-1">
             <h2 className="text-3xl font-bold">{profile.first_name} {profile.last_name}</h2>
-            <span className="text-xl font-medium opacity-90">{getAge(profile.birth_date)}</span>
+            <span className="text-xl font-medium opacity-90">{profile.age}</span>
           </div>
           
           <div className="text-sm font-medium opacity-80 mb-2">

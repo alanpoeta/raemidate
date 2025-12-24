@@ -164,6 +164,12 @@ class ProfileSerializer(serializers.ModelSerializer):
             data.pop("sexual_preference", None)
             data.pop("younger_age_diff", None)
             data.pop("older_age_diff", None)
+            
+            today = date.today()
+            birth_date = date.fromisoformat(data.pop("birth_date", None))
+            print(birth_date)
+            age = (today.year - birth_date.year) - ((today.month, today.day) < (birth_date.month, birth_date.day))
+            data["age"] = age
         return data
 
 
