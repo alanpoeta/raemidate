@@ -38,7 +38,7 @@ const AuthForm = ({ action }) => {
     },
     onSuccess: (data) => {
       if (action === 'login') {
-        login(data.access, data.refresh);
+        login(data.access);
       } else {
         setNeedsVerification(true);
       }

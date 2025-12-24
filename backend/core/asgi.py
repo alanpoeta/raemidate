@@ -26,7 +26,7 @@ class JWTAuthMiddleware:
     async def __call__(self, scope, receive, send):
         from django.contrib.auth.models import AnonymousUser
         from rest_framework_simplejwt.tokens import AccessToken
-        from rest_framework_simplejwt.exceptions import ExpiredTokenError
+        from rest_framework_simplejwt.exceptions import ExpiredTokenError, TokenError
         
         token_str = None
         subprotocols = scope.get("subprotocols", [])
@@ -47,7 +47,7 @@ class JWTAuthMiddleware:
                     user = await get_user(user_id)
                     if getattr(user, "password_reset_at", None) and issuing_time < user.password_reset_at.timestamp():
                         user = AnonymousUser()
-            except ExpiredTokenError:
+            except (ExpiredTokenError, TokenError):
                 pass
         scope["user"] = user
         if accepted_subprotocol:

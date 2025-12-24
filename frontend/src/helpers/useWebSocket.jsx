@@ -22,10 +22,8 @@ const useWebSocket = (pathname, { onopen, onclose, onmessage, enabled = true } =
   useEffect(() => {
     if (!enabled) return;
 
-    auth()
-    .then(isAuthenticated => {
-      if (!isAuthenticated) logout();
-    });
+    if (!auth())
+      logout();
 
     const base = new URL(import.meta.env.VITE_API_URL);
     base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';

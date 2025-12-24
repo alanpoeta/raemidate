@@ -102,12 +102,11 @@ REST_FRAMEWORK = {
     ],
 }
 
-# from datetime import timedelta
+from datetime import timedelta
 
-# SIMPLE_JWT = {
-#     "ACCESS_TOKEN_LIFETIME": timedelta(seconds=1),
-#     "REFRESH_TOKEN_LIFETIME": timedelta(seconds=1),
-# }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+}
 
 ROOT_URLCONF = 'core.urls'
 

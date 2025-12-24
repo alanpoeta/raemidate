@@ -3,25 +3,21 @@ import { jwtDecode } from 'jwt-decode';
 
 const api = axios.create({ baseURL: import.meta.env.VITE_API_URL + "api/" });
 
-export const auth = async () => {
+export const auth = () => {
+  const accessToken = localStorage.getItem('access');
+  let tokenExpiration;
   try {
-    const accessToken = localStorage.getItem('access');
-    const tokenExpiration = jwtDecode(accessToken).exp;
-    const now = Date.now() / 1000;
-    if (tokenExpiration > now + 10) return true;
-    const { data: { access: newAccessToken }} = await api.post('token/refresh/', {
-      refresh: localStorage.getItem('refresh')
-    });
-    localStorage.setItem('access', newAccessToken);
-    return true;
+    tokenExpiration = jwtDecode(accessToken).exp;
   } catch {
     return false;
-  };
+  }
+  const now = Date.now() / 1000;
+  return tokenExpiration > now + 10;
 };  
 
 api.interceptors.request.use(
   async config => {
-    if (config.url.includes('token/') || !await auth()) {
+    if (config.url.includes('token/')) {
       return config;
     }
     const accessToken = localStorage.getItem('access');

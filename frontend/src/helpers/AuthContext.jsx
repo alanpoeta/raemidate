@@ -24,11 +24,10 @@ export const AuthProvider = ({ children, resetPage }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    auth()
-    .then(isAuthenticated => {
-      if (isAuthenticated) login();
-      else setIsLoading(false);
-    });
+    if (auth())
+      login();
+    else
+      setIsLoading(false);
   }, []);
 
   const prefetchQueries = async () => {
@@ -53,9 +52,8 @@ export const AuthProvider = ({ children, resetPage }) => {
     });
   }
 
-  const login = async (accessToken=null, refreshToken=null) => {
+  const login = async (accessToken) => {
     if (accessToken) localStorage.setItem('access', accessToken);
-    if (refreshToken) localStorage.setItem('refresh', refreshToken);
 
     await prefetchQueries();
 
