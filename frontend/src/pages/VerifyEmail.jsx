@@ -12,7 +12,7 @@ const VerifyEmail = () => {
   const handleVerify = async () => {
     setStatus({ loading: true, success: false, message: "" });
     try {
-      const { data } = await api.get(`verify-email/${token}/`);
+      const { data } = await api.post(`verify-email/${token}/`);
       setStatus({ loading: false, success: true, message: data.message });
       
       setTimeout(() => {

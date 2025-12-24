@@ -23,7 +23,7 @@ const PasswordReset = () => {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        await api.get(`verify-password-reset-token/${token}/`);
+        await api.post(`verify-password-reset-token/${token}/`);
         setIsValidToken(true);
       } catch (error) {
         const message = error.response?.data?.message || "Invalid or expired link";
@@ -58,7 +58,7 @@ const PasswordReset = () => {
     return (
       <Container title="Reset Failed">
         <div className="text-center text-red-500 mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-12 h-12 mx-auto mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-20 h-20 mx-auto mb-2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
           </svg>
           <p className="font-medium">{errorMessage}</p>

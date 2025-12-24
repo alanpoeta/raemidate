@@ -211,7 +211,7 @@ def get_remaining_cooldown_seconds(last_sent_at, cooldown_minutes):
     return 0
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 def verify_email(request, token):
     try:
         user = User.objects.get(verification_token=token)
@@ -292,7 +292,7 @@ def request_password_reset(request):
     return Response({"message": "If an account exists with this email address, a password reset link has been sent."}, status=status.HTTP_200_OK)
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 def verify_password_reset_token(request, token):
     try:
         user = User.objects.get(verification_token=token)
