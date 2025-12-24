@@ -137,7 +137,7 @@ const Message = ({ recipientId, navigate }) => {
                   className="w-8 h-8 rounded-full object-cover" 
                   alt=""
                 />
-                <span className="font-bold text-gray-800">{recipientProfile.first_name}</span>
+                <span className="font-semibold text-gray-800">{recipientProfile.first_name} {recipientProfile.last_name} <span className="font-bold">{recipientProfile.age}</span></span>
              </div>
           )}
         </div>

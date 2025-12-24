@@ -45,7 +45,7 @@ const Matches = ({ navigate }) => {
           
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 truncate">
-              {profile.first_name} {profile.last_name}
+              {profile.first_name} {profile.last_name} <span className="font-bold">{profile.age}</span>
             </h3>
             <p className="text-sm text-gray-500 truncate">
                {unread_count > 0 ? <span className="text-primary font-medium">Notification</span> : "Tap to chat"}
