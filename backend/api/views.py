@@ -21,6 +21,7 @@ import os
 class UserView(generics.CreateAPIView, generics.RetrieveDestroyAPIView):
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
