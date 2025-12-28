@@ -32,7 +32,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => response,
   error => {
-    if ([401, 403].includes(error.status) && error.request.responseURL !== import.meta.env.VITE_API_URL + "api/token/") {
+    if (error.status == 401 && error.request.responseURL !== import.meta.env.VITE_API_URL + "api/token/") {
       localStorage.clear();
       window.location.href = '/login';
     }
