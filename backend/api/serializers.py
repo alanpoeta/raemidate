@@ -167,7 +167,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             
             today = date.today()
             birth_date = date.fromisoformat(data.pop("birth_date", None))
-            print(birth_date)
             age = (today.year - birth_date.year) - ((today.month, today.day) < (birth_date.month, birth_date.day))
             data["age"] = age
         return data
