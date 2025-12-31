@@ -12,6 +12,18 @@ const ProfileCard = ({ profile }) => {
   const nextPhoto = () => setIPhoto(i => (i + 1 + nPhotos) % nPhotos);
   const prevPhoto = () => setIPhoto(i => (i - 1 + nPhotos) % nPhotos);
 
+  const getAge = (dateString) => {
+    if (!dateString) return "";
+    const today = new Date();
+    const birthDate = new Date(dateString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   return (
     <div className="relative w-full h-full bg-black sm:rounded-xl overflow-hidden shadow-lg select-none">
       {/* Photo Layer */}
@@ -51,7 +63,7 @@ const ProfileCard = ({ profile }) => {
         <div className="text-white mb-16">
           <div className="flex items-baseline gap-2 mb-1">
             <h2 className="text-3xl font-bold">{profile.first_name} {profile.last_name}</h2>
-            <span className="text-xl font-medium opacity-90">{profile.age}</span>
+            <span className="text-xl font-medium opacity-90">{profile.age ?? getAge(profile.birth_date)}</span>
           </div>
           
           <div className="text-sm font-medium opacity-80 mb-2">
