@@ -83,13 +83,7 @@ class Profile(models.Model):
     )
 
     def get_elo_change(self, swiper_elo, direction):
-        if self.swiped_on_count < 25:
-            k_factor = 40
-        elif self.swiped_on_count < 100:
-            k_factor = 20
-        else:
-            k_factor = 10
-        
+        k_factor = 48 if self.swiped_on_count < 30 else 24
         expected_score = 1 / (1 + 10**((swiper_elo - self.elo)/400))
         actual_score = 1 if direction == "right" else 0
         elo_change = round(k_factor * (actual_score - expected_score))
