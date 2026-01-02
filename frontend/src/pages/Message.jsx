@@ -134,6 +134,28 @@ const Message = ({ recipientId, navigate }) => {
     </div>
   );
 
+  // 1. Helper to format the display
+  const formatMessageDate = (messageDate) => {
+    const date = new Date(messageDate);
+    const now = new Date();
+    
+    // Check if it's the same day, month, and year
+    const isThisYear = date.getFullYear() === now.getFullYear();
+    const isToday = date.getDate() === now.getDate() &&
+                    date.getMonth() === now.getMonth() &&
+                    isThisYear;
+    
+
+    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    if (isToday) {
+      return timeString;
+    } else {
+      const dateString = date.toLocaleDateString([], { ...(isThisYear ? {} : { year: 'numeric' }), month: 'short', day: 'numeric' });
+      return `${dateString}, ${timeString}`;
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-white relative">
       {/* Header */}
@@ -205,9 +227,6 @@ const Message = ({ recipientId, navigate }) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
         {(messagesQuery.data || []).map(({ sender, text, created_at }, i) => {
           const isMe = sender !== recipientId;
-          // Basic time formatting
-          const time = new Date(created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          
           return (
             <div key={i} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
               <div 
@@ -219,7 +238,7 @@ const Message = ({ recipientId, navigate }) => {
               >
                 {text}
               </div>
-              <span className="text-[10px] text-gray-400 mt-1 px-1">{time}</span>
+              <span className="text-[10px] text-gray-400 mt-1 px-1">{formatMessageDate(created_at)}</span>
             </div>
           );
         })}
