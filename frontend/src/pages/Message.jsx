@@ -93,30 +93,44 @@ const Message = ({ recipientId, navigate }) => {
   if (isLoading) return <Loading />;
   
   if (showReport) return (
-    <div className="p-6">
-      <h4 className="text-xl font-bold mb-4">Report Conversation</h4>
-      <p className="text-gray-600 mb-4 text-sm">Select a reason. All messages will be reviewed.</p>
-      <select 
-        value={reason} 
-        onChange={e => setReason(e.target.value)}
-        className="w-full p-3 border rounded-lg mb-6"
-      >
-        <option value="">-- Select Reason --</option>
-        {reportReasons.map(r => <option key={r} value={r}>{r}</option>)}
-      </select>
-      <button
-        disabled={!reason || reportMutation.isPending}
-        onClick={() => reportMutation.mutate()}
-        className="w-full py-3 bg-red-500 text-white rounded-xl font-bold mb-3 disabled:opacity-50"
-      >
-        {reportMutation.isPending ? "Reporting" : "Confirm Report"}
-      </button>
-      <button
-        onClick={() => { setShowReport(false); setReason(""); }}
-        className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-bold"
-      >
-        Cancel
-      </button>
+    <div className="absolute inset-0 bg-white z-50 flex flex-col p-6 animate-fade-in">
+      <h4 className="text-xl font-bold mb-2 text-gray-800">Report Conversation</h4>
+      <p className="text-gray-600 mb-6 text-sm">Select a reason. All messages will be reviewed by staff.</p>
+      
+      <div className="flex-1">
+        {reportReasons.map(r => (
+          <label key={r} className="flex items-center gap-3 p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50">
+            <input 
+              type="radio" 
+              name="reportReason" 
+              value={r} 
+              checked={reason === r}
+              onChange={e => setReason(e.target.value)}
+              className="text-primary focus:ring-primary"
+            />
+            <span className="text-gray-700">{r}</span>
+          </label>
+        ))}
+      </div>
+
+      <div className="mt-auto flex gap-3">
+        <button
+          onClick={() => {
+            setShowReport(false);
+            setReason("");
+          }}
+          className="flex-1 py-3 px-4 rounded-lg bg-gray-100 text-gray-700 font-semibold"
+        >
+          Cancel
+        </button>
+        <button
+          disabled={!reason || reportMutation.isPending}
+          onClick={() => reportMutation.mutate()}
+          className="flex-1 py-3 px-4 rounded-lg bg-red-500 text-white font-semibold disabled:opacity-50"
+        >
+          {reportMutation.isPending ? 'Reporting...' : 'Confirm Report'}
+        </button>
+      </div>
     </div>
   );
 
