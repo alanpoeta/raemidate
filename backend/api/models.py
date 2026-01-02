@@ -45,6 +45,7 @@ class User(AbstractUser):
     
     def ban(self):
         BannedEmail.objects.get_or_create(email_hash=utils.hash_with_salt(self.email))
+        self.delete()
 
     @property
     def has_profile(self):
