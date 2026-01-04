@@ -16,7 +16,7 @@ Create a file named `.env` and define the required variables as shown in `.env.e
 
 In `backend/core/settings.py`, find the `DEPLOY` variable definition and set it to `False`.
 
-Next run the following commands in the terminal for Windows:
+Next run the following commands in the terminal for Windows. If your computer asks to install "Command Line Developer Tools", click **Install** and wait for it to finish:
 ```bash
 cd backend
 python -m venv venv
