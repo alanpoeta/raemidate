@@ -28,8 +28,9 @@ SECURED_FIELDS_KEY = os.environ["SECURED_FIELDS_KEY"]
 SECURED_FIELDS_HASH_SALT = os.environ["SECURED_FIELDS_HASH_SALT"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 DEPLOY = True
+DEBUG = not DEPLOY
+SMTP_EMAIL_BACKEND = DEPLOY
 
 
 def domain_from_url(url):
@@ -199,18 +200,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ASGI_APPLICATION = "core.asgi.application"
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": (
+            "channels_redis.core.RedisChannelLayer" if DEPLOY
+            else "channels.layers.InMemoryChannelLayer"
+        ),
         "CONFIG": {
             "hosts": [
                 os.environ["REDIS_URL"] if DEPLOY
                 else ("127.0.0.1", 6379)
             ],
-        },
+        } if DEPLOY else {},
     },
 }
 
 EMAIL_BACKEND = (
-    'django.core.mail.backends.smtp.EmailBackend' if DEPLOY
+    'django.core.mail.backends.smtp.EmailBackend' if SMTP_EMAIL_BACKEND
     else 'django.core.mail.backends.console.EmailBackend'
 )
 EMAIL_HOST = 'smtp.gmail.com'
