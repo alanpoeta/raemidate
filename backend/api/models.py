@@ -266,21 +266,3 @@ def notify_on_unmatch(sender, instance, **kwargs):
             )
     except Profile.DoesNotExist:
         pass
-
-
-@receiver(signals.post_save, sender=User)
-def send_verification_email(sender, instance, created, **kwargs):
-    if created and not instance.is_email_verified:
-        instance.regenerate_verification_token(token_type='email')
-        verification_url = f"{os.environ["FRONTEND_URL"]}/verify-email/{instance.verification_token}"
-        send_mail(
-            subject="Verify your email",
-            message=(
-                "Someone is trying to create a Rämidate account with this email address.\n"
-                f"If this is you, click the link to verify your email address: {verification_url}\n"
-                "If this wasn't you, please disregard this email. No further action is needed."
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[instance.email],
-            fail_silently=False,
-        )

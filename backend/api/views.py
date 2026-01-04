@@ -29,6 +29,22 @@ class UserView(generics.CreateAPIView, generics.RetrieveDestroyAPIView):
     def get_permissions(self):
         return [IsAuthenticated()] if self.request.method in ['DELETE', 'GET'] else []
 
+    def perform_create(self, serializer):
+        user = serializer.save()
+        user.regenerate_verification_token(token_type='email')
+        verification_url = f"{os.environ["FRONTEND_URL"]}/verify-email/{user.verification_token}"
+        send_mail(
+            subject="Verify your email",
+            message=(
+                "Someone is trying to create a Rämidate account with this email address.\n"
+                f"If this is you, click the link to verify your email address: {verification_url}\n"
+                "If this wasn't you, please disregard this email. No further action is needed."
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
 
 class ProfileView(generics.RetrieveUpdateAPIView, generics.CreateAPIView):
     queryset = models.Profile.objects.all()
