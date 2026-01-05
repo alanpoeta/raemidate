@@ -73,6 +73,6 @@ path. Locally, sent emails are shown in the console.
 1. Go to My [Google Account](https://myaccount.google.com)
 2. Search for "App passwords", create one and copy paste it.
 3. In `backend/.env`, set `EMAIL_HOST_USER` to the chosen `@gmail.com` address and `EMAIL_HOST_PASSWORD` to the copied app password.
-4. In `backend/core/settings.py`, find the `SMTP_EMAIL` variable definition and set it to `True`.
+4. In `backend/core/settings.py`, find the `SMTP_EMAIL_BACKEND` variable definition and set it to `True`.
 
 Emails will now be sent from the chosen email address.
